@@ -2617,3 +2617,161 @@ console.log('火炬之光无限计算器已加载完成！');
 console.log('快捷键：Ctrl+Enter 执行计算，Ctrl+S 导出数据');
 console.log('高塔系统功能已启用！');
 console.log('数据持久化功能已启用！');
+
+// 主题切换功能
+class ThemeManager {
+    constructor() {
+        this.currentTheme = localStorage.getItem('torch-calculator-theme') || 'light';
+        this.themeSwitch = null;
+        this.init();
+    }
+
+    init() {
+        // 等待DOM加载完成后初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.setupThemeToggle());
+        } else {
+            this.setupThemeToggle();
+        }
+        
+        // 应用保存的主题
+        this.applyTheme(this.currentTheme);
+    }
+
+    setupThemeToggle() {
+        this.themeSwitch = document.getElementById('theme-switch');
+        if (!this.themeSwitch) {
+            console.warn('主题切换开关未找到');
+            return;
+        }
+
+        // 设置初始状态
+        this.themeSwitch.checked = this.currentTheme === 'dark';
+
+        // 添加事件监听器
+        this.themeSwitch.addEventListener('change', (e) => {
+            const newTheme = e.target.checked ? 'dark' : 'light';
+            this.switchTheme(newTheme);
+        });
+
+        console.log('主题切换功能已初始化');
+    }
+
+    switchTheme(theme) {
+        this.currentTheme = theme;
+        this.applyTheme(theme);
+        this.saveTheme(theme);
+        
+        // 显示切换通知
+        const themeText = theme === 'dark' ? '深色模式' : '浅色模式';
+        if (typeof showNotification === 'function') {
+            showNotification(`已切换到${themeText}`, 'success');
+        }
+    }
+
+    applyTheme(theme) {
+        const html = document.documentElement;
+        if (theme === 'dark') {
+            html.setAttribute('data-theme', 'dark');
+        } else {
+            html.removeAttribute('data-theme');
+        }
+    }
+
+    saveTheme(theme) {
+        localStorage.setItem('torch-calculator-theme', theme);
+    }
+
+    getCurrentTheme() {
+        return this.currentTheme;
+    }
+
+    // 检测系统主题偏好
+    detectSystemTheme() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+        return 'light';
+    }
+
+    // 监听系统主题变化
+    watchSystemTheme() {
+        if (window.matchMedia) {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addEventListener('change', (e) => {
+                if (!localStorage.getItem('torch-calculator-theme')) {
+                    const systemTheme = e.matches ? 'dark' : 'light';
+                    this.switchTheme(systemTheme);
+                    if (this.themeSwitch) {
+                        this.themeSwitch.checked = systemTheme === 'dark';
+                    }
+                }
+            });
+        }
+    }
+}
+
+// 初始化主题管理器
+const themeManager = new ThemeManager();
+
+// 启用系统主题监听
+themeManager.watchSystemTheme();
+
+console.log('主题切换功能已启用！');
+
+// 侧边栏折叠功能
+class SidebarManager {
+    constructor() {
+        this.sidebar = document.querySelector('.sidebar');
+        this.toggleButton = document.getElementById('sidebar-toggle');
+        this.isCollapsed = false;
+        this.init();
+    }
+
+    init() {
+        // 从本地存储加载折叠状态
+        const savedState = localStorage.getItem('torch-calculator-sidebar-collapsed');
+        if (savedState === 'true') {
+            this.toggleSidebar(false); // false表示不保存状态，因为是从存储加载
+        }
+
+        // 设置点击事件
+        if (this.toggleButton) {
+            this.toggleButton.addEventListener('click', () => {
+                this.toggleSidebar(true); // true表示保存状态
+            });
+        }
+    }
+
+    toggleSidebar(saveState = true) {
+        if (!this.sidebar) return;
+
+        this.isCollapsed = !this.isCollapsed;
+        
+        if (this.isCollapsed) {
+            this.sidebar.classList.add('collapsed');
+        } else {
+            this.sidebar.classList.remove('collapsed');
+        }
+
+        // 保存状态到本地存储
+        if (saveState) {
+            localStorage.setItem('torch-calculator-sidebar-collapsed', this.isCollapsed.toString());
+        }
+
+        // 触发窗口resize事件，以便其他组件可以响应布局变化
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    getSidebarState() {
+        return {
+            isCollapsed: this.isCollapsed,
+            width: this.isCollapsed ? 70 : 200
+        };
+    }
+}
+
+// 初始化侧边栏管理器
+const sidebarManager = new SidebarManager();
+
+console.log('侧边栏折叠功能已启用！');

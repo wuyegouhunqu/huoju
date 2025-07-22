@@ -14,34 +14,56 @@
         <nav class="sidebar">
             <div class="logo">
                 <i class="fas fa-fire"></i>
-                <span>火炬计算器</span>
+                <span class="logo-text">火炬计算器</span>
             </div>
+            
             <ul class="nav-menu">
                 <li class="nav-item active" data-tab="crafting">
                     <img src="./页签/打造系统.png" alt="打造系统" class="nav-icon">
-                    <span>打造系统</span>
+                    <span class="nav-text">打造系统</span>
                 </li>
                 <li class="nav-item" data-tab="damage">
                     <img src="./页签/伤害系统.png" alt="伤害系统" class="nav-icon">
-                    <span>伤害系统</span>
+                    <span class="nav-text">伤害系统</span>
                 </li>
                 <li class="nav-item" data-tab="dream">
                     <img src="./页签/解梦系统.png" alt="解梦系统" class="nav-icon">
-                    <span>解梦系统</span>
+                    <span class="nav-text">解梦系统</span>
                 </li>
                 <li class="nav-item" data-tab="seal">
                     <img src="./页签/封印系统.png" alt="封印系统" class="nav-icon">
-                    <span>封印系统</span>
+                    <span class="nav-text">封印系统</span>
                 </li>
                 <li class="nav-item" data-tab="skill">
                     <img src="./页签/技能系统.png" alt="技能系统" class="nav-icon">
-                    <span>技能系统</span>
+                    <span class="nav-text">技能系统</span>
                 </li>
                 <li class="nav-item" data-tab="tower">
                     <img src="./页签/高塔系统.png" alt="高塔系统" class="nav-icon">
-                    <span>高塔系统</span>
+                    <span class="nav-text">高塔系统</span>
                 </li>
             </ul>
+            
+            <!-- 底部控制区域 -->
+            <div class="sidebar-controls">
+                <!-- 主题切换开关 -->
+                <div class="theme-toggle-container">
+                    <div class="theme-toggle">
+                        <input type="checkbox" id="theme-switch" class="theme-switch">
+                        <label for="theme-switch" class="theme-label">
+                            <i class="fas fa-sun theme-icon light-icon"></i>
+                            <i class="fas fa-moon theme-icon dark-icon"></i>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <span class="theme-text nav-text">深色模式</span>
+                </div>
+                
+                <!-- 折叠按钮 -->
+                <button class="sidebar-toggle" id="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
         </nav>
 
         <!-- 主内容区域 -->
