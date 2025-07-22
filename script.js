@@ -1183,7 +1183,9 @@ function calculateDreamCost() {
     
     // 计算解梦成本
     // 公式：（需要解梦的词缀权重/该装备所有解梦词缀权重总和）*（对应解梦材料价格*需要消耗的材料数量）
-    const probability = selectedAffix.weight / totalWeight;
+    // 注意：每次解梦会给出3个词缀选项，所以获得想要词缀的几率要乘以3
+    const baseProbability = selectedAffix.weight / totalWeight;
+    const probability = baseProbability * 3; // 每次解梦给出3个选项
     const totalCost = (materialPrice * materialCount) / probability;
     
     // 显示结果
