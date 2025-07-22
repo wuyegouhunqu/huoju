@@ -1,0 +1,85 @@
+{
+  "magic_seal_calculation": {
+    "basic_parameters": {
+      "base_seal": 0.5,
+      "law_of_self": 35,
+      "selfish_penalty": -16,
+      "time_space_1_modifier": 0.35
+    },
+    "grade_tables": {
+      "precise_throttle": {
+        "20": -50.5,
+        "21": -50,
+        "22": -49.75,
+        "23": -49.5,
+        "24": -49.25,
+        "25": -49,
+        "26": -48.75,
+        "27": -48.5,
+        "28": -48.25,
+        "29": -48,
+        "30": -47.75,
+        "31": -47.5
+      },
+      "throttle": {
+        "20": -65.25,
+        "21": -65,
+        "22": -64.25,
+        "23": -63.5,
+        "24": -62.75,
+        "25": -62,
+        "26": -61.25,
+        "27": -60.5,
+        "28": -59.75,
+        "29": -59,
+        "30": -58.25,
+        "31": -57.5
+      }
+    },
+    "halo_configurations": [
+      {
+        "position": 1,
+        "seal_type": "mana",
+        "basic_modifier": 0.5,
+        "pathfinder_slot_modifier": -0.16,
+        "conversion_rate": 0.125
+      },
+      {
+        "position": 2,
+        "seal_type": "mana",
+        "basic_modifier": 0.5,
+        "pathfinder_slot_modifier": 0.4286875,
+        "conversion_rate": 0.832402912621359
+      },
+      {
+        "position": 3,
+        "seal_type": "health",
+        "basic_modifier": 0.5,
+        "pathfinder_slot_modifier": 0.485,
+        "conversion_rate": 0.832402912621359
+      },
+      {
+        "position": 4,
+        "seal_type": "health",
+        "basic_modifier": 0.5,
+        "pathfinder_slot_modifier": 0.485,
+        "conversion_rate": 0.832402912621359
+      }
+    ],
+    "calculation_rules": {
+      "formula": "(基础封印 * (1 + 总魔力封印补偿 + 其他封印补偿) + 节流补偿 + 律己补偿 + 独辟蹊径孔位补偿) * 封印转化率",
+      "definitions": {
+        "魔力封印补偿": "仅计算装备直接提供的魔力封印词条",
+        "其他封印补偿": "包含加持补偿、坚固补偿等未在表格列出的所有补偿之和",
+        "独辟蹊径孔位": "需根据实际连接的辅助技能数量计算",
+        "封印转化": "血量封印计算时需额外填写转化率"
+      },
+      "special_rules": [
+        "光环1/2仅计算蓝量封印",
+        "光环3/4可切换计算血量封印",
+        "自私/无私选择影响固定补偿值",
+        "精密节流和普通节流使用不同的等级表"
+      ]
+    }
+  }
+}

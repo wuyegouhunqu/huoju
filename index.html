@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火炬之光无限 - 计算辅助工具</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏导航 -->
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-fire"></i>
+                <span>火炬计算器</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-tab="crafting">
+                    <img src="./页签/打造系统.png" alt="打造系统" class="nav-icon">
+                    <span>打造系统</span>
+                </li>
+                <li class="nav-item" data-tab="damage">
+                    <img src="./页签/伤害系统.png" alt="伤害系统" class="nav-icon">
+                    <span>伤害系统</span>
+                </li>
+                <li class="nav-item" data-tab="dream">
+                    <img src="./页签/解梦系统.png" alt="解梦系统" class="nav-icon">
+                    <span>解梦系统</span>
+                </li>
+                <li class="nav-item" data-tab="seal">
+                    <img src="./页签/封印系统.png" alt="封印系统" class="nav-icon">
+                    <span>封印系统</span>
+                </li>
+                <li class="nav-item" data-tab="skill">
+                    <img src="./页签/技能系统.png" alt="技能系统" class="nav-icon">
+                    <span>技能系统</span>
+                </li>
+                <li class="nav-item" data-tab="tower">
+                    <img src="./页签/高塔系统.png" alt="高塔系统" class="nav-icon">
+                    <span>高塔系统</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <!-- 打造系统 -->
+            <div class="tab-content active" id="crafting">
+                <div class="content-header">
+                    <h1><i class="fas fa-hammer"></i> 打造系统</h1>
+                </div>
+                
+                <div class="modules-grid">
+                    <!-- 装备参数模块 -->
+                    <div class="module-card">
+                        <h3><i class="fas fa-cog"></i> 装备参数</h3>
+                        <div class="equipment-params-row">
+                            <div class="form-group">
+                                <label>装备类型</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="weapon-type" value="single" checked>
+                                        <span class="radio-custom"></span>
+                                        单手
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="weapon-type" value="double">
+                                        <span class="radio-custom"></span>
+                                        双手
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>装备等级</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="equipment-level" value="82" checked>
+                                        <span class="radio-custom"></span>
+                                        82级
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="equipment-level" value="86">
+                                        <span class="radio-custom"></span>
+                                        86级
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="equipment-level" value="100">
+                                        <span class="radio-custom"></span>
+                                        100级
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 词缀选择模块 -->
+                    <div class="module-card">
+                        <h3><i class="fas fa-magic"></i> 词缀选择</h3>
+                        <div class="affix-grid">
+                            <div class="affix-category">
+                                <h4>基础词缀</h4>
+                                <div class="affix-row">
+                                    <label>基础</label>
+                                    <select class="affix-select">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                    </select>
+                                </div>
+                                <div class="affix-row">
+                                    <label>基础T0</label>
+                                    <select class="affix-select">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                    </select>
+                                </div>
+                                <div class="affix-row">
+                                    <label>基础升T0</label>
+                                    <select class="affix-select">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="affix-category">
+                                <h4>进阶词缀</h4>
+                                <div class="affix-row">
+                                    <label>进阶</label>
+                                    <select class="affix-select">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                    </select>
+                                </div>
+                                <div class="affix-row">
+                                    <label>进阶T0</label>
+                                    <select class="affix-select">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                    </select>
+                                </div>
+                                <div class="affix-row">
+                                    <label>进阶升T0</label>
+                                    <select class="affix-select">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="affix-category">
+                                <h4>至臻词缀</h4>
+                                <div class="affix-row">
+                                    <label>至臻</label>
+                                    <select class="affix-select">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                    </select>
+                                </div>
+                                <div class="affix-row">
+                                    <label>至臻T0</label>
+                                    <select class="affix-select">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                    </select>
+                                </div>
+                                <div class="affix-row">
+                                    <label>至臻升T0</label>
+                                    <select class="affix-select">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 材料价格模块 -->
+                    <div class="module-card">
+                        <h3><i class="fas fa-coins"></i> 材料价格 <span class="unit">(初火源质)</span></h3>
+                        <div class="material-grid">
+                            <div class="material-item">
+                                <label>灵砂</label>
+                                <input type="number" class="material-input material-price" id="lingsha-price" placeholder="价格" min="0" step="0.01">
+                            </div>
+                            <div class="material-item">
+                                <label>珍贵灰烬</label>
+                                <input type="number" class="material-input material-price" id="zhengui-price" placeholder="价格" min="0" step="0.01">
+                            </div>
+                            <div class="material-item">
+                                <label>稀世灰烬</label>
+                                <input type="number" class="material-input material-price" id="xishi-price" placeholder="价格" min="0" step="0.01">
+                            </div>
+                            <div class="material-item">
+                                <label>至臻灰烬</label>
+                                <input type="number" class="material-input material-price" id="zhizhen-price" placeholder="价格" min="0" step="0.01">
+                            </div>
+                            <div class="material-item">
+                                <label>神圣化石</label>
+                                <input type="number" class="material-input material-price" id="shensheng-price" placeholder="价格" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 计算结果模块 -->
+                    <div class="module-card result-card">
+                        <div class="calculate-section">
+                            <button class="calculate-btn" onclick="calculateCraftingCost()">
+                                <i class="fas fa-calculator"></i>
+                                计算成本
+                            </button>
+                        </div>
+                        <div class="result-display">
+                            <h3><i class="fas fa-chart-line"></i> 总成本</h3>
+                            <div class="result-value" id="crafting-result">0 初火源质</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 伤害系统 -->
+            <div class="tab-content" id="damage">
+                <div class="content-header">
+                    <h1><i class="fas fa-sword"></i> 伤害系统</h1>
+                </div>
+                
+                <div class="modules-grid">
+                    <!-- 减伤计算模块 -->
+                    <div class="module-card">
+                        <h3><i class="fas fa-shield-alt"></i> 减伤计算</h3>
+                        <div class="damage-reduction-grid">
+                            <div class="dr-header">
+                                <span>序号</span>
+                                <span>计算方式</span>
+                                <span>层数</span>
+                                <span>每层减伤(%)</span>
+                            </div>
+                            <div class="dr-row" data-row="1">
+                                <span class="dr-number">1</span>
+                                <select class="dr-method">
+                                    <option value="additive">加法</option>
+                                    <option value="multiply">叠乘</option>
+                                </select>
+                                <input type="number" class="dr-layers" value="0" min="0">
+                                <input type="number" class="dr-percent" placeholder="0" min="0" max="100" step="0.1">
+                            </div>
+                            <div class="dr-row" data-row="2">
+                                <span class="dr-number">2</span>
+                                <select class="dr-method">
+                                    <option value="additive">加法</option>
+                                    <option value="multiply">叠乘</option>
+                                </select>
+                                <input type="number" class="dr-layers" value="0" min="0">
+                                <input type="number" class="dr-percent" placeholder="0" min="0" max="100" step="0.1">
+                            </div>
+                            <div class="dr-row" data-row="3">
+                                <span class="dr-number">3</span>
+                                <select class="dr-method">
+                                    <option value="additive">加法</option>
+                                    <option value="multiply">叠乘</option>
+                                </select>
+                                <input type="number" class="dr-layers" value="0" min="0">
+                                <input type="number" class="dr-percent" placeholder="0" min="0" max="100" step="0.1">
+                            </div>
+                            <div class="dr-row" data-row="4">
+                                <span class="dr-number">4</span>
+                                <select class="dr-method">
+                                    <option value="additive">加法</option>
+                                    <option value="multiply">叠乘</option>
+                                </select>
+                                <input type="number" class="dr-layers" value="0" min="0">
+                                <input type="number" class="dr-percent" placeholder="0" min="0" max="100" step="0.1">
+                            </div>
+                            <div class="dr-row" data-row="5">
+                                <span class="dr-number">5</span>
+                                <select class="dr-method">
+                                    <option value="additive">加法</option>
+                                    <option value="multiply">叠乘</option>
+                                </select>
+                                <input type="number" class="dr-layers" value="0" min="0">
+                                <input type="number" class="dr-percent" placeholder="0" min="0" max="100" step="0.1">
+                            </div>
+                        </div>
+                        <div class="calculate-section">
+                            <button class="calculate-btn" onclick="calculateDamageReduction()">
+                                <i class="fas fa-calculator"></i>
+                                计算减伤
+                            </button>
+                        </div>
+                        <div class="result-display">
+                            <div class="result-value" id="dr-result">总减伤：0%</div>
+                        </div>
+                    </div>
+
+                    <!-- 增伤和提升计算模块组 -->
+                    <div class="damage-calc-group">
+                        <!-- 叠乘增伤计算模块 -->
+                        <div class="module-card compact-card">
+                            <h3><i class="fas fa-arrow-up"></i> 叠乘增伤计算</h3>
+                            <div class="form-group">
+                                <label>单次增伤(%)</label>
+                                <input type="number" id="single-damage-increase" placeholder="0" min="0" step="0.1" class="number-input">
+                            </div>
+                            <div class="form-group">
+                                <label>叠乘次数</label>
+                                <input type="number" id="multiply-times" value="0" min="0" class="number-input">
+                            </div>
+                            <div class="calculate-section">
+                                <button class="calculate-btn" onclick="calculateMultiplyDamage()">
+                                    <i class="fas fa-calculator"></i>
+                                    计算增伤
+                                </button>
+                            </div>
+                            <div class="result-display">
+                                <div class="result-value" id="multiply-result">总增伤：0%</div>
+                            </div>
+                        </div>
+
+                        <!-- 伤害提升计算模块 -->
+                        <div class="module-card compact-card">
+                            <h3><i class="fas fa-chart-line"></i> 伤害提升计算</h3>
+                            <div class="form-group">
+                                <label>提升前伤害</label>
+                                <input type="number" id="damage-before" placeholder="0" min="0" class="number-input">
+                            </div>
+                            <div class="form-group">
+                                <label>提升后伤害</label>
+                                <input type="number" id="damage-after" placeholder="0" min="0" class="number-input">
+                            </div>
+                            <div class="calculate-section">
+                                <button class="calculate-btn" onclick="calculateDamageImprovement()">
+                                    <i class="fas fa-calculator"></i>
+                                    计算提升伤害
+                                </button>
+                            </div>
+                            <div class="result-display">
+                                <div class="result-value" id="improvement-result">伤害提升：0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 解梦系统 -->
+            <div class="tab-content" id="dream">
+                <div class="content-header">
+                    <h1><i class="fas fa-moon"></i> 解梦系统</h1>
+                </div>
+                
+                <div class="modules-grid">
+                    <!-- 解梦选择模块 -->
+                    <div class="module-card">
+                        <h3><i class="fas fa-magic"></i> 解梦选择</h3>
+                        <div class="dream-selection-grid">
+                            <div class="form-group">
+                                <label>装备部位:</label>
+                                <select id="dream-position" class="dream-select">
+                                    <option value="">请选择装备部位</option>
+                                    <option value="accessory">饰品</option>
+                                    <option value="weapon">武器</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>装备类型:</label>
+                                <select id="dream-type" class="dream-select" disabled>
+                                    <option value="">请先选择装备部位</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>装备等级:</label>
+                                <select id="dream-level" class="dream-select">
+                                    <option value="82">82级</option>
+                                    <option value="86">86级</option>
+                                    <option value="100">100级</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>需求词缀:</label>
+                                <select id="dream-affix" class="dream-select" disabled>
+                                    <option value="">请先选择装备类型</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 材料价格模块 -->
+                    <div class="module-card">
+                        <h3><i class="fas fa-coins"></i> 材料价格 <span class="unit">(初火源质)</span></h3>
+                        <div class="dream-material-grid">
+                            <div class="material-item">
+                                <label>梦语-武器</label>
+                                <input type="number" class="material-input dream-price" id="dream-weapon-price" placeholder="价格" min="0" step="0.01">
+                            </div>
+                            <div class="material-item">
+                                <label>梦语-饰品</label>
+                                <input type="number" class="material-input dream-price" id="dream-accessory-price" placeholder="价格" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 计算结果模块 -->
+                    <div class="module-card result-card">
+                        <div class="calculate-section">
+                            <button class="calculate-btn" onclick="calculateDreamCost()">
+                                <i class="fas fa-calculator"></i>
+                                计算解梦成本
+                            </button>
+                        </div>
+                        <div class="result-display">
+                            <h3><i class="fas fa-chart-line"></i> 解梦成本</h3>
+                            <div class="result-value" id="dream-result">0 初火源质</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 技能系统 -->
+            <div class="tab-content" id="skill">
+                <div class="content-header">
+                    <h1><i class="fas fa-magic"></i> 技能系统</h1>
+                </div>
+                
+                <div class="modules-grid">
+                    <!-- 技能信息与材料价格模块 -->
+                    <div class="module-card">
+                        <h3><i class="fas fa-star"></i> 技能信息</h3>
+                        <div class="skill-info-section">
+                            <div class="form-group">
+                                <label for="current-level">当前等级:</label>
+                                <select id="current-level" class="affix-select">
+                                    <option value="1">1级</option>
+                                    <option value="2">2级</option>
+                                    <option value="3">3级</option>
+                                    <option value="4">4级</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="target-level">目标等级:</label>
+                                <select id="target-level" class="affix-select">
+                                    <option value="2">2级</option>
+                                    <option value="3">3级</option>
+                                    <option value="4">4级</option>
+                                    <option value="5">5级</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <h3><i class="fas fa-coins"></i> 材料价格 <span class="unit">(初火源质)</span></h3>
+                        <div class="skill-material-grid">
+                            <div class="material-row">
+                                <label>灵感素价格</label>
+                                <input type="number" class="material-input material-price" id="inspiration-price" placeholder="价格" min="0" step="0.01">
+                            </div>
+                            <div class="material-row">
+                                <label>T0材料</label>
+                                <div class="quantity-input-container">
+                                    <input type="number" class="material-input material-quantity" id="t0-quantity" placeholder="数量" min="0" step="1" value="0">
+                                    <div class="quantity-buttons">
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('t0-quantity', 1)">▲</button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('t0-quantity', -1)">▼</button>
+                                    </div>
+                                </div>
+                                <input type="number" class="material-input material-price" id="t0-price" placeholder="价格" min="0" step="0.01">
+                            </div>
+                            <div class="material-row">
+                                <label>T1材料</label>
+                                <div class="quantity-input-container">
+                                    <input type="number" class="material-input material-quantity" id="t1-quantity" placeholder="数量" min="0" step="1" value="0">
+                                    <div class="quantity-buttons">
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('t1-quantity', 1)">▲</button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('t1-quantity', -1)">▼</button>
+                                    </div>
+                                </div>
+                                <input type="number" class="material-input material-price" id="t1-price" placeholder="价格" min="0" step="0.01">
+                            </div>
+                            <div class="material-row">
+                                <label>T2材料</label>
+                                <div class="quantity-input-container">
+                                    <input type="number" class="material-input material-quantity" id="t2-quantity" placeholder="数量" min="0" step="1" value="0">
+                                    <div class="quantity-buttons">
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('t2-quantity', 1)">▲</button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('t2-quantity', -1)">▼</button>
+                                    </div>
+                                </div>
+                                <input type="number" class="material-input material-price" id="t2-price" placeholder="价格" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 计算结果模块 -->
+                    <div class="module-card result-card">
+                        <div class="calculate-section">
+                            <button class="calculate-btn" onclick="calculateSkillUpgrade()">
+                                <i class="fas fa-calculator"></i>
+                                计算升级成本
+                            </button>
+                        </div>
+                        <div class="result-display">
+                            <h3><i class="fas fa-chart-line"></i> 升级成本</h3>
+                            <div class="skill-result-grid">
+                                <div class="result-item">
+                                    <span class="result-label">所需总经验:</span>
+                                    <span class="result-value" id="total-exp-needed">0</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">当前提供经验:</span>
+                                    <span class="result-value" id="current-exp-provided">0</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">所需灵感素:</span>
+                                    <span class="result-value" id="inspiration-needed">0</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">总成本:</span>
+                                    <span class="result-value" id="total-cost">0 初火源质</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 封印系统 -->
+            <div class="tab-content" id="seal">
+                <div class="content-header">
+                    <h1><i class="fas fa-shield-alt"></i> 封印系统</h1>
+                    <div class="system-notice">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>【提醒：计算结果99%准确，参考众多数据依旧无法解决0.1%-0.5%的误差】</span>
+                    </div>
+                </div>
+                
+                <div class="modules-grid">
+                    <!-- 光环配置模块 -->
+                    <div class="module-card">
+                        <h3><i class="fas fa-magic"></i> 光环配置</h3>
+                        
+                        <!-- 全局参数 -->
+                        <div class="seal-global-params">
+                            <h4><i class="fas fa-cog"></i> 全局参数</h4>
+                            <div class="form-group">
+                                <label>装备封印补偿 (%):</label>
+                                <input type="number" class="number-input" id="equipment-seal-compensation" placeholder="0" min="0" step="0.1" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>其他来源封印补偿 (%):</label>
+                                <input type="number" class="number-input" id="other-seal-compensation" placeholder="0" min="0" step="0.1" value="0">
+                            </div>
+                        </div>
+                        
+                        <!-- 光环标签页 -->
+                        <div class="seal-halo-tabs">
+                            <button class="seal-halo-tab active" data-halo="1">光环1</button>
+                            <button class="seal-halo-tab" data-halo="2">光环2</button>
+                            <button class="seal-halo-tab" data-halo="3">光环3</button>
+                            <button class="seal-halo-tab" data-halo="4">光环4</button>
+                        </div>
+                        
+                        <!-- 光环配置内容 -->
+                        <div class="seal-halo-content">
+                            <!-- 光环1 -->
+                            <div class="seal-halo-panel active" id="seal-halo-1">
+                                <div class="seal-halo-config">
+                                    <!-- 基础参数行 -->
+                                    <div class="seal-basic-params">
+                                        <div class="form-group">
+                                            <label>基础封印 (%):</label>
+                                            <input type="number" class="number-input" id="base-seal-1" placeholder="0" min="0" step="0.1" value="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>封印类型:</label>
+                                            <select class="dream-select" id="seal-type-1">
+                                                <option value="mana">魔力封印</option>
+                                                <option value="life">生命封印</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>独辟蹊径空位:</label>
+                                            <select class="dream-select" id="pathfinder-slots-1">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group conversion-group" id="conversion-group-1" style="display: none;">
+                                        <label>封印转化魔力封印补偿:</label>
+                                        <div class="conversion-controls">
+                                            <select class="dream-select" id="conversion-skill-1">
+                                                <option value="">请选择</option>
+                                                <option value="seal-conversion">封印转化</option>
+                                                <option value="precise-seal-conversion">精密 封印转化</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="conversion-level-1" placeholder="等级" min="1" max="40" step="1" value="1">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('conversion-level-1', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('conversion-level-1', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="seal-support-skills">
+                                        <div class="form-group">
+                                            <label>辅助技能1:</label>
+                                            <select class="dream-select" id="support-skill-1-1">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-1-1" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-1-1', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-1-1', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>辅助技能2:</label>
+                                            <select class="dream-select" id="support-skill-1-2">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-1-2" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-1-2', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-1-2', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>辅助技能3:</label>
+                                            <select class="dream-select" id="support-skill-1-3">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-1-3" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-1-3', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-1-3', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>辅助技能4:</label>
+                                            <select class="dream-select" id="support-skill-1-4">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-1-4" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-1-4', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-1-4', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="seal-result">
+                                        <span class="result-label">计算结果:</span>
+                                        <span class="result-value" id="halo-result-1">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 光环2 -->
+                            <div class="seal-halo-panel" id="seal-halo-2">
+                                <div class="seal-halo-config">
+                                    <!-- 基础参数行 -->
+                                    <div class="seal-basic-params">
+                                        <div class="form-group">
+                                            <label>基础封印 (%):</label>
+                                            <input type="number" class="number-input" id="base-seal-2" placeholder="0" min="0" step="0.1" value="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>封印类型:</label>
+                                            <select class="dream-select" id="seal-type-2">
+                                                <option value="mana">魔力封印</option>
+                                                <option value="life">生命封印</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>独辟蹊径空位:</label>
+                                            <select class="dream-select" id="pathfinder-slots-2">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group conversion-group" id="conversion-group-2" style="display: none;">
+                                        <label>封印转化魔力封印补偿:</label>
+                                        <div class="conversion-controls">
+                                            <select class="dream-select" id="conversion-skill-2">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="conversion-level-2" placeholder="等级" min="1" max="40" step="1" value="1">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('conversion-level-2', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('conversion-level-2', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="seal-support-skills">
+                                        <div class="form-group">
+                                            <label>辅助技能1:</label>
+                                            <select class="dream-select" id="support-skill-2-1">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-2-1" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-2-1', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-2-1', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>辅助技能2:</label>
+                                            <select class="dream-select" id="support-skill-2-2">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-2-2" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-2-2', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-2-2', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>辅助技能3:</label>
+                                            <select class="dream-select" id="support-skill-2-3">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-2-3" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-2-3', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-2-3', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>辅助技能4:</label>
+                                            <select class="dream-select" id="support-skill-2-4">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-2-4" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-2-4', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-2-4', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="seal-result">
+                                        <span class="result-label">计算结果:</span>
+                                        <span class="result-value" id="halo-result-2">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 光环3 -->
+                            <div class="seal-halo-panel" id="seal-halo-3">
+                                <div class="seal-halo-config">
+                                    <!-- 基础参数行 -->
+                                    <div class="seal-basic-params">
+                                        <div class="form-group">
+                                            <label>基础封印 (%):</label>
+                                            <input type="number" class="number-input" id="base-seal-3" placeholder="0" min="0" step="0.1" value="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>封印类型:</label>
+                                            <select class="dream-select" id="seal-type-3">
+                                                <option value="mana">魔力封印</option>
+                                                <option value="life">生命封印</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>独辟蹊径空位:</label>
+                                            <select class="dream-select" id="pathfinder-slots-3">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group conversion-group" id="conversion-group-3" style="display: none;">
+                                        <label>封印转化魔力封印补偿:</label>
+                                        <div class="conversion-controls">
+                                            <select class="dream-select" id="conversion-skill-3">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="conversion-level-3" placeholder="等级" min="1" max="40" step="1" value="1">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('conversion-level-3', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('conversion-level-3', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="seal-support-skills">
+                                        <div class="form-group">
+                                            <label>辅助技能1:</label>
+                                            <select class="dream-select" id="support-skill-3-1">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-3-1" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-3-1', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-3-1', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>辅助技能2:</label>
+                                            <select class="dream-select" id="support-skill-3-2">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-3-2" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-3-2', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-3-2', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>辅助技能3:</label>
+                                            <select class="dream-select" id="support-skill-3-3">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-3-3" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-3-3', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-3-3', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>辅助技能4:</label>
+                                            <select class="dream-select" id="support-skill-3-4">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-3-4" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-3-4', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-3-4', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="seal-result">
+                                        <span class="result-label">计算结果:</span>
+                                        <span class="result-value" id="halo-result-3">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 光环4 -->
+                            <div class="seal-halo-panel" id="seal-halo-4">
+                                <div class="seal-halo-config">
+                                    <!-- 基础参数行 -->
+                                    <div class="seal-basic-params">
+                                        <div class="form-group">
+                                            <label>基础封印 (%):</label>
+                                            <input type="number" class="number-input" id="base-seal-4" placeholder="0" min="0" step="0.1" value="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>封印类型:</label>
+                                            <select class="dream-select" id="seal-type-4">
+                                                <option value="mana">魔力封印</option>
+                                                <option value="life">生命封印</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>独辟蹊径空位:</label>
+                                            <select class="dream-select" id="pathfinder-slots-4">
+                                                <option value="0">0</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group conversion-group" id="conversion-group-4" style="display: none;">
+                                        <label>封印转化魔力封印补偿:</label>
+                                        <div class="conversion-controls">
+                                            <select class="dream-select" id="conversion-skill-4">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="conversion-level-4" placeholder="等级" min="1" max="40" step="1" value="1">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('conversion-level-4', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('conversion-level-4', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="seal-support-skills">
+                                        <div class="form-group">
+                                            <label>辅助技能1:</label>
+                                            <select class="dream-select" id="support-skill-4-1">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-4-1" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-4-1', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-4-1', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>辅助技能2:</label>
+                                            <select class="dream-select" id="support-skill-4-2">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-4-2" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-4-2', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-4-2', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>辅助技能3:</label>
+                                            <select class="dream-select" id="support-skill-4-3">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-4-3" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-4-3', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-4-3', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>辅助技能4:</label>
+                                            <select class="dream-select" id="support-skill-4-4">
+                                                <option value="">请选择</option>
+                                            </select>
+                                            <div class="quantity-input-container">
+                                                <input type="number" class="number-input" id="support-level-4-4" placeholder="等级" min="1" max="40" step="1" value="20">
+                                                <div class="quantity-buttons">
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-4-4', 1)">▲</button>
+                                                    <button type="button" class="quantity-btn" onclick="adjustQuantity('support-level-4-4', -1)">▼</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="seal-result">
+                                        <span class="result-label">计算结果:</span>
+                                        <span class="result-value" id="halo-result-4">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 计算结果模块 -->
+                    <div class="module-card result-card">
+                        <div class="calculate-section">
+                            <button class="calculate-btn" onclick="calculateSealSystem()">
+                                <i class="fas fa-calculator"></i>
+                                计算封印
+                            </button>
+                        </div>
+                        <div class="result-display">
+                            <h3><i class="fas fa-chart-line"></i> 封印计算结果</h3>
+                            <div class="seal-total-results">
+                                <div class="result-item">
+                                    <span class="result-label">总魔力封印:</span>
+                                    <span class="result-value" id="total-mana-seal">0%</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">总生命封印:</span>
+                                    <span class="result-value" id="total-life-seal">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 高塔系统 -->
+            <div class="tab-content" id="tower">
+                <div class="content-header">
+                    <h1><i class="fas fa-tower-broadcast"></i> 高塔系统</h1>
+                </div>
+                
+                <div class="tower-layout">
+                    <div class="tower-columns">
+                        <!-- 左列：武器配置和元件价格 -->
+                        <div class="tower-left-column">
+                            <!-- 武器配置区域 -->
+                            <div class="tower-config-section">
+                                <h4><i class="fas fa-sword"></i> 武器配置</h4>
+                                <div class="tower-weapon-config">
+                                    <div class="form-group">
+                                        <label>武器类型</label>
+                                        <select class="tower-select" id="weapon-type">
+                                            <option value="">请选择武器类型</option>
+                                            <option value="" disabled class="weapon-group-header">━━━ 术士武器 ━━━</option>
+                                            <option value="法杖">　　法杖</option>
+                                            <option value="灵杖">　　灵杖</option>
+                                            <option value="魔杖">　　魔杖</option>
+                                            <option value="手杖">　　手杖</option>
+                                            <option value="锡杖">　　锡杖</option>
+                                            <option value="武杖">　　武杖</option>
+                                            <option value="" disabled class="weapon-group-header">━━━ 近卫武器 ━━━</option>
+                                            <option value="剑">　　剑</option>
+                                            <option value="斧">　　斧</option>
+                                            <option value="锤">　　锤</option>
+                                            <option value="爪">　　爪</option>
+                                            <option value="匕首">　　匕首</option>
+                                            <option value="" disabled class="weapon-group-header">━━━ 狙击武器 ━━━</option>
+                                            <option value="手枪">　　手枪</option>
+                                            <option value="弓">　　弓</option>
+                                            <option value="弩">　　弩</option>
+                                            <option value="炮">　　炮</option>
+                                            <option value="火枪">　　火枪</option>
+                                            <option value="" disabled class="weapon-group-header">━━━ 重装武器 ━━━</option>
+                                            <option value="盾">　　盾</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>武器等级</label>
+                                        <select class="tower-select" id="weapon-level">
+                                            <option value="">请选择等级</option>
+                                            <option value="86">86等</option>
+                                            <option value="100">100等</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>武器类别</label>
+                                        <select class="tower-select" id="weapon-category">
+                                            <option value="">请选择类别</option>
+                                            <option value="单手">单手武器</option>
+                                            <option value="双手">双手武器</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 元件价格区域 -->
+                            <div class="tower-config-section">
+                                <h4><i class="fas fa-coins"></i> 元件价格 <span class="price-unit">(单位: 初火源质)</span></h4>
+                                <div class="tower-price-config">
+                                    <div class="form-group">
+                                        <label>基础元件价格</label>
+                                        <input type="number" class="tower-input" id="basic-component-price" placeholder="请输入价格" min="0" step="0.1">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>拓展元件-术士价格</label>
+                                        <input type="number" class="tower-input" id="caster-component-price" placeholder="请输入价格" min="0" step="0.1">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>拓展元件-近卫价格</label>
+                                        <input type="number" class="tower-input" id="guard-component-price" placeholder="请输入价格" min="0" step="0.1">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>拓展元件-狙击价格</label>
+                                        <input type="number" class="tower-input" id="sniper-component-price" placeholder="请输入价格" min="0" step="0.1">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>拓展元件-重装价格</label>
+                                        <input type="number" class="tower-input" id="defense-component-price" placeholder="请输入价格" min="0" step="0.1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 右列：研发配置、材料需求、计算和结果 -->
+                        <div class="tower-right-column">
+                            <!-- 研发配置区域 -->
+                            <div class="tower-config-section">
+                                <h4><i class="fas fa-cogs"></i> 研发配置</h4>
+                                <div class="tower-research-config">
+                                    <div class="form-group">
+                                        <label>研发类型</label>
+                                        <select class="tower-select" id="research-type">
+                                            <option value="">请选择研发类型</option>
+                                            <option value="基础">基础研发</option>
+                                            <option value="深度">深度研发</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group sequence-input-group">
+                                        <label>目标序列</label>
+                                        <div class="sequence-input-container">
+                                            <input type="text" class="tower-input sequence-input" id="target-sequence" placeholder="请输入序列" maxlength="4">
+                                            <div class="sequence-help">
+                                                <span class="sequence-rule">基础研发: 3位数字(1-7)</span>
+                                                <span class="sequence-rule">深度研发: 4位数字(1-7)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 材料需求显示区域 -->
+                            <div class="tower-config-section">
+                                <h4><i class="fas fa-list"></i> 材料需求</h4>
+                                <div class="tower-materials-display" id="materials-display">
+                                    <div class="materials-placeholder">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>请先选择武器类型、等级和研发类型</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 计算结果显示区域 -->
+                            <div class="tower-results-section" id="tower-results">
+                                <h4><i class="fas fa-chart-line"></i> 计算结果</h4>
+                                
+                                <!-- 计算按钮 -->
+                                <div class="tower-calculate-section">
+                                    <button class="calculate-btn tower-calculate-btn" id="tower-calculate">
+                                        <i class="fas fa-calculator"></i>
+                                        计算研发数据
+                                    </button>
+                                </div>
+                                
+                                <div class="tower-results-display">
+                                    <div class="result-item result-item-left">
+                                        <span class="result-label">研发成功率:</span>
+                                        <span class="result-value" id="success-probability">-</span>
+                                    </div>
+                                    <div class="result-item result-item-left">
+                                        <span class="result-label">期望成本:</span>
+                                        <span class="result-value" id="expected-cost">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

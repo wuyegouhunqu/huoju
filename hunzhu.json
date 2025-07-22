@@ -1,0 +1,74 @@
+{
+  "categories": [
+    {
+      "name": "T0词条",
+      "type": "enhancement",
+      "entries": [
+        {
+          "id": "T0-001",
+          "name": "物理伤害增幅",
+          "value": "+4(48%)",
+          "effect": "物理伤害增加48%",
+          "keywords": ["物理", "伤害"]
+        },
+        {
+          "id": "T0-002",
+          "name": "闪电信号强化",
+          "value": "+4(48%)",
+          "effect": "闪电信号传递效率提升48%",
+          "keywords": ["闪电", "信号"]
+        },
+        // 更多T0词条...
+      ]
+    },
+    {
+      "name": "T0~1畸变词条",
+      "type": "distortion",
+      "entries": [
+        {
+          "id": "DT-001",
+          "name": "冰防转化",
+          "value": "+2",
+          "effect": "冰防技能1.5倍转化为闪电网技能",
+          "keywords": ["冰防", "转化"]
+        },
+        {
+          "id": "DT-002",
+          "name": "腐蚀穿透",
+          "value": "+8/48%",
+          "effect": "腐蚀属性穿透提升48%",
+          "keywords": ["腐蚀", "穿透"]
+        },
+        // 更多畸变词条...
+      ]
+    },
+    {
+      "name": "负面词条",
+      "type": "penalty",
+      "entries": [
+        {
+          "id": "NP-001",
+          "name": "暴击惩罚",
+          "value": "-20%",
+          "effect": "使用非核心技能后，下次核心技能暴击值减少20%",
+          "trigger": "非核心技能使用后",
+          "keywords": ["暴击", "惩罚"]
+        },
+        {
+          "id": "NP-002",
+          "name": "魔力损耗",
+          "value": "-2%",
+          "effect": "触发技能时失去2%最大魔力",
+          "trigger": "技能触发时",
+          "keywords": ["魔力", "损耗"]
+        },
+        // 更多负面词条...
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "data_source": "游戏内测v4.8词条表",
+    "update_date": "2023-11-30"
+  }
+}

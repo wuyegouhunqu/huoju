@@ -1,0 +1,134 @@
+{
+  "defense_mechanisms": {
+    "base_values": {
+      "health": 0,
+      "shield": 0,
+      "mana": 0,
+      "armor_value": 0,
+      "evasion_value": 0,
+      "attack_block_chance_input": 0,
+      "spell_block_chance_input": 0,
+      "block_effectiveness_input": 30,
+      "damage_avoidance_input": 0,
+      "mist_points": 0,
+      "mist_effect_scaling": 100,
+      "fire_resistance_input": 60,
+      "lightning_resistance_input": 60,
+      "cold_resistance_input": 60,
+      "corrosion_resistance_input": 60,
+      "additional_reduction_input": 0,
+      "deflection_stacks_input": 3,
+      "physical_damage_taken_as_elemental_rate": 0,
+      "physical_damage_taken_as_corrosion_rate": 0,
+      "elemental_damage_taken_as_physical_rate": 0,
+      "elemental_damage_taken_as_corrosion_rate": 0,
+      "corrosion_damage_taken_as_physical_rate": 0,
+      "corrosion_damage_taken_as_elemental_rate": 0,
+      "barrier_absorption_capacity_input": 0.2,
+      "barrier_absorption_rate_input": 0.5,
+      "mom_active": false,
+      "mom_damage_conversion_rate_input": 0,
+      "mom_mana_consumption_multiplier_input": 1
+    },
+    "damage_processing_sequence": [
+      "dodge_avoidance",
+      "block",
+      "armor_resistances",
+      "damage_conversion",
+      "barrier_mom",
+      "final_hit"
+    ],
+    "modules": {
+      "dodge_avoidance": {
+        "evasion_formula": "1 - ((monster_hit * 1.15) / (monster_hit + 0.5 * (evasion_value * (1 - spell_penalty_modifier))^0.75))",
+        "evasion_cap": 75,
+        "spell_penalty": 0.4,
+        "monster_hit_range": {"min": 130, "max": 680, "default": 680},
+        "mist": {
+          "base_effect": {
+            "evasion_per_point": 0.3,
+            "avoidance_per_point": 0.2
+          },
+          "scaling_input_field": "mist_effect_scaling",
+          "points_input_field": "mist_points",
+          "range": {"min": 0, "max": 100}
+        },
+        "damage_avoidance": {
+          "base_input_field": "damage_avoidance_input",
+          "max": 80
+        }
+      },
+      "block": {
+        "attack_block_chance": {
+          "base_input_field": "attack_block_chance_input",
+          "max": 100
+        },
+        "spell_block_chance": {
+          "base_input_field": "spell_block_chance_input",
+          "max": 100
+        },
+        "block_effectiveness": {
+          "base_input_field": "block_effectiveness_input"
+        }
+      },
+      "armor_resistances": {
+        "armor_formula": "armor_value / (0.9 * armor_value + 3000 + 300 * monster_armor_calculation_level)",
+        "resistances": {
+          "fire": {"base_input_field": "fire_resistance_input", "modifiable": true},
+          "lightning": {"base_input_field": "lightning_resistance_input", "modifiable": true},
+          "cold": {"base_input_field": "cold_resistance_input", "modifiable": true},
+          "corrosion": {"base_input_field": "corrosion_resistance_input", "modifiable": true}
+        },
+        "additional_reduction": {
+          "base_input_field": "additional_reduction_input"
+        },
+        "deflection": {
+          "max_stacks_input_field": "deflection_stacks_input",
+          "reduction_per_stack": 10
+        }
+      },
+      "damage_conversion": {
+        "types": ["physical", "elemental", "corrosion"],
+        "conversion_rates": {
+          "from_physical": [
+            {"rate_input_field": "physical_damage_taken_as_elemental_rate", "to": "elemental"},
+            {"rate_input_field": "physical_damage_taken_as_corrosion_rate", "to": "corrosion"}
+          ],
+          "from_elemental": [
+            {"rate_input_field": "elemental_damage_taken_as_physical_rate", "to": "physical"},
+            {"rate_input_field": "elemental_damage_taken_as_corrosion_rate", "to": "corrosion"}
+          ],
+          "from_corrosion": [
+            {"rate_input_field": "corrosion_damage_taken_as_physical_rate", "to": "physical"},
+            {"rate_input_field": "corrosion_damage_taken_as_elemental_rate", "to": "elemental"}
+          ]
+        }
+      },
+      "barrier_mom": {
+        "barrier": {
+          "absorption_capacity_input_field": "barrier_absorption_capacity_input",
+          "absorption_rate_input_field": "barrier_absorption_rate_input",
+          "max_absorption_formula": "barrier_absorption_capacity * (health + shield)"
+        },
+        "mom": {
+          "active_input_field": "mom_active",
+          "damage_conversion_rate_input_field": "mom_damage_conversion_rate_input",
+          "mana_consumption_multiplier_input_field": "mom_mana_consumption_multiplier_input"
+        }
+      }
+    },
+    "monster_params": {
+      "level": 90,
+      "armor_calculation_level_formula": "min(monster_level, 90)",
+      "hit_value_formula": "monster_hit_range.default"
+    },
+    "output_targets": [
+      "max_physical_attack_hit",
+      "max_physical_spell_hit",
+      "max_elemental_attack_hit",
+      "max_elemental_spell_hit",
+      "max_corrosion_attack_hit",
+      "max_corrosion_spell_hit"
+    ]
+  }
+}
