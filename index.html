@@ -114,6 +114,8 @@
                                     </label>
                                 </div>
                             </div>
+                            
+
                         </div>
                     </div>
 
@@ -268,8 +270,32 @@
                     <h1><i class="fas fa-sword"></i> 伤害系统</h1>
                 </div>
                 
-                <div class="modules-grid">
-                    <!-- 减伤计算模块 -->
+                <!-- 功能选择按钮 -->
+                <div class="damage-function-buttons">
+                    <button class="function-btn active" onclick="showDamageModule('damage-reduction')">
+                        <i class="fas fa-shield-alt"></i>
+                        减伤计算
+                    </button>
+                    <button class="function-btn" onclick="showDamageModule('multiply-damage')">
+                        <i class="fas fa-arrow-up"></i>
+                        叠乘增伤
+                    </button>
+                    <button class="function-btn" onclick="showDamageModule('damage-improvement')">
+                        <i class="fas fa-chart-line"></i>
+                        伤害提升
+                    </button>
+                    <button class="function-btn" onclick="showDamageModule('weapon-damage')">
+                        <i class="fas fa-sword"></i>
+                        武器伤害计算
+                    </button>
+                    <button class="function-btn" onclick="showDamageModule('paralysis-calc')">
+                        <i class="fas fa-bolt"></i>
+                        麻痹计算
+                    </button>
+                </div>
+
+                <!-- 减伤计算模块 -->
+                <div class="damage-module" id="damage-reduction" style="display: block;">
                     <div class="module-card">
                         <h3><i class="fas fa-shield-alt"></i> 减伤计算</h3>
                         <div class="damage-reduction-grid">
@@ -324,7 +350,10 @@
                                 <input type="number" class="dr-layers" value="0" min="0">
                                 <input type="number" class="dr-percent" placeholder="0" min="0" max="100" step="0.1">
                             </div>
+                            
+
                         </div>
+                        
                         <div class="calculate-section">
                             <button class="calculate-btn" onclick="calculateDamageReduction()">
                                 <i class="fas fa-calculator"></i>
@@ -335,50 +364,268 @@
                             <div class="result-value" id="dr-result">总减伤：0%</div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- 增伤和提升计算模块组 -->
-                    <div class="damage-calc-group">
-                        <!-- 叠乘增伤计算模块 -->
-                        <div class="module-card compact-card">
-                            <h3><i class="fas fa-arrow-up"></i> 叠乘增伤计算</h3>
-                            <div class="form-group">
-                                <label>单次增伤(%)</label>
-                                <input type="number" id="single-damage-increase" placeholder="0" min="0" step="0.1" class="number-input">
+                <!-- 叠乘增伤计算模块 -->
+                <div class="damage-module" id="multiply-damage" style="display: none;">
+                    <div class="module-card">
+                        <h3><i class="fas fa-arrow-up"></i> 叠乘增伤计算</h3>
+                        <div class="form-group">
+                            <label>单次增伤(%)</label>
+                            <input type="number" id="single-damage-increase" placeholder="0" min="0" step="0.1" class="number-input">
+                        </div>
+                        <div class="form-group">
+                            <label>叠乘次数</label>
+                            <input type="number" id="multiply-times" value="0" min="0" class="number-input">
+                        </div>
+                        
+
+                        <div class="calculate-section">
+                            <button class="calculate-btn" onclick="calculateMultiplyDamage()">
+                                <i class="fas fa-calculator"></i>
+                                计算增伤
+                            </button>
+                        </div>
+                        <div class="result-display">
+                            <div class="result-value" id="multiply-result">总增伤：0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 伤害提升计算模块 -->
+                <div class="damage-module" id="damage-improvement" style="display: none;">
+                    <div class="module-card">
+                        <h3><i class="fas fa-chart-line"></i> 伤害提升计算</h3>
+                        <div class="form-group">
+                            <label>提升前伤害</label>
+                            <input type="number" id="damage-before" placeholder="0" min="0" class="number-input">
+                        </div>
+                        <div class="form-group">
+                            <label>提升后伤害</label>
+                            <input type="number" id="damage-after" placeholder="0" min="0" class="number-input">
+                        </div>
+                        <div class="calculate-section">
+                            <button class="calculate-btn" onclick="calculateDamageImprovement()">
+                                <i class="fas fa-calculator"></i>
+                                计算提升伤害
+                            </button>
+                        </div>
+                        <div class="result-display">
+                            <div class="result-value" id="improvement-result">伤害提升：0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 武器伤害计算模块 -->
+                <div class="damage-module" id="weapon-damage" style="display: none;">
+                    <div class="module-card">
+                        <h3><i class="fas fa-sword"></i> 武器伤害计算</h3>
+                        <div class="damage-type-toggle">
+                            <button class="toggle-btn active" id="physical-toggle" onclick="switchDamageType('physical')">
+                                <i class="fas fa-fist-raised"></i>
+                                物理伤害
+                            </button>
+                            <button class="toggle-btn" id="elemental-toggle" onclick="switchDamageType('elemental')">
+                                <i class="fas fa-fire"></i>
+                                元素伤害
+                            </button>
+                        </div>
+                        <!-- 物理伤害输入区域 -->
+                        <div class="physical-damage-layout" id="physical-damage-inputs">
+                            <!-- 第一行：武器基础属性 -->
+                            <div class="physical-inputs-row">
+                                <div class="form-group-inline">
+                                    <label>武器最小伤害</label>
+                                    <input type="number" id="weapon-min-damage" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                </div>
+                                <div class="form-group-inline">
+                                    <label>武器最大伤害</label>
+                                    <input type="number" id="weapon-max-damage" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                </div>
+                                <div class="form-group-inline">
+                                    <label>武器攻击速度</label>
+                                    <input type="number" id="weapon-attack-speed" placeholder="1" min="0.1" step="0.1" class="number-input-small" value="1">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>叠乘次数</label>
-                                <input type="number" id="multiply-times" value="0" min="0" class="number-input">
-                            </div>
-                            <div class="calculate-section">
-                                <button class="calculate-btn" onclick="calculateMultiplyDamage()">
-                                    <i class="fas fa-calculator"></i>
-                                    计算增伤
-                                </button>
-                            </div>
-                            <div class="result-display">
-                                <div class="result-value" id="multiply-result">总增伤：0%</div>
+                            <!-- 第二行：伤害修正属性 -->
+                            <div class="physical-inputs-row">
+                                <div class="form-group-inline">
+                                    <label>其他来源基础点伤</label>
+                                    <input type="number" id="other-base-damage" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                </div>
+                                <div class="form-group-inline">
+                                    <label>增加伤害inc(%)</label>
+                                    <input type="number" id="increased-damage" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                </div>
+                                <div class="form-group-inline">
+                                    <label>额外伤害more(%)</label>
+                                    <input type="number" id="more-damage" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                </div>
                             </div>
                         </div>
+                        
+                        <!-- 元素伤害输入区域 -->
+                        <div class="elemental-damage-grid" id="elemental-damage-inputs" style="display: none;">
+                            <div class="elemental-compact-section">
+                                <div class="elemental-row">
+                                    <div class="elemental-type-label">
+                                        <i class="fas fa-bolt"></i> 闪电伤害
+                                    </div>
+                                    <div class="elemental-inputs-row">
+                                        <div class="form-group-inline">
+                                            <label>最小伤害</label>
+                                            <input type="number" id="weapon-min-lightning" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>最大伤害</label>
+                                            <input type="number" id="weapon-max-lightning" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>其他点伤</label>
+                                            <input type="number" id="other-lightning-damage" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>inc(%)</label>
+                                            <input type="number" id="increased-lightning" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>more(%)</label>
+                                            <input type="number" id="more-lightning" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="elemental-row">
+                                    <div class="elemental-type-label">
+                                        <i class="fas fa-snowflake"></i> 冰冷伤害
+                                    </div>
+                                    <div class="elemental-inputs-row">
+                                        <div class="form-group-inline">
+                                            <label>最小伤害</label>
+                                            <input type="number" id="weapon-min-cold" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>最大伤害</label>
+                                            <input type="number" id="weapon-max-cold" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>其他点伤</label>
+                                            <input type="number" id="other-cold-damage" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>inc(%)</label>
+                                            <input type="number" id="increased-cold" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>more(%)</label>
+                                            <input type="number" id="more-cold" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="elemental-row">
+                                    <div class="elemental-type-label">
+                                        <i class="fas fa-fire"></i> 火焰伤害
+                                    </div>
+                                    <div class="elemental-inputs-row">
+                                        <div class="form-group-inline">
+                                            <label>最小伤害</label>
+                                            <input type="number" id="weapon-min-fire" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>最大伤害</label>
+                                            <input type="number" id="weapon-max-fire" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>其他点伤</label>
+                                            <input type="number" id="other-fire-damage" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>inc(%)</label>
+                                            <input type="number" id="increased-fire" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>more(%)</label>
+                                            <input type="number" id="more-fire" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 元素伤害攻击速度输入 -->
+                            <div class="elemental-attack-speed-section">
+                                <div class="form-group-inline">
+                                    <label>武器攻击速度</label>
+                                    <input type="number" id="elemental-attack-speed" placeholder="1" min="0.1" step="0.1" value="1" class="number-input-small">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="calculate-section">
+                            <button class="calculate-btn" onclick="calculateWeaponDamage()">
+                                <i class="fas fa-calculator"></i>
+                                计算武器伤害
+                            </button>
+                        </div>
+                        <div class="result-display">
+                            <div id="weapon-damage-result">
+                                <div class="result-item">
+                                    <span class="result-label">基础物理伤害:</span>
+                                    <span class="result-value" id="base-physical-damage">0</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">武器秒伤:</span>
+                                    <span class="result-value" id="weapon-dps">0</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">最终物理击中伤害:</span>
+                                    <span class="result-value" id="final-hit-damage">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                        <!-- 伤害提升计算模块 -->
-                        <div class="module-card compact-card">
-                            <h3><i class="fas fa-chart-line"></i> 伤害提升计算</h3>
+                <!-- 麻痹计算模块 -->
+                <div class="damage-module" id="paralysis-calc" style="display: none;">
+                    <div class="module-card">
+                        <h3><i class="fas fa-bolt"></i> 麻痹计算</h3>
+                        <div class="paralysis-grid">
                             <div class="form-group">
-                                <label>提升前伤害</label>
-                                <input type="number" id="damage-before" placeholder="0" min="0" class="number-input">
+                                <label>麻痹层数</label>
+                                <input type="number" id="paralysis-layers" placeholder="0" min="0" step="1" class="number-input">
                             </div>
                             <div class="form-group">
-                                <label>提升后伤害</label>
-                                <input type="number" id="damage-after" placeholder="0" min="0" class="number-input">
+                                <label>麻痹效果(%)</label>
+                                <input type="number" id="paralysis-effect" placeholder="0" min="0" step="0.1" class="number-input">
                             </div>
-                            <div class="calculate-section">
-                                <button class="calculate-btn" onclick="calculateDamageImprovement()">
-                                    <i class="fas fa-calculator"></i>
-                                    计算提升伤害
-                                </button>
+                            <div class="form-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="conductive"> 导电
+                                </label>
                             </div>
-                            <div class="result-display">
-                                <div class="result-value" id="improvement-result">伤害提升：0%</div>
+                        </div>
+                        <div class="calculate-section">
+                            <button class="calculate-btn" onclick="calculateParalysis()">
+                                <i class="fas fa-calculator"></i>
+                                计算麻痹增伤
+                            </button>
+                        </div>
+                        <div class="result-display">
+                            <div class="result-value" id="paralysis-result">麻痹总增伤：0%</div>
+                            <div class="result-details">
+                                <div class="result-item">当前麻痹效果增伤：<span id="current-paralysis-effect">0%</span></div>
+                            </div>
+                        </div>
+                        <div class="paralysis-explanation">
+                            <h4>名词解释:</h4>
+                            <div class="explanation-item">
+                                <strong>麻痹:</strong> 每层麻痹使敌人受到的伤害额外增加5%
+                            </div>
+
+                            <div class="explanation-item">
+                                <strong>导电:</strong> 拥有导电时使麻痹的基础效果转变为：每层麻痹使敌人受到的伤害额外增加10%
                             </div>
                         </div>
                     </div>

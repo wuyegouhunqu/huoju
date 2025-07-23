@@ -2259,7 +2259,18 @@ const DataPersistence = {
             damageMultiplier: document.getElementById('damage-multiplier')?.value || '',
             // 伤害提升数据
             currentDamage: document.getElementById('current-damage')?.value || '',
-            targetDamage: document.getElementById('target-damage')?.value || ''
+            targetDamage: document.getElementById('target-damage')?.value || '',
+            // 武器伤害计算数据
+            weaponBaseDamage: document.getElementById('weapon-base-damage')?.value || '',
+            physicalBonus: document.getElementById('physical-bonus')?.value || '',
+            elementalBonus: document.getElementById('elemental-bonus')?.value || '',
+            critChance: document.getElementById('crit-chance')?.value || '',
+            critMultiplier: document.getElementById('crit-multiplier')?.value || '',
+            attackSpeed: document.getElementById('attack-speed')?.value || '',
+            // 麻痹计算数据
+            paralysisLayers: document.getElementById('paralysis-layers')?.value || '',
+            paralysisEffect: document.getElementById('paralysis-effect')?.value || '',
+            conductive: document.getElementById('conductive')?.checked || false
         };
         
         // 获取减伤行数据
@@ -2300,6 +2311,46 @@ const DataPersistence = {
         if (data.targetDamage) {
             const targetDamageEl = document.getElementById('target-damage');
             if (targetDamageEl) targetDamageEl.value = data.targetDamage;
+        }
+        
+        // 恢复武器伤害计算数据
+        if (data.weaponBaseDamage) {
+            const weaponBaseDamageEl = document.getElementById('weapon-base-damage');
+            if (weaponBaseDamageEl) weaponBaseDamageEl.value = data.weaponBaseDamage;
+        }
+        if (data.physicalBonus) {
+            const physicalBonusEl = document.getElementById('physical-bonus');
+            if (physicalBonusEl) physicalBonusEl.value = data.physicalBonus;
+        }
+        if (data.elementalBonus) {
+            const elementalBonusEl = document.getElementById('elemental-bonus');
+            if (elementalBonusEl) elementalBonusEl.value = data.elementalBonus;
+        }
+        if (data.critChance) {
+            const critChanceEl = document.getElementById('crit-chance');
+            if (critChanceEl) critChanceEl.value = data.critChance;
+        }
+        if (data.critMultiplier) {
+            const critMultiplierEl = document.getElementById('crit-multiplier');
+            if (critMultiplierEl) critMultiplierEl.value = data.critMultiplier;
+        }
+        if (data.attackSpeed) {
+            const attackSpeedEl = document.getElementById('attack-speed');
+            if (attackSpeedEl) attackSpeedEl.value = data.attackSpeed;
+        }
+        
+        // 恢复麻痹计算数据
+        if (data.paralysisLayers) {
+            const paralysisLayersEl = document.getElementById('paralysis-layers');
+            if (paralysisLayersEl) paralysisLayersEl.value = data.paralysisLayers;
+        }
+        if (data.paralysisEffect) {
+            const paralysisEffectEl = document.getElementById('paralysis-effect');
+            if (paralysisEffectEl) paralysisEffectEl.value = data.paralysisEffect;
+        }
+        if (data.conductive !== undefined) {
+            const conductiveEl = document.getElementById('conductive');
+            if (conductiveEl) conductiveEl.checked = data.conductive;
         }
         
         // 恢复减伤行数据
@@ -2777,3 +2828,326 @@ class SidebarManager {
 const sidebarManager = new SidebarManager();
 
 console.log('侧边栏折叠功能已启用！');
+
+// 伤害系统模块切换功能
+function showDamageModule(moduleId) {
+    // 隐藏所有模块
+    const modules = document.querySelectorAll('.damage-module');
+    modules.forEach(module => {
+        module.style.display = 'none';
+    });
+    
+    // 移除所有按钮的激活状态
+    const buttons = document.querySelectorAll('.function-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // 显示选中的模块
+    const targetModule = document.getElementById(moduleId);
+    if (targetModule) {
+        targetModule.style.display = 'block';
+    }
+    
+    // 激活对应的按钮
+    const activeButton = document.querySelector(`[onclick="showDamageModule('${moduleId}')"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
+    }
+}
+
+// 武器伤害类型切换函数
+function switchDamageType(type) {
+    // 更新按钮状态
+    const physicalBtn = document.getElementById('physical-toggle');
+    const elementalBtn = document.getElementById('elemental-toggle');
+    
+    // 获取输入区域
+    const physicalInputs = document.getElementById('physical-damage-inputs');
+    const elementalInputs = document.getElementById('elemental-damage-inputs');
+    
+    if (type === 'physical') {
+        physicalBtn.classList.add('active');
+        elementalBtn.classList.remove('active');
+        
+        // 显示物理伤害输入，隐藏元素伤害输入
+        physicalInputs.style.display = 'flex';
+        elementalInputs.style.display = 'none';
+        
+        // 重置结果显示
+        document.getElementById('weapon-damage-result').innerHTML = `
+            <div class="result-item">
+                <span class="result-label">基础物理伤害:</span>
+                <span class="result-value" id="base-physical-damage">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">武器秒伤:</span>
+                <span class="result-value" id="weapon-dps">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">最终物理击中伤害:</span>
+                <span class="result-value" id="final-hit-damage">0</span>
+            </div>
+        `;
+    } else {
+        elementalBtn.classList.add('active');
+        physicalBtn.classList.remove('active');
+        
+        // 显示元素伤害输入，隐藏物理伤害输入
+        physicalInputs.style.display = 'none';
+        elementalInputs.style.display = 'flex';
+        
+        // 重置结果显示为元素伤害结果
+        document.getElementById('weapon-damage-result').innerHTML = `
+            <div class="elemental-result-row">
+                <div class="elemental-icon lightning-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="elemental-title lightning-title">闪电伤害</div>
+                <div class="result-item orange-text">
+                    <span class="result-label">武器秒伤:</span>
+                    <span class="result-value" id="lightning-weapon-dps">0</span>
+                </div>
+                <div class="result-item orange-text">
+                    <span class="result-label">基础伤害:</span>
+                    <span class="result-value" id="lightning-base-damage">0</span>
+                </div>
+                <div class="result-item orange-text">
+                    <span class="result-label">击中伤害:</span>
+                    <span class="result-value" id="lightning-hit-damage">0</span>
+                </div>
+            </div>
+            <div class="elemental-result-row">
+                <div class="elemental-icon cold-icon">
+                    <i class="fas fa-snowflake"></i>
+                </div>
+                <div class="elemental-title cold-title">冰冷伤害</div>
+                <div class="result-item blue-text">
+                    <span class="result-label">武器秒伤:</span>
+                    <span class="result-value" id="cold-weapon-dps">0</span>
+                </div>
+                <div class="result-item blue-text">
+                    <span class="result-label">基础伤害:</span>
+                    <span class="result-value" id="cold-base-damage">0</span>
+                </div>
+                <div class="result-item blue-text">
+                    <span class="result-label">击中伤害:</span>
+                    <span class="result-value" id="cold-hit-damage">0</span>
+                </div>
+            </div>
+            <div class="elemental-result-row">
+                <div class="elemental-icon fire-icon">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div class="elemental-title fire-title">火焰伤害</div>
+                <div class="result-item orange-text">
+                    <span class="result-label">武器秒伤:</span>
+                    <span class="result-value" id="fire-weapon-dps">0</span>
+                </div>
+                <div class="result-item orange-text">
+                    <span class="result-label">基础伤害:</span>
+                    <span class="result-value" id="fire-base-damage">0</span>
+                </div>
+                <div class="result-item orange-text">
+                    <span class="result-label">击中伤害:</span>
+                    <span class="result-value" id="fire-hit-damage">0</span>
+                </div>
+            </div>
+            <div class="result-item total-damage orange-text">
+                <span class="result-label">总元素击中伤害:</span>
+                <span class="result-value" id="total-elemental-damage">0</span>
+            </div>
+        `;
+    }
+}
+
+// 武器伤害计算函数
+function calculateWeaponDamage() {
+    try {
+        // 检查当前选择的伤害类型
+        const isPhysicalDamage = document.getElementById('physical-toggle').classList.contains('active');
+        
+        if (isPhysicalDamage) {
+            // 物理伤害计算
+            calculatePhysicalDamage();
+        } else {
+            // 元素伤害计算
+            calculateElementalDamage();
+        }
+        
+    } catch (error) {
+        console.error('武器伤害计算错误:', error);
+        showNotification('武器伤害计算出错，请检查输入数据', 'error');
+    }
+}
+
+function calculatePhysicalDamage() {
+    // 获取物理伤害输入值
+    const weaponMinDamage = parseFloat(document.getElementById('weapon-min-damage').value) || 0;
+    const weaponMaxDamage = parseFloat(document.getElementById('weapon-max-damage').value) || 0;
+    const weaponAttackSpeed = parseFloat(document.getElementById('weapon-attack-speed').value) || 1;
+    const otherBaseDamage = parseFloat(document.getElementById('other-base-damage').value) || 0;
+    const increasedDamage = parseFloat(document.getElementById('increased-damage').value) || 0;
+    const moreDamage = parseFloat(document.getElementById('more-damage').value) || 0;
+    
+    // 输入验证
+    if (weaponMinDamage < 0 || weaponMaxDamage < 0) {
+        showNotification('武器伤害值不能为负数', 'warning');
+        return;
+    }
+    
+    if (weaponMinDamage > weaponMaxDamage) {
+        showNotification('武器最小伤害不能大于最大伤害', 'warning');
+        return;
+    }
+    
+    if (weaponAttackSpeed <= 0) {
+        showNotification('武器攻击速度必须大于0', 'warning');
+        return;
+    }
+    
+    // 计算武器秒伤：((武器最小伤害+武器最大伤害)/2)*武器攻击速度
+    const weaponDPS = ((weaponMinDamage + weaponMaxDamage) / 2) * weaponAttackSpeed;
+    
+    // 物理伤害计算：武器秒伤+其他来源提供基础点伤
+    const baseDamage = weaponDPS + otherBaseDamage;
+    
+    // 物理击中伤害：(基础伤害*增加伤害inc)*(1+额外伤害more)
+    const finalHitDamage = (baseDamage * (1 + increasedDamage / 100)) * (1 + moreDamage / 100);
+    
+    // 显示结果
+    document.getElementById('weapon-dps').textContent = weaponDPS.toFixed(2);
+    document.getElementById('base-physical-damage').textContent = baseDamage.toFixed(2);
+    document.getElementById('final-hit-damage').textContent = finalHitDamage.toFixed(2);
+    
+    showNotification('物理伤害计算完成！', 'success');
+}
+
+function calculateElementalDamage() {
+    // 获取元素伤害攻击速度
+    const weaponAttackSpeed = parseFloat(document.getElementById('weapon-attack-speed').value) || 1;
+    
+    if (weaponAttackSpeed <= 0) {
+        showNotification('武器攻击速度必须大于0', 'warning');
+        return;
+    }
+    
+    // 闪电伤害计算
+    const lightningMinDamage = parseFloat(document.getElementById('weapon-min-lightning').value) || 0;
+    const lightningMaxDamage = parseFloat(document.getElementById('weapon-max-lightning').value) || 0;
+    const lightningOtherDamage = parseFloat(document.getElementById('other-lightning-damage').value) || 0;
+    const lightningIncDamage = parseFloat(document.getElementById('increased-lightning').value) || 0;
+    const lightningMoreDamage = parseFloat(document.getElementById('more-lightning').value) || 0;
+    
+    // 冰冷伤害计算
+    const coldMinDamage = parseFloat(document.getElementById('weapon-min-cold').value) || 0;
+    const coldMaxDamage = parseFloat(document.getElementById('weapon-max-cold').value) || 0;
+    const coldOtherDamage = parseFloat(document.getElementById('other-cold-damage').value) || 0;
+    const coldIncDamage = parseFloat(document.getElementById('increased-cold').value) || 0;
+    const coldMoreDamage = parseFloat(document.getElementById('more-cold').value) || 0;
+    
+    // 火焰伤害计算
+    const fireMinDamage = parseFloat(document.getElementById('weapon-min-fire').value) || 0;
+    const fireMaxDamage = parseFloat(document.getElementById('weapon-max-fire').value) || 0;
+    const fireOtherDamage = parseFloat(document.getElementById('other-fire-damage').value) || 0;
+    const fireIncDamage = parseFloat(document.getElementById('increased-fire').value) || 0;
+    const fireMoreDamage = parseFloat(document.getElementById('more-fire').value) || 0;
+    
+    // 输入验证
+    if (lightningMinDamage < 0 || lightningMaxDamage < 0 || coldMinDamage < 0 || coldMaxDamage < 0 || fireMinDamage < 0 || fireMaxDamage < 0) {
+        showNotification('武器伤害值不能为负数', 'warning');
+        return;
+    }
+    
+    if (lightningMinDamage > lightningMaxDamage || coldMinDamage > coldMaxDamage || fireMinDamage > fireMaxDamage) {
+        showNotification('武器最小伤害不能大于最大伤害', 'warning');
+        return;
+    }
+    
+    // 计算各元素武器秒伤
+    const lightningWeaponDPS = ((lightningMinDamage + lightningMaxDamage) / 2) * weaponAttackSpeed;
+    const coldWeaponDPS = ((coldMinDamage + coldMaxDamage) / 2) * weaponAttackSpeed;
+    const fireWeaponDPS = ((fireMinDamage + fireMaxDamage) / 2) * weaponAttackSpeed;
+    
+    // 计算各元素基础伤害
+    const baseLightningDamage = lightningWeaponDPS + lightningOtherDamage;
+    const baseColdDamage = coldWeaponDPS + coldOtherDamage;
+    const baseFireDamage = fireWeaponDPS + fireOtherDamage;
+    
+    // 计算各元素击中伤害
+    const lightningHitDamage = (baseLightningDamage * (1 + lightningIncDamage / 100)) * (1 + lightningMoreDamage / 100);
+    const coldHitDamage = (baseColdDamage * (1 + coldIncDamage / 100)) * (1 + coldMoreDamage / 100);
+    const fireHitDamage = (baseFireDamage * (1 + fireIncDamage / 100)) * (1 + fireMoreDamage / 100);
+    
+    // 计算总元素击中伤害
+    const totalElementalDamage = lightningHitDamage + coldHitDamage + fireHitDamage;
+    
+    // 显示结果
+    document.getElementById('lightning-weapon-dps').textContent = lightningWeaponDPS.toFixed(2);
+    document.getElementById('lightning-base-damage').textContent = baseLightningDamage.toFixed(2);
+    document.getElementById('lightning-hit-damage').textContent = lightningHitDamage.toFixed(2);
+    
+    document.getElementById('cold-weapon-dps').textContent = coldWeaponDPS.toFixed(2);
+    document.getElementById('cold-base-damage').textContent = baseColdDamage.toFixed(2);
+    document.getElementById('cold-hit-damage').textContent = coldHitDamage.toFixed(2);
+    
+    document.getElementById('fire-weapon-dps').textContent = fireWeaponDPS.toFixed(2);
+    document.getElementById('fire-base-damage').textContent = baseFireDamage.toFixed(2);
+    document.getElementById('fire-hit-damage').textContent = fireHitDamage.toFixed(2);
+    
+    document.getElementById('total-elemental-damage').textContent = totalElementalDamage.toFixed(2);
+    
+    showNotification('元素伤害计算完成！', 'success');
+}
+
+// 麻痹计算函数
+function calculateParalysis() {
+    try {
+        const layers = parseInt(document.getElementById('paralysis-layers').value) || 0;
+        const effect = parseFloat(document.getElementById('paralysis-effect').value) || 0;
+        const conductive = document.getElementById('conductive').checked;
+
+        // 计算基础效果
+        let baseEffect;
+        if (conductive) {
+            // 导电状态：基础效果为10%每层
+            baseEffect = 10;
+        } else {
+            // 普通状态：基础效果为5%每层
+            baseEffect = 5;
+        }
+        
+        // 计算原始总伤害倍率：1 + 麻痹基础效果 * 麻痹层数
+        const originalMultiplier = 1 + (baseEffect * layers / 100);
+        
+        // 计算加成后总伤害倍率：1 + 麻痹基础效果 * 麻痹层数 * (1 + 麻痹效果%)
+        const enhancedMultiplier = 1 + (baseEffect * layers * (1 + effect / 100) / 100);
+        
+        // 计算当前麻痹效果增伤：(加成后倍率 - 原始倍率) / 原始倍率
+        const currentParalysisIncrease = ((enhancedMultiplier - originalMultiplier) / originalMultiplier) * 100;
+        
+        // 计算麻痹总增伤（加成后的总效果百分比）
+        const totalParalysisIncrease = (enhancedMultiplier - 1) * 100;
+        
+        // 应用麻痹效果加成到单层效果
+        const enhancedBaseEffect = baseEffect * (1 + effect / 100);
+
+        // 显示结果
+        document.getElementById('paralysis-result').textContent = `麻痹总增伤：${totalParalysisIncrease.toFixed(1)}%`;
+        document.getElementById('current-paralysis-effect').textContent = `${currentParalysisIncrease.toFixed(1)}%`;
+
+        console.log('麻痹计算完成');
+        
+    } catch (error) {
+        console.error('麻痹计算错误:', error);
+        showNotification('麻痹计算出错，请检查输入数据', 'error');
+    }
+}
+
+// 初始化伤害系统模块切换
+document.addEventListener('DOMContentLoaded', function() {
+    // 默认显示第一个模块
+    showDamageModule('damage-reduction-module');
+});
+
+console.log('伤害系统模块功能已启用！');

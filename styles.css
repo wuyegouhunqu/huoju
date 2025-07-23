@@ -692,6 +692,178 @@ body {
     margin-right: 0.5rem;
 }
 
+/* 伤害类型切换按钮组 */
+.damage-type-toggle {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 4px;
+    backdrop-filter: blur(10px);
+}
+
+.toggle-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.toggle-btn:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.toggle-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.toggle-btn i {
+    font-size: 0.8rem;
+}
+
+/* 元素伤害输入区域 */
+.elemental-damage-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.elemental-compact-section {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.elemental-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.elemental-row:last-child {
+    margin-bottom: 0;
+}
+
+.elemental-type-label {
+    min-width: 120px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+}
+
+.elemental-type-label i.fa-bolt {
+    color: #ffd700;
+}
+
+.elemental-type-label i.fa-snowflake {
+    color: #87ceeb;
+}
+
+.elemental-type-label i.fa-fire {
+    color: #ff6b35;
+}
+
+.elemental-inputs-row {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    align-items: center;
+}
+
+.form-group-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+}
+
+.form-group-inline label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.number-input-small {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 13px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.number-input-small:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
+}
+
+.number-input-small::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+}
+
+.elemental-damage-grid .form-group:last-child {
+    grid-column: 1 / -1;
+    max-width: 300px;
+    margin: 20px auto 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .elemental-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .elemental-type-label {
+        min-width: auto;
+        justify-content: center;
+    }
+    
+    .elemental-inputs-row {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .form-group-inline {
+        min-width: calc(50% - 4px);
+    }
+}
+
 /* 结果显示 */
 .result-display {
     text-align: center;
@@ -733,12 +905,172 @@ body {
 }
 
 /* 伤害系统特殊样式 */
+/* 功能选择按钮 */
+.damage-function-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.function-btn {
+    padding: 0.8rem 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(10px);
+    min-width: 140px;
+    justify-content: center;
+}
+
+.function-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.function-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.function-btn i {
+    font-size: 1rem;
+}
+
+/* 伤害模块容器 */
+.damage-module {
+    width: 100%;
+}
+
 .damage-reduction-grid {
     display: grid;
     grid-template-columns: 60px 1fr 1fr 1fr;
     gap: 8px;
     align-items: center;
     margin-bottom: 8px;
+}
+
+/* 武器伤害计算网格 */
+.weapon-damage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 物理伤害布局 */
+.physical-damage-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.physical-inputs-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.physical-inputs-row .form-group-inline {
+    flex: 1;
+    min-width: 0;
+}
+
+/* 攻击速度区域样式 */
+.attack-speed-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.attack-speed-section .form-group {
+    margin-bottom: 0;
+}
+
+/* 麻痹计算网格 */
+.paralysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.paralysis-explanation {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid #ffd700;
+}
+
+.paralysis-explanation h4 {
+    margin: 0 0 10px 0;
+    color: #ffd700;
+    font-size: 16px;
+}
+
+.explanation-item {
+    margin-bottom: 8px;
+    line-height: 1.4;
+    font-size: 14px;
+}
+
+.explanation-item strong {
+    color: #ffd700;
+}
+
+/* 结果详情 */
+.result-details {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+.result-item span {
+    color: #4CAF50;
+    font-weight: 600;
 }
 
 .dr-number {
@@ -1882,7 +2214,10 @@ input[type="number"] {
 
 .result-label {
     display: block;
-    color: rgba(255, 255, 255, 0.8);
+    background: linear-gradient(45deg, #ff6b6b, #ffa500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     font-size: 0.9rem;
     margin-bottom: 0.5rem;
 }
@@ -1892,6 +2227,42 @@ input[type="number"] {
     color: #ffd700;
     font-size: 1.3rem;
     font-weight: bold;
+}
+
+/* 武器伤害计算模块结果项样式修复 */
+#weapon-damage-result .result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 0.5rem;
+}
+
+#weapon-damage-result .result-label {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(45deg, #ff6b6b, #ffa500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+    line-height: 1.4;
+    vertical-align: middle;
+}
+
+#weapon-damage-result .result-value {
+    display: inline-flex;
+    align-items: center;
+    color: #ffd700;
+    font-size: 1.1rem;
+    font-weight: bold;
+    line-height: 1.4;
+    vertical-align: middle;
 }
 
 /* 内联结果项样式 - 用于在同一行显示多个结果 */
@@ -2202,4 +2573,195 @@ input[type="number"] {
 [data-theme="dark"] .tower-results-section {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
+}
+
+/* 深色模式 - 元素伤害区域样式 */
+[data-theme="dark"] .elemental-compact-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .elemental-row {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="dark"] .elemental-type-label {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-group-inline label {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .number-input-small {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .number-input-small:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+[data-theme="dark"] .number-input-small::placeholder {
+    color: var(--text-muted);
+}
+
+/* 元素伤害结果行样式 */
+.elemental-result-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+}
+
+.elemental-result-row .result-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 20px;
+}
+
+.elemental-result-row .result-label,
+.elemental-result-row .result-value {
+    line-height: 1.2;
+    vertical-align: middle;
+    display: flex;
+    align-items: center;
+}
+
+.elemental-icon {
+    font-size: 18px;
+    width: 25px;
+    text-align: center;
+}
+
+.lightning-icon {
+    color: #ffd700;
+}
+
+.cold-icon {
+    color: #87ceeb;
+}
+
+.fire-icon {
+    color: #ff6b35;
+}
+
+.elemental-title {
+    font-weight: bold;
+    font-size: 14px;
+    min-width: 80px;
+}
+
+.lightning-title {
+    color: white;
+}
+
+.cold-title {
+    color: white;
+}
+
+.fire-title {
+    color: white;
+}
+
+.orange-text {
+    color: #ff8c00;
+}
+
+.blue-text {
+    color: #4a90e2;
+}
+
+.orange-text .result-label,
+.orange-text .result-value {
+    color: #ff8c00 !important;
+}
+
+.blue-text .result-label,
+.blue-text .result-value {
+    color: #4a90e2 !important;
+}
+
+/* 总伤害样式 */
+.total-damage {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.total-damage .result-label,
+.total-damage .result-value {
+    font-weight: bold;
+    color: #ffffff !important;
+}
+
+/* 深色模式下的元素伤害样式调整 */
+[data-theme="dark"] .elemental-result-row {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .lightning-icon {
+    color: #ffeb3b;
+}
+
+[data-theme="dark"] .cold-icon {
+    color: #87ceeb;
+}
+
+[data-theme="dark"] .fire-icon {
+    color: #ff6b35;
+}
+
+[data-theme="dark"] .lightning-title {
+    color: white;
+}
+
+[data-theme="dark"] .cold-title {
+    color: white;
+}
+
+[data-theme="dark"] .fire-title {
+    color: white;
+}
+
+[data-theme="dark"] .orange-text,
+[data-theme="dark"] .orange-text .result-label,
+[data-theme="dark"] .orange-text .result-value {
+    color: #ffa500 !important;
+}
+
+[data-theme="dark"] .blue-text,
+[data-theme="dark"] .blue-text .result-label,
+[data-theme="dark"] .blue-text .result-value {
+    color: #2196f3 !important;
+}
+
+[data-theme="dark"] .total-damage {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .total-damage .result-label,
+[data-theme="dark"] .total-damage .result-value {
+    color: #ffa500 !important;
+}
+
+/* 元素伤害攻击速度输入样式 */
+.elemental-attack-speed-section {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .elemental-attack-speed-section {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
