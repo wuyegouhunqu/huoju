@@ -692,6 +692,21 @@ body {
     margin-right: 0.5rem;
 }
 
+/* 按钮横向布局 */
+.buttons-row {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.buttons-row .calculate-btn {
+    flex: 1;
+    max-width: 200px;
+}
+
+
+
 /* 伤害类型切换按钮组 */
 .damage-type-toggle {
     display: flex;
@@ -906,6 +921,7 @@ body {
 
 /* 伤害系统特殊样式 */
 /* 功能选择按钮 */
+.crafting-function-buttons,
 .damage-function-buttons {
     display: flex;
     gap: 1rem;
@@ -2478,6 +2494,47 @@ input[type="number"] {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
 }
 
+/* select-input 样式 */
+select.select-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    color: #333;
+    font-size: 14px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+select.select-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+select.select-input option {
+    background: white;
+    color: #333;
+    padding: 8px;
+}
+
+/* 深色主题下的 select-input */
+[data-theme="dark"] select.select-input {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] select.select-input:focus {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] select.select-input option {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
 [data-theme="dark"] .btn {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
     border: 1px solid var(--border-color);
@@ -2764,4 +2821,251 @@ input[type="number"] {
 [data-theme="dark"] .elemental-attack-speed-section {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+
+
+
+/* 总成本样式 */
+.cost-item.total-cost {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 8px;
+    margin-top: 8px;
+    font-weight: bold;
+}
+
+.cost-item.total-cost .cost-name {
+    color: #ffd700;
+}
+
+.cost-item.total-cost .cost-value {
+    color: #ffd700;
+    font-size: 16px;
+}
+
+
+
+.equipment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.equipment-selection-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.equipment-selection-row-single {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+    align-items: end;
+}
+
+
+
+/* 材料消耗显示 */
+.material-cost-display {
+    margin-top: 15px;
+}
+
+.material-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.material-name {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.material-count {
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+/* 累计成本显示 */
+.total-cost-display {
+    margin-top: 15px;
+}
+
+.cost-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.cost-name {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.cost-value {
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+.reset-btn {
+    width: 100%;
+    padding: 10px;
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.reset-btn:hover {
+    background: var(--danger-hover);
+    transform: translateY(-1px);
+}
+
+/* 装备显示区域 */
+.equipment-display {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.equipment-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg);
+    position: relative;
+    overflow: hidden;
+}
+
+.equipment-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-equipment-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.no-equipment-placeholder i {
+    font-size: 32px;
+    opacity: 0.5;
+}
+
+.equipment-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 8px;
+}
+
+.equipment-level-display {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* 词缀显示 */
+.affixes-display {
+    margin-top: 15px;
+}
+
+.no-affixes-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    padding: 20px;
+}
+
+.no-affixes-placeholder i {
+    font-size: 24px;
+    opacity: 0.5;
+}
+
+.affix-item {
+    padding: 8px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+
+
+/* 功能说明 */
+.help-content {
+    margin-top: 15px;
+}
+
+.help-item {
+    padding: 10px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.help-item strong {
+    color: var(--accent-color);
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .equipment-selection-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 深色主题适配 */
+[data-theme="dark"] .material-item,
+[data-theme="dark"] .cost-item,
+[data-theme="dark"] .affix-item,
+[data-theme="dark"] .help-item {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .equipment-icon {
+    border-color: var(--border-color);
+    background: var(--card-bg);
 }

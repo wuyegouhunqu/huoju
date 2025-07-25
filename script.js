@@ -300,15 +300,103 @@ function calculateCraftingCost() {
         // 计算各种词缀的成本
         const affixTypes = [
             { count: affixes.basic, type: 'basic' },
-            { count: affixes.basicT0, type: 'basic' }, // T0使用相同配置
             { count: affixes.basicUpgrade, type: 'basicUpgrade' },
             { count: affixes.advanced, type: 'advanced' },
-            { count: affixes.advancedT0, type: 'advanced' }, // T0使用相同配置
             { count: affixes.advancedUpgrade, type: 'advancedUpgrade' },
             { count: affixes.perfect, type: 'perfect' },
-            { count: affixes.perfectT0, type: 'perfect' }, // T0使用相同配置
             { count: affixes.perfectUpgrade, type: 'perfectUpgrade' }
         ];
+        
+        // 计算组合T0词缀的成本
+        // 基础T0 = 基础T0 + 基础升T0
+        if (affixes.basicT0 > 0) {
+            const basicConfig = levelData['basic'];
+            const basicUpgradeConfig = levelData['basicUpgrade'];
+            if (basicConfig && basicUpgradeConfig) {
+                let combinedCost = 0;
+                
+                // 计算基础T0成本
+                let basicCost = 0;
+                Object.keys(basicConfig.materials).forEach(materialKey => {
+                    const materialCount = basicConfig.materials[materialKey];
+                    const materialPrice = materials[materialKey];
+                    basicCost += materialCount * materialPrice;
+                });
+                const basicExpectedCost = basicCost / basicConfig.successRate;
+                
+                // 计算基础升T0成本
+                let basicUpgradeCost = 0;
+                Object.keys(basicUpgradeConfig.materials).forEach(materialKey => {
+                    const materialCount = basicUpgradeConfig.materials[materialKey];
+                    const materialPrice = materials[materialKey];
+                    basicUpgradeCost += materialCount * materialPrice;
+                });
+                const basicUpgradeExpectedCost = basicUpgradeCost / basicUpgradeConfig.successRate;
+                
+                combinedCost = (basicExpectedCost + basicUpgradeExpectedCost) * affixes.basicT0;
+                totalCost += combinedCost;
+            }
+        }
+        
+        // 进阶T0 = 进阶T0 + 进阶升T0
+        if (affixes.advancedT0 > 0) {
+            const advancedConfig = levelData['advanced'];
+            const advancedUpgradeConfig = levelData['advancedUpgrade'];
+            if (advancedConfig && advancedUpgradeConfig) {
+                let combinedCost = 0;
+                
+                // 计算进阶T0成本
+                let advancedCost = 0;
+                Object.keys(advancedConfig.materials).forEach(materialKey => {
+                    const materialCount = advancedConfig.materials[materialKey];
+                    const materialPrice = materials[materialKey];
+                    advancedCost += materialCount * materialPrice;
+                });
+                const advancedExpectedCost = advancedCost / advancedConfig.successRate;
+                
+                // 计算进阶升T0成本
+                let advancedUpgradeCost = 0;
+                Object.keys(advancedUpgradeConfig.materials).forEach(materialKey => {
+                    const materialCount = advancedUpgradeConfig.materials[materialKey];
+                    const materialPrice = materials[materialKey];
+                    advancedUpgradeCost += materialCount * materialPrice;
+                });
+                const advancedUpgradeExpectedCost = advancedUpgradeCost / advancedUpgradeConfig.successRate;
+                
+                combinedCost = (advancedExpectedCost + advancedUpgradeExpectedCost) * affixes.advancedT0;
+                totalCost += combinedCost;
+            }
+        }
+        
+        // 至臻T0 = 基础T0 + 至臻升T0
+        if (affixes.perfectT0 > 0) {
+            const basicConfig = levelData['basic'];
+            const perfectUpgradeConfig = levelData['perfectUpgrade'];
+            if (basicConfig && perfectUpgradeConfig) {
+                let combinedCost = 0;
+                
+                // 计算基础T0成本
+                let basicCost = 0;
+                Object.keys(basicConfig.materials).forEach(materialKey => {
+                    const materialCount = basicConfig.materials[materialKey];
+                    const materialPrice = materials[materialKey];
+                    basicCost += materialCount * materialPrice;
+                });
+                const basicExpectedCost = basicCost / basicConfig.successRate;
+                
+                // 计算至臻升T0成本
+                let perfectUpgradeCost = 0;
+                Object.keys(perfectUpgradeConfig.materials).forEach(materialKey => {
+                    const materialCount = perfectUpgradeConfig.materials[materialKey];
+                    const materialPrice = materials[materialKey];
+                    perfectUpgradeCost += materialCount * materialPrice;
+                });
+                const perfectUpgradeExpectedCost = perfectUpgradeCost / perfectUpgradeConfig.successRate;
+                
+                combinedCost = (basicExpectedCost + perfectUpgradeExpectedCost) * affixes.perfectT0;
+                totalCost += combinedCost;
+            }
+        }
         
         affixTypes.forEach(affix => {
             if (affix.count > 0 && levelData[affix.type]) {
@@ -619,7 +707,7 @@ const accessoryAffixes = {
         { name: '造成伤害时，触发 20 级炽热诅咒，冷却时间为 0.2 秒', weight: 1 },
         { name: '造成伤害时，触发 20 级蚀骨之寒诅咒，冷却时间为 0.2 秒', weight: 1 },
         { name: '造成伤害时，触发 20 级感电诅咒，冷却时间为 0.2 秒', weight: 1 },
-        { name: '造成伤害时，触发 20 级邪恶侵蚀诅咒，冷却时间为 0.2 秒', weight: 1 }
+
     ],
     belt: [
         { name: '+(54–74) 最大生命', weight: 4 },
@@ -3151,3 +3239,32 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 console.log('伤害系统模块功能已启用！');
+
+// 打造系统模块切换功能
+function showCraftingModule(moduleId) {
+    // 隐藏所有打造模块
+    const modules = document.querySelectorAll('.crafting-module');
+    modules.forEach(module => {
+        module.style.display = 'none';
+    });
+    
+    // 移除所有按钮的激活状态
+    const buttons = document.querySelectorAll('#crafting .function-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // 显示选中的模块
+    const targetModule = document.getElementById(moduleId);
+    if (targetModule) {
+        targetModule.style.display = 'block';
+    }
+    
+    // 激活对应的按钮
+    const activeButton = document.querySelector(`[onclick="showCraftingModule('${moduleId}')"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
+    }
+}
+
+// 梦境装备数据结构完全结束
