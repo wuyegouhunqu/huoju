@@ -1044,6 +1044,17 @@ body {
     cursor: pointer;
 }
 
+/* 锐痛和钝痛同行显示 */
+.pain-checkbox-row {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.pain-checkbox-row .checkbox-group {
+    margin: 0;
+}
+
 .paralysis-explanation {
     margin-top: 20px;
     padding: 15px;

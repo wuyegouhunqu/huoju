@@ -671,8 +671,16 @@
                                     <input type="number" id="increased-damage" placeholder="0" min="0" step="0.1" class="number-input-small">
                                 </div>
                                 <div class="form-group-inline">
-                                    <label>额外伤害more(%)</label>
-                                    <input type="number" id="more-damage" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                    <label>额外伤害1(%)</label>
+                                    <input type="number" id="more-damage1" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                </div>
+                                <div class="form-group-inline">
+                                    <label>额外伤害2(%)</label>
+                                    <input type="number" id="more-damage2" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                </div>
+                                <div class="form-group-inline">
+                                    <label>额外伤害3(%)</label>
+                                    <input type="number" id="more-damage3" placeholder="0" min="0" step="0.1" class="number-input-small">
                                 </div>
                             </div>
                         </div>
@@ -702,8 +710,16 @@
                                             <input type="number" id="increased-lightning" placeholder="0" min="0" step="0.1" class="number-input-small">
                                         </div>
                                         <div class="form-group-inline">
-                                            <label>more(%)</label>
-                                            <input type="number" id="more-lightning" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                            <label>more1(%)</label>
+                                            <input type="number" id="more-lightning1" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>more2(%)</label>
+                                            <input type="number" id="more-lightning2" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>more3(%)</label>
+                                            <input type="number" id="more-lightning3" placeholder="0" min="0" step="0.1" class="number-input-small">
                                         </div>
                                     </div>
                                 </div>
@@ -730,8 +746,16 @@
                                             <input type="number" id="increased-cold" placeholder="0" min="0" step="0.1" class="number-input-small">
                                         </div>
                                         <div class="form-group-inline">
-                                            <label>more(%)</label>
-                                            <input type="number" id="more-cold" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                            <label>more1(%)</label>
+                                            <input type="number" id="more-cold1" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>more2(%)</label>
+                                            <input type="number" id="more-cold2" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>more3(%)</label>
+                                            <input type="number" id="more-cold3" placeholder="0" min="0" step="0.1" class="number-input-small">
                                         </div>
                                     </div>
                                 </div>
@@ -758,8 +782,16 @@
                                             <input type="number" id="increased-fire" placeholder="0" min="0" step="0.1" class="number-input-small">
                                         </div>
                                         <div class="form-group-inline">
-                                            <label>more(%)</label>
-                                            <input type="number" id="more-fire" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                            <label>more1(%)</label>
+                                            <input type="number" id="more-fire1" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>more2(%)</label>
+                                            <input type="number" id="more-fire2" placeholder="0" min="0" step="0.1" class="number-input-small">
+                                        </div>
+                                        <div class="form-group-inline">
+                                            <label>more3(%)</label>
+                                            <input type="number" id="more-fire3" placeholder="0" min="0" step="0.1" class="number-input-small">
                                         </div>
                                     </div>
                                 </div>
@@ -863,21 +895,32 @@
                                 </div>
                                 <div class="form-group">
                                     <label>贯注速度inc(%)</label>
-                                    <input type="number" id="focus-speed-inc" placeholder="0" min="0" step="0.1" class="number-input" oninput="calculateFocus()">
+                                    <input type="number" id="focus-speed-inc" placeholder="0" min="0" step="0.1" class="number-input" oninput="calculateFocus()" onwheel="handleWheelAdjust(event, this, 1)">
                                 </div>
                                 <div class="form-group">
-                                    <label>贯注速度more(%)</label>
-                                    <input type="number" id="focus-speed-more" placeholder="0" min="0" step="0.1" class="number-input" oninput="calculateFocus()">
+                                    <label>额外贯注速度1(%)</label>
+                                    <input type="number" id="focus-speed-more1" placeholder="0" min="0" step="0.1" class="number-input" oninput="calculateFocus()">
+                                </div>
+                                <div class="form-group">
+                                    <label>额外贯注速度2(%)</label>
+                                    <input type="number" id="focus-speed-more2" placeholder="0" min="0" step="0.1" class="number-input" oninput="calculateFocus()">
                                 </div>
                             </div>
                             <div class="form-group" id="movement-speed-group" style="display: none;">
                                 <label>移动速度</label>
                                 <input type="number" id="movement-speed" placeholder="0" min="0" step="0.1" class="number-input" oninput="calculateFocus()">
                             </div>
-                            <div class="form-group checkbox-group" id="sharp-pain-group" style="display: none;">
-                                <label>
-                                    <input type="checkbox" id="sharp-pain" onchange="calculateFocus()"> 锐痛
-                                </label>
+                            <div class="form-group pain-checkbox-row" id="pain-checkbox-group" style="display: none;">
+                                <div class="checkbox-group">
+                                    <label>
+                                        <input type="checkbox" id="sharp-pain" onchange="calculateFocus()"> 锐痛
+                                    </label>
+                                </div>
+                                <div class="checkbox-group">
+                                    <label>
+                                        <input type="checkbox" id="dull-pain" onchange="calculateFocus()"> 钝痛
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <div class="result-display">

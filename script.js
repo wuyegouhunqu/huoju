@@ -3076,7 +3076,9 @@ function calculatePhysicalDamage() {
     const weaponAttackSpeed = parseFloat(document.getElementById('weapon-attack-speed').value) || 1;
     const otherBaseDamage = parseFloat(document.getElementById('other-base-damage').value) || 0;
     const increasedDamage = parseFloat(document.getElementById('increased-damage').value) || 0;
-    const moreDamage = parseFloat(document.getElementById('more-damage').value) || 0;
+    const moreDamage1 = parseFloat(document.getElementById('more-damage1').value) || 0;
+    const moreDamage2 = parseFloat(document.getElementById('more-damage2').value) || 0;
+    const moreDamage3 = parseFloat(document.getElementById('more-damage3').value) || 0;
     
     // 输入验证
     if (weaponMinDamage < 0 || weaponMaxDamage < 0) {
@@ -3100,8 +3102,8 @@ function calculatePhysicalDamage() {
     // 物理伤害计算：武器秒伤+其他来源提供基础点伤
     const baseDamage = weaponDPS + otherBaseDamage;
     
-    // 物理击中伤害：(基础伤害*增加伤害inc)*(1+额外伤害more)
-    const finalHitDamage = (baseDamage * (1 + increasedDamage / 100)) * (1 + moreDamage / 100);
+    // 物理击中伤害：(基础伤害*增加伤害inc)*(1+额外伤害more1)*(1+额外伤害more2)*(1+额外伤害more3)
+    const finalHitDamage = (baseDamage * (1 + increasedDamage / 100)) * (1 + moreDamage1 / 100) * (1 + moreDamage2 / 100) * (1 + moreDamage3 / 100);
     
     // 显示结果
     document.getElementById('weapon-dps').textContent = weaponDPS.toFixed(2);
@@ -3125,21 +3127,27 @@ function calculateElementalDamage() {
     const lightningMaxDamage = parseFloat(document.getElementById('weapon-max-lightning').value) || 0;
     const lightningOtherDamage = parseFloat(document.getElementById('other-lightning-damage').value) || 0;
     const lightningIncDamage = parseFloat(document.getElementById('increased-lightning').value) || 0;
-    const lightningMoreDamage = parseFloat(document.getElementById('more-lightning').value) || 0;
+    const lightningMore1 = parseFloat(document.getElementById('more-lightning1').value) || 0;
+    const lightningMore2 = parseFloat(document.getElementById('more-lightning2').value) || 0;
+    const lightningMore3 = parseFloat(document.getElementById('more-lightning3').value) || 0;
     
     // 冰冷伤害计算
     const coldMinDamage = parseFloat(document.getElementById('weapon-min-cold').value) || 0;
     const coldMaxDamage = parseFloat(document.getElementById('weapon-max-cold').value) || 0;
     const coldOtherDamage = parseFloat(document.getElementById('other-cold-damage').value) || 0;
     const coldIncDamage = parseFloat(document.getElementById('increased-cold').value) || 0;
-    const coldMoreDamage = parseFloat(document.getElementById('more-cold').value) || 0;
+    const coldMore1 = parseFloat(document.getElementById('more-cold1').value) || 0;
+    const coldMore2 = parseFloat(document.getElementById('more-cold2').value) || 0;
+    const coldMore3 = parseFloat(document.getElementById('more-cold3').value) || 0;
     
     // 火焰伤害计算
     const fireMinDamage = parseFloat(document.getElementById('weapon-min-fire').value) || 0;
     const fireMaxDamage = parseFloat(document.getElementById('weapon-max-fire').value) || 0;
     const fireOtherDamage = parseFloat(document.getElementById('other-fire-damage').value) || 0;
     const fireIncDamage = parseFloat(document.getElementById('increased-fire').value) || 0;
-    const fireMoreDamage = parseFloat(document.getElementById('more-fire').value) || 0;
+    const fireMore1 = parseFloat(document.getElementById('more-fire1').value) || 0;
+    const fireMore2 = parseFloat(document.getElementById('more-fire2').value) || 0;
+    const fireMore3 = parseFloat(document.getElementById('more-fire3').value) || 0;
     
     // 输入验证
     if (lightningMinDamage < 0 || lightningMaxDamage < 0 || coldMinDamage < 0 || coldMaxDamage < 0 || fireMinDamage < 0 || fireMaxDamage < 0) {
@@ -3163,9 +3171,9 @@ function calculateElementalDamage() {
     const baseFireDamage = fireWeaponDPS + fireOtherDamage;
     
     // 计算各元素击中伤害
-    const lightningHitDamage = (baseLightningDamage * (1 + lightningIncDamage / 100)) * (1 + lightningMoreDamage / 100);
-    const coldHitDamage = (baseColdDamage * (1 + coldIncDamage / 100)) * (1 + coldMoreDamage / 100);
-    const fireHitDamage = (baseFireDamage * (1 + fireIncDamage / 100)) * (1 + fireMoreDamage / 100);
+    const lightningHitDamage = (baseLightningDamage * (1 + lightningIncDamage / 100)) * (1 + lightningMore1 / 100) * (1 + lightningMore2 / 100) * (1 + lightningMore3 / 100);
+    const coldHitDamage = (baseColdDamage * (1 + coldIncDamage / 100)) * (1 + coldMore1 / 100) * (1 + coldMore2 / 100) * (1 + coldMore3 / 100);
+    const fireHitDamage = (baseFireDamage * (1 + fireIncDamage / 100)) * (1 + fireMore1 / 100) * (1 + fireMore2 / 100) * (1 + fireMore3 / 100);
     
     // 计算总元素击中伤害
     const totalElementalDamage = lightningHitDamage + coldHitDamage + fireHitDamage;
@@ -3240,21 +3248,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
 console.log('伤害系统模块功能已启用！');
 
+// 鼠标滚轮调整数值功能
+function handleWheelAdjust(event, input, step) {
+    event.preventDefault();
+    
+    const currentValue = parseFloat(input.value) || 0;
+    const delta = event.deltaY > 0 ? -step : step;
+    const newValue = Math.max(0, currentValue + delta);
+    
+    input.value = newValue;
+    
+    // 触发input事件以更新计算
+    const inputEvent = new Event('input', { bubbles: true });
+    input.dispatchEvent(inputEvent);
+}
+
 // 贯注计算功能
 function updateFocusInputs() {
     const focusType = document.getElementById('focus-type').value;
     const movementSpeedGroup = document.getElementById('movement-speed-group');
-    const sharpPainGroup = document.getElementById('sharp-pain-group');
+    const painCheckboxGroup = document.getElementById('pain-checkbox-group');
     
     // 隐藏所有特殊输入
     movementSpeedGroup.style.display = 'none';
-    sharpPainGroup.style.display = 'none';
+    painCheckboxGroup.style.display = 'none';
     
     // 根据贯注类型显示对应输入
     if (focusType === 'thunder') {
         movementSpeedGroup.style.display = 'block';
     } else if (focusType === 'sharp') {
-        sharpPainGroup.style.display = 'block';
+        painCheckboxGroup.style.display = 'block';
     }
     
     // 更新规则说明
@@ -3280,9 +3303,11 @@ function updateFocusRuleText(focusType) {
 function calculateFocus() {
     const focusType = document.getElementById('focus-type').value;
     const speedInc = parseFloat(document.getElementById('focus-speed-inc').value) || 0;
-    const speedMore = parseFloat(document.getElementById('focus-speed-more').value) || 0;
+    const speedMore1 = parseFloat(document.getElementById('focus-speed-more1').value) || 0;
+    const speedMore2 = parseFloat(document.getElementById('focus-speed-more2').value) || 0;
     const movementSpeed = parseFloat(document.getElementById('movement-speed').value) || 0;
     const sharpPain = document.getElementById('sharp-pain').checked;
+    const dullPain = document.getElementById('dull-pain').checked;
     
     const resultDiv = document.getElementById('focus-result');
     const valueDisplay = document.getElementById('focus-value-display');
@@ -3295,8 +3320,8 @@ function calculateFocus() {
         return;
     }
     
-    // 计算贯注速度加成
-    const totalSpeedBonus = (1 + speedInc / 100) * (1 + speedMore / 100);
+    // 计算贯注速度加成（多个more相乘）
+    const totalSpeedBonus = (1 + speedInc / 100) * (1 + speedMore1 / 100) * (1 + speedMore2 / 100);
     
     // 基础贯注值
     const baseFocusValues = {
@@ -3314,9 +3339,15 @@ function calculateFocus() {
     let focusLimit = 100;
     let triggerValue = 100;
     
-    if (focusType === 'sharp' && sharpPain) {
-        focusLimit = 120;
-        triggerValue = 120;
+    if (focusType === 'sharp') {
+        if (sharpPain) {
+            focusLimit = 120;
+            triggerValue = 120;
+        }
+        if (dullPain) {
+            focusLimit += 30;
+            triggerValue += 30;
+        }
     }
     
     // 显示基本信息
@@ -3442,7 +3473,7 @@ const weaponSubtypes = {
 // 加载传奇装备数据
 async function loadLegendaryEquipmentData() {
     try {
-        const response = await fetch(encodeURIComponent('传奇装备.json'));
+        const response = await fetch('传奇装备.json');
         legendaryEquipmentData = await response.json();
         console.log('传奇装备数据加载成功');
     } catch (error) {
@@ -3473,14 +3504,21 @@ async function loadMutationAffixData() {
             }
             
             // 提取词缀内容（去除几率信息）
-            const affixMatch = line.match(/^([^几率]+)/);
-            if (affixMatch) {
-                const affix = affixMatch[1].trim();
-                // 去除词缀编号
-                const cleanAffix = affix.replace(/^词缀\d+：/, '').trim();
-                if (cleanAffix && !cleanAffix.includes('几率：')) {
-                    mutationAffixData.push(cleanAffix);
-                }
+            let cleanAffix = line.trim();
+            
+            // 去除词缀编号
+            cleanAffix = cleanAffix.replace(/^词缀\d+：/, '');
+            
+            // 去除几率信息（支持多种格式）
+            cleanAffix = cleanAffix.replace(/\s*几率：[\d.%]+\s*$/, '');
+            cleanAffix = cleanAffix.replace(/\s+[\d.%]+\s*$/, '');
+            cleanAffix = cleanAffix.replace(/\t[\d.%]+\s*$/, '');
+            
+            // 清理制表符和多余空格
+            cleanAffix = cleanAffix.replace(/\t/g, ' ').replace(/\s+/g, ' ').trim();
+            
+            if (cleanAffix && cleanAffix.length > 0) {
+                mutationAffixData.push(cleanAffix);
             }
         }
         
