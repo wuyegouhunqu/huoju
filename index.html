@@ -80,7 +80,10 @@
                         <i class="fas fa-hammer"></i>
                         装备打造
                     </button>
-
+                    <button class="function-btn" onclick="showCraftingModule('erosion-simulation')">
+                        <i class="fas fa-magic"></i>
+                        侵蚀模拟
+                    </button>
                 </div>
 
                 <!-- 装备打造模块 -->
@@ -277,6 +280,196 @@
                     </div>
                 </div>
 
+                <!-- 侵蚀模拟模块 -->
+                <div class="crafting-module" id="erosion-simulation" style="display: none;">
+                    <div class="erosion-container">
+                        <!-- 装备选择和价格设置区域 -->
+                        <div class="equipment-selection-area">
+                            <div class="module-card">
+                                <h3><i class="fas fa-cog"></i> 装备选择与价格设置</h3>
+                                <div class="equipment-selection-grid">
+                                    <!-- 第一行：装备类型、装备等级、装备名称 -->
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>装备类型</label>
+                                            <select id="equipment-type" class="equipment-select">
+                                                <option value="">请选择装备类型</option>
+                                                <option value="力量头部">力量头部</option>
+                                                <option value="敏捷头部">敏捷头部</option>
+                                                <option value="智慧头部">智慧头部</option>
+                                                <option value="力量胸甲">力量胸甲</option>
+                                                <option value="敏捷胸甲">敏捷胸甲</option>
+                                                <option value="智慧胸甲">智慧胸甲</option>
+                                                <option value="力量手套">力量手套</option>
+                                                <option value="敏捷手套">敏捷手套</option>
+                                                <option value="智慧手套">智慧手套</option>
+                                                <option value="力量鞋子">力量鞋子</option>
+                                                <option value="敏捷鞋子">敏捷鞋子</option>
+                                                <option value="智慧鞋子">智慧鞋子</option>
+                                                <option value="单手">单手</option>
+                                                <option value="双手">双手</option>
+                                                <option value="力量盾牌">力量盾牌</option>
+                                                <option value="敏捷盾牌">敏捷盾牌</option>
+                                                <option value="智慧盾牌">智慧盾牌</option>
+                                                <option value="项链">项链</option>
+                                                <option value="戒指">戒指</option>
+                                                <option value="腰带">腰带</option>
+                                                <option value="灵戒">灵戒</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label>装备等级</label>
+                                            <select id="equipment-level-erosion" class="equipment-select">
+                                                <option value="82">82级</option>
+                                                <option value="86">86级</option>
+                                                <option value="100">100级</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label>装备名称</label>
+                                            <select id="equipment-name" class="equipment-select">
+                                                <option value="">请先选择装备类型</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 武器类型行（仅在选择武器时显示） -->
+                                    <div class="form-row" id="weapon-subtype-group" style="display: none;">
+                                        <div class="form-group">
+                                            <label>武器类型</label>
+                                            <select id="weapon-subtype" class="equipment-select">
+                                                <option value="">请选择武器类型</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 第二行：装备价格、异魔之核、使魔之核 -->
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>装备价格</label>
+                                            <input type="number" id="equipment-price" class="price-input" placeholder="装备价格" min="0" step="0.01">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>异魔之核</label>
+                                            <input type="number" id="dark-core-price" class="price-input" placeholder="异魔之核价格" min="0" step="0.01">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>使魔之核</label>
+                                            <input type="number" id="demon-core-price" class="price-input" placeholder="使魔之核价格" min="0" step="0.01">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 侵蚀模拟区域 -->
+                        <div class="erosion-simulation-area">
+                            <div class="erosion-layout">
+                                <!-- 左侧：侵蚀控制 -->
+                                <div class="erosion-left-panel">
+                                    <div class="module-card">
+                                        <h3><i class="fas fa-magic"></i> 侵蚀模拟</h3>
+                                        <div class="erosion-controls">
+                                            <div class="erosion-buttons">
+                                                <button class="erosion-btn dark-erosion" onclick="performErosion('dark')">
+                                                    <i class="fas fa-moon"></i>
+                                                    黑暗侵蚀
+                                                </button>
+                                                <button class="erosion-btn deepest-erosion" onclick="performErosion('deepest')">
+                                                    <i class="fas fa-skull"></i>
+                                                    至暗侵蚀
+                                                </button>
+                                            </div>
+                                            
+                                            <div class="erosion-stats">
+                                                <div class="stat-item">
+                                                    <label>侵蚀次数</label>
+                                                    <span id="erosion-count">0</span>
+                                                </div>
+                                                <div class="stat-item">
+                                                    <label>异魔之核</label>
+                                                    <span id="dark-core-used">0</span>
+                                                </div>
+                                                <div class="stat-item">
+                                                    <label>使魔之核</label>
+                                                    <span id="demon-core-used">0</span>
+                                                </div>
+                                                <div class="stat-item total-cost">
+                                                    <label>总成本</label>
+                                                    <span id="total-erosion-cost">0 初火源质</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 侵蚀结果展示区域 -->
+                                            <div class="erosion-result-area" id="erosion-result-area" style="display: none;">
+                                                <div class="result-header">
+                                                    <h4><i class="fas fa-star"></i> 侵蚀结果</h4>
+                                                </div>
+                                                <div class="result-content" id="erosion-result-content">
+                                                    <!-- 侵蚀结果将在这里显示 -->
+                                                </div>
+                                            </div>
+                                            
+                                            <button class="reset-btn" onclick="resetErosionCount()">
+                                                <i class="fas fa-undo"></i>
+                                                重置计数
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 右侧：装备展示 -->
+                                <div class="erosion-right-panel">
+                                    <div class="module-card">
+                                        <h3><i class="fas fa-shield-alt"></i> 装备展示</h3>
+                                        <div class="equipment-display">
+                                            <div class="equipment-preview">
+                                                <div class="equipment-icon">
+                                                    <img id="equipment-image" src="" alt="装备图标" style="display: none;">
+                                                    <div class="placeholder-icon">
+                                                        <i class="fas fa-shield-alt"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="equipment-info">
+                                                    <h4 id="display-equipment-name">请选择装备</h4>
+                                                    <p id="display-equipment-level">等级: --</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="equipment-affixes">
+                                                <div class="affix-section">
+                                                    <h5>基础词缀</h5>
+                                                    <div id="base-affixes" class="affix-list">
+                                                        <p class="no-affixes">请选择装备</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="affix-section">
+                                                    <h5>普通词缀</h5>
+                                                    <div id="normal-affixes" class="affix-list">
+                                                        <p class="no-affixes">请选择装备</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="affix-section" id="erosion-affixes-section" style="display: none;">
+                                                    <h5>已侵蚀词缀</h5>
+                                                    <div id="erosion-affixes" class="affix-list">
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="equipment-status" id="equipment-status" style="display: none;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 
             </div>
 
@@ -307,6 +500,10 @@
                     <button class="function-btn" onclick="showDamageModule('paralysis-calc')">
                         <i class="fas fa-bolt"></i>
                         麻痹计算
+                    </button>
+                    <button class="function-btn" onclick="showDamageModule('focus-calc')">
+                        <i class="fas fa-bullseye"></i>
+                        贯注计算
                     </button>
                 </div>
 
@@ -642,6 +839,58 @@
 
                             <div class="explanation-item">
                                 <strong>导电:</strong> 拥有导电时使麻痹的基础效果转变为：每层麻痹使敌人受到的伤害额外增加10%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 贯注计算模块 -->
+                <div class="damage-module" id="focus-calc" style="display: none;">
+                    <div class="module-card">
+                        <h3><i class="fas fa-bullseye"></i> 贯注计算</h3>
+                        <div class="focus-grid">
+                            <div class="focus-main-row">
+                                <div class="form-group">
+                                    <label>贯注技能</label>
+                                    <select id="focus-type" class="affix-select" onchange="updateFocusInputs()">
+                                        <option value="">请选择贯注类型</option>
+                                        <option value="sharp">锐利贯注</option>
+                                        <option value="ice">寒冰贯注</option>
+                                        <option value="thunder">雷霆贯注</option>
+                                        <option value="erosion">侵蚀贯注</option>
+                                        <option value="fire">熔火贯注</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>贯注速度inc(%)</label>
+                                    <input type="number" id="focus-speed-inc" placeholder="0" min="0" step="0.1" class="number-input" oninput="calculateFocus()">
+                                </div>
+                                <div class="form-group">
+                                    <label>贯注速度more(%)</label>
+                                    <input type="number" id="focus-speed-more" placeholder="0" min="0" step="0.1" class="number-input" oninput="calculateFocus()">
+                                </div>
+                            </div>
+                            <div class="form-group" id="movement-speed-group" style="display: none;">
+                                <label>移动速度</label>
+                                <input type="number" id="movement-speed" placeholder="0" min="0" step="0.1" class="number-input" oninput="calculateFocus()">
+                            </div>
+                            <div class="form-group checkbox-group" id="sharp-pain-group" style="display: none;">
+                                <label>
+                                    <input type="checkbox" id="sharp-pain" onchange="calculateFocus()"> 锐痛
+                                </label>
+                            </div>
+                        </div>
+                        <div class="result-display">
+                            <div class="result-value" id="focus-result">请选择贯注类型</div>
+                            <div class="result-details" id="focus-details">
+                                <div class="result-item" id="focus-value-display"></div>
+                                <div class="result-item" id="focus-tier-display"></div>
+                            </div>
+                        </div>
+                        <div class="focus-explanation" id="focus-explanation">
+                            <h4>贯注规则:</h4>
+                            <div class="explanation-item" id="focus-rule-text">
+                                请选择贯注类型查看详细规则
                             </div>
                         </div>
                     </div>

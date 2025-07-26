@@ -523,13 +523,13 @@ body {
 }
 
 .affix-select {
-    width: 90px;
-    padding: 0.4rem 0.6rem;
+    width: 140px;
+    padding: 0.6rem 0.8rem;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
+    border-radius: 8px;
     color: white;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     transition: all 0.3s ease;
 }
 
@@ -1066,6 +1066,69 @@ body {
 
 .explanation-item strong {
     color: #ffd700;
+}
+
+/* 贯注计算网格 */
+.focus-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.focus-main-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    align-items: end;
+}
+
+.focus-main-row .form-group {
+    margin-bottom: 0;
+}
+
+.focus-select {
+    padding: 0.6rem 0.8rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: white;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.focus-select:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+}
+
+.focus-select option {
+    background: #2a2a2a;
+    color: white;
+}
+
+.focus-explanation {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+}
+
+.focus-explanation h4 {
+    margin: 0 0 10px 0;
+    color: #4CAF50;
+    font-size: 16px;
+}
+
+.focus-explanation .explanation-item {
+    margin-bottom: 8px;
+    line-height: 1.4;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* 结果详情 */
@@ -2953,8 +3016,8 @@ select.select-input option {
 }
 
 .equipment-icon {
-    width: 120px;
-    height: 120px;
+    width: 180px;
+    height: 180px;
     margin: 0 auto 15px;
     border: 2px solid var(--border-color);
     border-radius: 8px;
@@ -3068,4 +3131,448 @@ select.select-input option {
 [data-theme="dark"] .equipment-icon {
     border-color: var(--border-color);
     background: var(--card-bg);
+}
+
+/* 侵蚀模拟模块样式 */
+.erosion-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+}
+
+.equipment-selection-area {
+    width: 100%;
+}
+
+.equipment-selection-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.erosion-simulation-area {
+    width: 100%;
+}
+
+.erosion-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.erosion-left-panel {
+    flex: 1;
+    min-width: 0;
+}
+
+.erosion-right-panel {
+    flex: 1;
+    min-width: 0;
+}
+
+.erosion-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.equipment-display {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 侵蚀结果区域样式 */
+.erosion-result-area {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.erosion-result-area .result-header {
+    margin-bottom: 10px;
+}
+
+.erosion-result-area .result-header h4 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.erosion-result-area .result-content {
+    color: var(--text-color);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.equipment-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.equipment-select:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+}
+
+.equipment-select option {
+    background: #2a2a2a;
+    color: white;
+}
+
+.price-input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.price-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.erosion-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.erosion-btn {
+    padding: 15px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.dark-erosion {
+    background: linear-gradient(135deg, #2c1810, #4a2c1a);
+    color: #ffd700;
+    box-shadow: 0 4px 15px rgba(44, 24, 16, 0.3);
+}
+
+.dark-erosion:hover {
+    background: linear-gradient(135deg, #3d2318, #5d3621);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(44, 24, 16, 0.4);
+}
+
+.deepest-erosion {
+    background: linear-gradient(135deg, #1a0d1a, #2d1a2d);
+    color: #e6ccff;
+    box-shadow: 0 4px 15px rgba(26, 13, 26, 0.3);
+}
+
+.deepest-erosion:hover {
+    background: linear-gradient(135deg, #261326, #3d2a3d);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(26, 13, 26, 0.4);
+}
+
+.erosion-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: var(--input-bg);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.stat-row {
+    display: flex;
+    gap: 15px;
+}
+
+.stat-row .stat-item {
+    flex: 1;
+}
+
+.stat-item label {
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.stat-item span {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.total-cost {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+.total-cost label,
+.total-cost span {
+    color: white;
+}
+
+.erosion-controls .reset-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--danger-color, #dc3545);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.erosion-controls .reset-btn:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.equipment-preview {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: var(--input-bg);
+    border-radius: 10px;
+    border: 2px solid var(--border-color);
+}
+
+.equipment-display .equipment-icon {
+    width: 128px;
+    height: 128px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+}
+
+.equipment-display .equipment-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.placeholder-icon {
+    font-size: 32px;
+    color: var(--text-secondary);
+}
+
+.equipment-info h4 {
+    margin: 0 0 5px 0;
+    color: var(--text-color);
+    font-size: 18px;
+}
+
+.equipment-info p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.affix-section {
+    margin-bottom: 15px;
+}
+
+.affix-section h5 {
+    margin: 0 0 10px 0;
+    color: var(--text-color);
+    font-size: 16px;
+    font-weight: bold;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 5px;
+}
+
+.affix-list {
+    background: var(--input-bg);
+    border-radius: 6px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    min-height: 40px;
+}
+
+.affix-list p {
+    margin: 5px 0;
+    color: var(--text-color);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.no-affixes {
+    color: var(--text-secondary) !important;
+    font-style: italic;
+}
+
+.equipment-status {
+    margin-top: 15px;
+    padding: 10px;
+    background: var(--input-bg);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.erosion-result-area {
+    grid-column: 1 / -1;
+}
+
+.result-content {
+    padding: 20px;
+    background: var(--input-bg);
+    border-radius: 10px;
+    border: 2px solid var(--border-color);
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* 蓝紫色流光效果 */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.corrupted-affix {
+    background: linear-gradient(
+        90deg,
+        #6a5acd 0%,
+        #9370db 25%,
+        #ba55d3 50%,
+        #9370db 75%,
+        #6a5acd 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
+}
+
+.bound-status {
+    color: #6a5acd;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(106, 90, 205, 0.5);
+    animation: shimmer 2s infinite;
+}
+
+.mutation-affix {
+    background: linear-gradient(
+        90deg,
+        #ff6b6b 0%,
+        #ff8e53 25%,
+        #ff6b6b 50%,
+        #ff8e53 75%,
+        #ff6b6b 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
+}
+
+.profane-affix {
+    background: linear-gradient(
+        90deg,
+        #ff6b6b 0%,
+        #ff8e53 25%,
+        #ff6b6b 50%,
+        #ff8e53 75%,
+        #ff6b6b 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
+}
+
+/* 侵蚀模拟响应式设计 */
+@media (max-width: 1200px) {
+    .erosion-main-content {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .erosion-container {
+        padding: 10px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .erosion-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-row {
+        flex-direction: column;
+    }
 }
