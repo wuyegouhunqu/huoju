@@ -16,6 +16,8 @@ function initializeApp() {
     initializeSkillSystem();
     initializeSealSystem();
     initializeTowerSystem();
+    initializeErosionSimulation();
+    setupErosionEventListeners();
 }
 
 // 技能系统数据和函数
@@ -3292,7 +3294,7 @@ function updateFocusRuleText(focusType) {
     const rules = {
         'sharp': '锐利贯注：近战攻击击中时获得25点贯注值，该效果有0.2秒间隔。贯注值达到100时，下一次近战攻击击中时，消耗全部贯注值。',
         'ice': '寒冰贯注：对冰结敌人造成伤害时获得20点贯注值，间隔0.4秒；寒冰风暴存在期间，无法以此方式获得贯注值。贯注值达到100后，创造一片跟随角色移动的寒冰风暴。',
-        'thunder': '雷霆贯注：每移动2米获得5点贯注值。贯注值达到100后，使用非位移攻击技能会消耗全部贯注值并向前触发该技能，降下雷击打击一定范围内的每个敌人。',
+        'thunder': '雷霆贯注：每移动2米获得5点贯注值。贯注值达到100后，使用非位移攻击技能会消耗全部贯注值并向前触发该技能，降下雷击打击一定范围内的每个敌人。\n\n移动所需时间 = 需要移动的距离 / 每秒移动距离\n每秒移动距离 = 玩家基础移动速度 × (1 + 移动速度加成%)\n玩家基础移动速度默认6.5米每秒。',
         'erosion': '侵蚀贯注：每隔0.1秒获得6.5点贯注值。贯注值达到100后，使用主动技能会向敌人触发该技能，发射一颗持续追踪敌人的侵蚀法球。',
         'fire': '熔火贯注：点燃敌人时获得12点贯注值，该效果每0.5秒至多触发3次。击败敌人时，消耗40点贯注值并在敌人位置触发该技能，引发爆炸。'
     };
@@ -3378,13 +3380,22 @@ function calculateFocus() {
         case 'thunder':
             const focusPerMeter = actualFocusValue / 2; // 每2米获得5点，所以每米2.5点
             const metersToTrigger = triggerValue / focusPerMeter;
+            
+            // 玩家基础移动速度默认6.5米每秒
+            const baseMovementSpeed = 6.5;
+            const actualMovementSpeed = baseMovementSpeed * (1 + movementSpeed / 100);
+            const distancePerSecond = actualMovementSpeed;
+            
             resultText = `每移动1米获得 ${focusPerMeter.toFixed(1)} 点贯注值`;
             valueText = `贯注上限：${focusLimit} 点，触发值：${triggerValue} 点`;
             tierText = `需要移动 ${metersToTrigger.toFixed(1)} 米触发雷击`;
             
             if (movementSpeed > 0) {
-                const timeToTrigger = metersToTrigger / movementSpeed;
+                const timeToTrigger = metersToTrigger / actualMovementSpeed;
                 tierText += ` (约 ${timeToTrigger.toFixed(1)} 秒)`;
+                tierText += `\n每秒移动距离：${distancePerSecond.toFixed(1)} 米`;
+            } else {
+                tierText += `\n每秒移动距离：${baseMovementSpeed.toFixed(1)} 米 (基础速度)`;
             }
             break;
             
@@ -3455,7 +3466,15 @@ let erosionStats = {
     count: 0,
     darkCoreUsed: 0,
     demonCoreUsed: 0,
-    totalCost: 0
+    totalCost: 0,
+    // 新增侵蚀结果统计
+    results: {
+        mutation: 0,    // 异化
+        chaos: 0,       // 混沌
+        profane: 0,     // 亵渎
+        pride: 0,       // 傲慢
+        void: 0         // 虚无
+    }
 };
 let currentEquipment = null;
 let currentAffixes = {
@@ -4009,8 +4028,10 @@ function executeErosionLogic(erosionType) {
 function applyErosionEffect(result) {
     const equipmentStatus = document.getElementById('equipment-status');
     
+    // 更新侵蚀结果统计
     switch (result) {
         case '异化':
+            erosionStats.results.mutation++;
             // 添加异化词缀
             if (mutationAffixData.length > 0) {
                 const randomMutationAffix = mutationAffixData[Math.floor(Math.random() * mutationAffixData.length)];
@@ -4030,6 +4051,7 @@ function applyErosionEffect(result) {
             break;
             
         case '混沌':
+            erosionStats.results.chaos++;
             // 处理混沌侵蚀：随机选择一个词缀并随机化其数值
             applyChaosEffect();
             // 显示已绑定状态
@@ -4038,6 +4060,7 @@ function applyErosionEffect(result) {
             break;
             
         case '亵渎':
+            erosionStats.results.profane++;
             // 随机2条词缀替换为已侵蚀词缀
             upgradeRandomAffixes(2);
             // 标记亵渎词缀
@@ -4052,11 +4075,13 @@ function applyErosionEffect(result) {
             break;
             
         case '傲慢':
+            erosionStats.results.pride++;
             // 随机1条词缀替换为已侵蚀词缀
             upgradeRandomAffixes(1);
             break;
             
         case '虚无':
+            erosionStats.results.void++;
             // 显示已绑定状态
             equipmentStatus.innerHTML = '<p class="bound-status">已绑定</p>';
             equipmentStatus.style.display = 'block';
@@ -4174,6 +4199,18 @@ function updateErosionStats() {
     document.getElementById('dark-core-used').textContent = erosionStats.darkCoreUsed;
     document.getElementById('demon-core-used').textContent = erosionStats.demonCoreUsed;
     document.getElementById('total-erosion-cost').textContent = `${erosionStats.totalCost.toFixed(2)} 初火源质`;
+    
+    // 更新侵蚀结果统计
+    updateResultStats();
+}
+
+// 新增：更新侵蚀结果统计显示
+function updateResultStats() {
+    document.getElementById('mutation-count').textContent = erosionStats.results.mutation;
+    document.getElementById('chaos-count').textContent = erosionStats.results.chaos;
+    document.getElementById('profane-count').textContent = erosionStats.results.profane;
+    document.getElementById('pride-count').textContent = erosionStats.results.pride;
+    document.getElementById('void-count').textContent = erosionStats.results.void;
 }
 
 // 显示侵蚀结果
@@ -4200,7 +4237,15 @@ function resetErosionCount() {
         count: 0,
         darkCoreUsed: 0,
         demonCoreUsed: 0,
-        totalCost: 0
+        totalCost: 0,
+        // 重置侵蚀结果统计
+        results: {
+            mutation: 0,
+            chaos: 0,
+            profane: 0,
+            pride: 0,
+            void: 0
+        }
     };
     
     updateErosionStats();
@@ -4209,6 +4254,150 @@ function resetErosionCount() {
     document.getElementById('erosion-result-area').style.display = 'none';
     
     showNotification('侵蚀计数已重置', 'success');
+}
+
+// 新增：模拟次数调整功能
+function adjustSimulationCount(delta) {
+    const input = document.getElementById('simulation-count');
+    let currentValue = parseInt(input.value) || 100;
+    let newValue = currentValue + delta;
+    
+    // 确保是100的整数倍且不小于100
+    newValue = Math.max(100, Math.round(newValue / 100) * 100);
+    input.value = newValue;
+}
+
+// 新增：验证模拟次数输入
+function validateSimulationCount(input) {
+    let value = parseInt(input.value) || 100;
+    // 确保是100的整数倍且不小于100
+    value = Math.max(100, Math.round(value / 100) * 100);
+    input.value = value;
+}
+
+// 新增：执行多次侵蚀模拟
+function performMultipleErosion(erosionType) {
+    const simulationCount = parseInt(document.getElementById('simulation-count').value) || 100;
+    
+    // 验证装备是否已选择
+    if (!currentEquipment) {
+        showNotification('请先选择装备', 'error');
+        return;
+    }
+    
+    // 获取价格
+    const darkCorePrice = parseFloat(document.getElementById('dark-core-price').value) || 0;
+    const demonCorePrice = parseFloat(document.getElementById('demon-core-price').value) || 0;
+    
+    if (darkCorePrice <= 0 || demonCorePrice <= 0) {
+        showNotification('请输入有效的核心价格', 'error');
+        return;
+    }
+    
+    // 执行批量模拟
+    for (let i = 0; i < simulationCount; i++) {
+        const result = executeErosionLogicSimulation(erosionType);
+        
+        // 更新统计数据
+        erosionStats.count++;
+        
+        if (erosionType === 'dark') {
+            erosionStats.darkCoreUsed++;
+            erosionStats.totalCost += darkCorePrice;
+        } else {
+            erosionStats.demonCoreUsed++;
+            erosionStats.totalCost += demonCorePrice;
+        }
+        
+        // 更新结果统计
+        switch (result) {
+            case '异化':
+                erosionStats.results.mutation++;
+                break;
+            case '混沌':
+                erosionStats.results.chaos++;
+                break;
+            case '亵渎':
+                erosionStats.results.profane++;
+                break;
+            case '傲慢':
+                erosionStats.results.pride++;
+                break;
+            case '虚无':
+                erosionStats.results.void++;
+                break;
+        }
+    }
+    
+    // 更新显示
+    updateErosionStats();
+    
+    // 显示模拟结果
+    const erosionTypeName = erosionType === 'dark' ? '黑暗侵蚀' : '至暗侵蚀';
+    showNotification(`${erosionTypeName}模拟${simulationCount}次完成`, 'success');
+}
+
+// 新增：仅用于模拟的侵蚀逻辑（不修改装备状态）
+function executeErosionLogicSimulation(erosionType) {
+    const random = Math.random() * 100;
+    
+    if (erosionType === 'dark') {
+        // 黑暗侵蚀概率
+        if (random < 25) return '异化';
+        if (random < 50) return '混沌';
+        if (random < 65) return '亵渎';
+        if (random < 95) return '傲慢';
+        return '虚无';
+    } else {
+        // 至暗侵蚀概率
+        if (random < 30) return '异化';
+        if (random < 60) return '混沌';
+        if (random < 75) return '亵渎';
+        if (random < 90) return '傲慢';
+        return '虚无';
+    }
+}
+
+// 新增：设置侵蚀系统事件监听器
+function setupErosionEventListeners() {
+    // 模拟次数输入框事件
+    const simulationCountInput = document.getElementById('simulation-count');
+    if (simulationCountInput) {
+        // 鼠标滚轮调整
+        simulationCountInput.addEventListener('wheel', function(event) {
+            handleWheelAdjust(event, this, 100);
+        });
+        
+        // 输入验证
+        simulationCountInput.addEventListener('blur', function() {
+            validateSimulationCount(this);
+        });
+        
+        // 回车键验证
+        simulationCountInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                validateSimulationCount(this);
+            }
+        });
+    }
+    
+    // 模拟次数调整按钮
+    const decreaseBtn = document.getElementById('decrease-simulation');
+    const increaseBtn = document.getElementById('increase-simulation');
+    
+    if (decreaseBtn) {
+        decreaseBtn.addEventListener('click', function() {
+            adjustSimulationCount(-100);
+        });
+    }
+    
+    if (increaseBtn) {
+        increaseBtn.addEventListener('click', function() {
+            adjustSimulationCount(100);
+        });
+    }
+    
+    console.log('侵蚀系统事件监听器设置完成');
 }
 
 // 侵蚀模拟功能初始化已合并到主DOMContentLoaded事件中

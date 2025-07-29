@@ -3563,6 +3563,158 @@ select.select-input option {
     font-weight: bold;
 }
 
+/* 模拟N次功能样式 */
+.simulation-controls {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.simulation-input-group {
+    margin-bottom: 15px;
+}
+
+.simulation-input-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.number-input-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.number-btn {
+    width: 35px;
+    height: 35px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-size: 12px;
+}
+
+.number-btn:hover {
+    background: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+.simulation-input {
+    flex: 1;
+    padding: 8px 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    font-size: 14px;
+    text-align: center;
+    min-width: 80px;
+}
+
+.simulation-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.simulation-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.simulation-btn {
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: white;
+}
+
+.dark-simulation {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+}
+
+.dark-simulation:hover {
+    background: linear-gradient(135deg, #34495e, #2c3e50);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+}
+
+.deepest-simulation {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+}
+
+.deepest-simulation:hover {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.3);
+}
+
+/* 侵蚀结果统计样式 */
+.erosion-results-stats {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.erosion-results-stats h4 {
+    margin: 0 0 15px 0;
+    color: var(--primary-color);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.result-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.result-stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--input-bg);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.result-stat-item label {
+    font-size: 13px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.result-stat-item span {
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: 14px;
+}
+
 /* 侵蚀模拟响应式设计 */
 @media (max-width: 1200px) {
     .erosion-main-content {
@@ -3580,6 +3732,14 @@ select.select-input option {
     }
     
     .erosion-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .simulation-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .result-stats-grid {
         grid-template-columns: 1fr;
     }
     

@@ -383,6 +383,34 @@
                                                 </button>
                                             </div>
                                             
+                                            <!-- 模拟N次功能 -->
+                                            <div class="simulation-controls">
+                                                <div class="simulation-input-group">
+                                                    <label>模拟次数</label>
+                                                    <div class="number-input-container">
+                                                        <button class="number-btn" onclick="adjustSimulationCount(-100)">
+                                                            <i class="fas fa-minus"></i>
+                                                        </button>
+                                                        <input type="number" id="simulation-count" value="100" min="100" step="100" 
+                                                               class="simulation-input" onwheel="handleSimulationWheel(event)" 
+                                                               oninput="validateSimulationCount()">
+                                                        <button class="number-btn" onclick="adjustSimulationCount(100)">
+                                                            <i class="fas fa-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="simulation-buttons">
+                                                    <button class="simulation-btn dark-simulation" onclick="performMultipleErosion('dark')">
+                                                        <i class="fas fa-moon"></i>
+                                                        模拟黑暗侵蚀
+                                                    </button>
+                                                    <button class="simulation-btn deepest-simulation" onclick="performMultipleErosion('deepest')">
+                                                        <i class="fas fa-skull"></i>
+                                                        模拟至暗侵蚀
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
                                             <div class="erosion-stats">
                                                 <div class="stat-item">
                                                     <label>侵蚀次数</label>
@@ -399,6 +427,33 @@
                                                 <div class="stat-item total-cost">
                                                     <label>总成本</label>
                                                     <span id="total-erosion-cost">0 初火源质</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 侵蚀结果统计 -->
+                                            <div class="erosion-results-stats">
+                                                <h4><i class="fas fa-chart-bar"></i> 侵蚀结果统计</h4>
+                                                <div class="result-stats-grid">
+                                                    <div class="result-stat-item">
+                                                        <label>异化次数</label>
+                                                        <span id="mutation-count">0</span>
+                                                    </div>
+                                                    <div class="result-stat-item">
+                                                        <label>混沌次数</label>
+                                                        <span id="chaos-count">0</span>
+                                                    </div>
+                                                    <div class="result-stat-item">
+                                                        <label>亵渎次数</label>
+                                                        <span id="profane-count">0</span>
+                                                    </div>
+                                                    <div class="result-stat-item">
+                                                        <label>傲慢次数</label>
+                                                        <span id="pride-count">0</span>
+                                                    </div>
+                                                    <div class="result-stat-item">
+                                                        <label>虚无次数</label>
+                                                        <span id="void-count">0</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             
@@ -907,7 +962,7 @@
                                 </div>
                             </div>
                             <div class="form-group" id="movement-speed-group" style="display: none;">
-                                <label>移动速度</label>
+                                <label>移动速度加成(%)</label>
                                 <input type="number" id="movement-speed" placeholder="0" min="0" step="0.1" class="number-input" oninput="calculateFocus()">
                             </div>
                             <div class="form-group pain-checkbox-row" id="pain-checkbox-group" style="display: none;">
