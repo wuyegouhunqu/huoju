@@ -18,6 +18,7 @@ function initializeApp() {
     initializeTowerSystem();
     initializeErosionSimulation();
     setupErosionEventListeners();
+    setupCraftingEventListeners();
 }
 
 // 技能系统数据和函数
@@ -418,15 +419,33 @@ function calculateCraftingCost() {
             }
         });
         
-        // 显示结果
-        const resultElement = document.getElementById('crafting-result');
-        resultElement.textContent = `${totalCost.toFixed(2)} 初火源质`;
+        // 获取勾选状态
+        const includeDreamCost = document.getElementById('include-dream-cost').checked;
+        const includeSequenceCost = document.getElementById('include-sequence-cost').checked;
+        
+        // 计算额外成本
+        let dreamCost = 0;
+        let sequenceCost = 0;
+        
+        if (includeDreamCost) {
+            dreamCost = getDreamCostForCrafting();
+        }
+        
+        if (includeSequenceCost) {
+            sequenceCost = getSequenceCostForCrafting();
+        }
+        
+        const finalTotalCost = totalCost + dreamCost + sequenceCost;
+        
+        // 更新结果显示
+        updateCraftingResults(finalTotalCost, totalCost, dreamCost, sequenceCost, includeDreamCost, includeSequenceCost);
         
         // 添加结果动画
-        resultElement.style.transform = 'scale(1.1)';
-        resultElement.style.color = '#ff6b6b';
+        const totalResultElement = document.getElementById('crafting-total-result');
+        totalResultElement.style.transform = 'scale(1.1)';
+        totalResultElement.style.color = '#ff6b6b';
         setTimeout(() => {
-            resultElement.style.transform = 'scale(1)';
+            totalResultElement.style.transform = 'scale(1)';
         }, 300);
         
         // 显示成功提示
@@ -438,6 +457,249 @@ function calculateCraftingCost() {
     } catch (error) {
         console.error('计算错误:', error);
         showNotification('计算出错，请检查输入数据', 'error');
+    }
+}
+
+// 获取解梦成本用于打造系统
+function getDreamCostForCrafting() {
+    try {
+        const positionSelect = document.getElementById('dream-position');
+        const typeSelect = document.getElementById('dream-type');
+        const levelSelect = document.getElementById('dream-level');
+        const affixSelect = document.getElementById('dream-affix');
+        const weaponPriceInput = document.getElementById('dream-weapon-price');
+        const accessoryPriceInput = document.getElementById('dream-accessory-price');
+        
+        // 检查是否有完整的解梦配置
+        if (!positionSelect || !typeSelect || !levelSelect || !affixSelect || 
+            !weaponPriceInput || !accessoryPriceInput) {
+            return 0;
+        }
+        
+        const selectedPosition = positionSelect.value;
+        const selectedType = typeSelect.value;
+        const selectedLevel = parseInt(levelSelect.value);
+        const selectedAffixIndex = parseInt(affixSelect.value);
+        const weaponPrice = parseFloat(weaponPriceInput.value) || 0;
+        const accessoryPrice = parseFloat(accessoryPriceInput.value) || 0;
+        
+        // 验证输入完整性
+        if (!selectedPosition || !selectedType || isNaN(selectedAffixIndex)) {
+            return 0;
+        }
+        
+        // 获取装备数据
+        const positionData = dreamData[selectedPosition];
+        if (!positionData) {
+            return 0;
+        }
+        
+        // 获取词缀数据
+        let affixes = [];
+        if (selectedPosition === 'weapon' && weaponAffixes[selectedType]) {
+            affixes = weaponAffixes[selectedType];
+        } else if (selectedPosition === 'accessory' && accessoryAffixes[selectedType]) {
+            affixes = accessoryAffixes[selectedType];
+        }
+        
+        if (!affixes[selectedAffixIndex]) {
+            return 0;
+        }
+        
+        const selectedAffix = affixes[selectedAffixIndex];
+        const totalWeight = affixes.reduce((sum, affix) => sum + affix.weight, 0);
+        
+        // 确定材料价格和消耗数量
+        const isAccessory = positionData.isAccessory;
+        const materialPrice = isAccessory ? accessoryPrice : weaponPrice;
+        
+        if (materialPrice <= 0) {
+            return 0;
+        }
+        
+        // 根据等级确定消耗数量
+        let materialCount;
+        switch (selectedLevel) {
+            case 82:
+                materialCount = 1;
+                break;
+            case 86:
+                materialCount = 2;
+                break;
+            case 100:
+                materialCount = 3;
+                break;
+            default:
+                materialCount = 1;
+        }
+        
+        // 计算解梦成本
+        const baseProbability = selectedAffix.weight / totalWeight;
+        const probability = baseProbability * 3; // 每次解梦给出3个选项
+        const totalCost = (materialPrice * materialCount) / probability;
+        
+        return totalCost;
+    } catch (error) {
+        console.error('获取解梦成本错误:', error);
+        return 0;
+    }
+}
+
+// 获取序列成本用于打造系统
+function getSequenceCostForCrafting() {
+    try {
+        const weaponTypeSelect = document.querySelector('#tower #weapon-type');
+        const weaponLevelSelect = document.querySelector('#tower #weapon-level');
+        const weaponCategorySelect = document.querySelector('#tower #weapon-category');
+        const researchTypeSelect = document.getElementById('research-type');
+        const targetSequenceInput = document.getElementById('target-sequence');
+        
+        // 检查是否有完整的高塔配置
+        if (!weaponTypeSelect || !weaponLevelSelect || !weaponCategorySelect || 
+            !researchTypeSelect || !targetSequenceInput) {
+            return 0;
+        }
+        
+        const weaponType = weaponTypeSelect.value;
+        const weaponLevel = weaponLevelSelect.value;
+        const weaponCategory = weaponCategorySelect.value;
+        const researchType = researchTypeSelect.value;
+        const targetSequence = targetSequenceInput.value;
+        
+        // 验证输入完整性
+        if (!weaponType || !weaponLevel || !weaponCategory || !researchType || !targetSequence) {
+            return 0;
+        }
+        
+        // 验证序列格式
+        const expectedLength = researchType === '基础' ? 3 : 4;
+        if (targetSequence.length !== expectedLength || !/^[1-7]+$/.test(targetSequence)) {
+            return 0;
+        }
+        
+        // 获取材料需求
+        const requirements = towerSystemData.researchRequirements[weaponLevel]?.[weaponCategory]?.[researchType];
+        if (!requirements) {
+            return 0;
+        }
+        
+        // 获取元件价格
+        const componentPrices = getTowerComponentPrices();
+        const componentType = towerSystemData.weaponToComponent[weaponType];
+        
+        // 计算单次研发成本
+        let singleCost = requirements.fireSource;
+        
+        if (requirements.basicComponent > 0) {
+            singleCost += requirements.basicComponent * (componentPrices.basic || 0);
+        }
+        
+        if (requirements.expandComponent > 0) {
+            const componentPrice = componentPrices[componentType] || 0;
+            singleCost += requirements.expandComponent * componentPrice;
+        }
+        
+        // 分析序列模式并获取概率
+        const pattern = analyzeSequencePattern(targetSequence);
+        if (!pattern) {
+            return 0;
+        }
+        
+        const probability = towerSystemData.sequenceProbabilities[researchType][pattern];
+        if (probability === undefined) {
+            return 0;
+        }
+        
+        // 计算期望成本
+        const expectedCost = singleCost / (probability / 100);
+        
+        return expectedCost;
+    } catch (error) {
+        console.error('获取序列成本错误:', error);
+        return 0;
+    }
+}
+
+// 更新打造系统结果显示
+function updateCraftingResults(totalCost, baseCost, dreamCost, sequenceCost, showDream, showSequence) {
+    // 更新总成本
+    const totalResultElement = document.getElementById('crafting-total-result');
+    totalResultElement.textContent = `${totalCost.toFixed(2)} 初火源质`;
+    
+    // 更新打造成本
+    const baseCostElement = document.getElementById('crafting-base-cost');
+    baseCostElement.textContent = `${baseCost.toFixed(2)} 初火源质`;
+    
+    // 更新解梦成本显示
+    const dreamCostItem = document.getElementById('dream-cost-item');
+    const dreamCostElement = document.getElementById('crafting-dream-cost');
+    if (showDream && dreamCost > 0) {
+        dreamCostElement.textContent = `${dreamCost.toFixed(2)} 初火源质`;
+        dreamCostItem.style.display = 'flex';
+    } else {
+        dreamCostItem.style.display = 'none';
+    }
+    
+    // 更新序列成本显示
+    const sequenceCostItem = document.getElementById('sequence-cost-item');
+    const sequenceCostElement = document.getElementById('crafting-sequence-cost');
+    if (showSequence && sequenceCost > 0) {
+        sequenceCostElement.textContent = `${sequenceCost.toFixed(2)} 初火源质`;
+        sequenceCostItem.style.display = 'flex';
+    } else {
+        sequenceCostItem.style.display = 'none';
+    }
+}
+
+// 设置打造系统事件监听器
+function setupCraftingEventListeners() {
+    // 为勾选框添加变化事件监听器
+    const dreamCheckbox = document.getElementById('include-dream-cost');
+    const sequenceCheckbox = document.getElementById('include-sequence-cost');
+    
+    if (dreamCheckbox) {
+        dreamCheckbox.addEventListener('change', function() {
+            // 当勾选状态改变时，如果有有效的打造配置，自动重新计算
+            if (hasValidCraftingConfiguration()) {
+                calculateCraftingCost();
+            }
+        });
+    }
+    
+    if (sequenceCheckbox) {
+        sequenceCheckbox.addEventListener('change', function() {
+            // 当勾选状态改变时，如果有有效的打造配置，自动重新计算
+            if (hasValidCraftingConfiguration()) {
+                calculateCraftingCost();
+            }
+        });
+    }
+}
+
+// 检查是否有有效的打造配置
+function hasValidCraftingConfiguration() {
+    try {
+        const weaponType = document.querySelector('input[name="weapon-type"]:checked');
+        const equipmentLevel = document.querySelector('input[name="equipment-level"]:checked');
+        
+        // 检查基本配置是否完整
+        if (!weaponType || !equipmentLevel) {
+            return false;
+        }
+        
+        // 检查是否至少选择了一个词缀
+        const affixSelects = document.querySelectorAll('.affix-category select');
+        let hasAffix = false;
+        
+        affixSelects.forEach(select => {
+            if (parseInt(select.value) > 0) {
+                hasAffix = true;
+            }
+        });
+        
+        return hasAffix;
+    } catch (error) {
+        return false;
     }
 }
 

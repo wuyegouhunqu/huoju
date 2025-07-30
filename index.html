@@ -267,6 +267,19 @@
                     <!-- 计算结果模块 -->
                     <div class="module-card result-card">
                         <div class="calculate-section">
+                            <!-- 成本选项勾选框 -->
+                            <div class="cost-options">
+                                <label class="checkbox-option">
+                                    <input type="checkbox" id="include-dream-cost" class="cost-checkbox">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">解梦成本</span>
+                                </label>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" id="include-sequence-cost" class="cost-checkbox">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">序列成本</span>
+                                </label>
+                            </div>
                             <button class="calculate-btn" onclick="calculateCraftingCost()">
                                 <i class="fas fa-calculator"></i>
                                 计算成本
@@ -274,7 +287,21 @@
                         </div>
                         <div class="result-display">
                             <h3><i class="fas fa-chart-line"></i> 总成本</h3>
-                            <div class="result-value" id="crafting-result">0 初火源质</div>
+                            <div class="result-value" id="crafting-total-result">0 初火源质</div>
+                            <div class="cost-breakdown">
+                                <div class="cost-item">
+                                    <span class="cost-label">打造成本</span>
+                                    <span class="cost-value" id="crafting-base-cost">0 初火源质</span>
+                                </div>
+                                <div class="cost-item" id="dream-cost-item" style="display: none;">
+                                    <span class="cost-label">解梦成本</span>
+                                    <span class="cost-value" id="crafting-dream-cost">0 初火源质</span>
+                                </div>
+                                <div class="cost-item" id="sequence-cost-item" style="display: none;">
+                                    <span class="cost-label">序列成本</span>
+                                    <span class="cost-value" id="crafting-sequence-cost">0 初火源质</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     </div>
