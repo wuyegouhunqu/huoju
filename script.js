@@ -19,6 +19,18 @@ function initializeApp() {
     initializeErosionSimulation();
     setupErosionEventListeners();
     setupCraftingEventListeners();
+    
+    // 初始化数据持久化系统
+    setTimeout(async () => {
+        try {
+            await DataPersistence.loadAllData();
+            setupAutoSave();
+            console.log('数据持久化系统已初始化');
+        } catch (error) {
+            console.error('数据加载失败:', error);
+            setupAutoSave(); // 即使加载失败也要启用自动保存
+        }
+    }, 1000);
 }
 
 // 技能系统数据和函数
@@ -2126,7 +2138,7 @@ const towerSystemData = {
             },
             '双手': {
                 '基础': { fireSource: 200, basicComponent: 20, expandComponent: 0 },
-                '深度': { fireSource: 500, basicComponent: 0, expandComponent: 20 }
+                '深度': { fireSource: 1000, basicComponent: 0, expandComponent: 20 }
             }
         }
     },
@@ -2532,34 +2544,87 @@ const DataPersistence = {
             seal: this.getSealData(),
             tower: this.getTowerData()
         };
-        return await this.saveToServer(allData);
+        
+        // 尝试保存到服务器，失败则使用localStorage
+        try {
+            return await this.saveToServer(allData);
+        } catch (error) {
+            console.log('服务器保存失败，使用本地存储:', error);
+            // 回退到localStorage
+            localStorage.setItem('torchlight-all-data', JSON.stringify(allData));
+            return true;
+        }
     },
 
     // 加载所有系统数据
     async loadAllData() {
-        const data = await this.loadFromServer();
-        if (data.crafting) this.setCraftingData(data.crafting);
-        if (data.damage) this.setDamageData(data.damage);
-        if (data.dream) this.setDreamData(data.dream);
-        if (data.skill) this.setSkillData(data.skill);
-        if (data.seal) this.setSealData(data.seal);
-        if (data.tower) this.setTowerData(data.tower);
+        try {
+            const data = await this.loadFromServer();
+            if (data && typeof data === 'object') {
+                if (data.crafting) this.setCraftingData(data.crafting);
+                if (data.damage) this.setDamageData(data.damage);
+                if (data.dream) this.setDreamData(data.dream);
+                if (data.skill) this.setSkillData(data.skill);
+                if (data.seal) this.setSealData(data.seal);
+                if (data.tower) this.setTowerData(data.tower);
+                return;
+            }
+        } catch (error) {
+            console.log('服务器加载失败，使用本地存储:', error);
+        }
+        
+        // 回退到localStorage
+        const saved = localStorage.getItem('torchlight-all-data');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                if (data.crafting) this.setCraftingData(data.crafting);
+                if (data.damage) this.setDamageData(data.damage);
+                if (data.dream) this.setDreamData(data.dream);
+                if (data.skill) this.setSkillData(data.skill);
+                if (data.seal) this.setSealData(data.seal);
+                if (data.tower) this.setTowerData(data.tower);
+            } catch (parseError) {
+                console.error('解析本地数据失败:', parseError);
+            }
+        }
     },
 
     // 打造系统数据获取
     getCraftingData() {
         return {
+            // 装备参数
             weaponType: document.querySelector('input[name="weapon-type"]:checked')?.value || '',
-            itemLevel: document.getElementById('item-level')?.value || '',
-            targetAffixes: document.getElementById('target-affixes')?.value || '',
-            t0Upgrade: document.querySelector('select[name="t0-upgrade"]')?.value || '0',
-            t1Upgrade: document.querySelector('select[name="t1-upgrade"]')?.value || '0',
-            t2Upgrade: document.querySelector('select[name="t2-upgrade"]')?.value || '0',
-            lingsha: document.getElementById('lingsha-price')?.value || '',
-            zhengui: document.getElementById('zhengui-price')?.value || '',
-            xishi: document.getElementById('xishi-price')?.value || '',
-            zhizhen: document.getElementById('zhizhen-price')?.value || '',
-            shensheng: document.getElementById('shensheng-price')?.value || ''
+            equipmentLevel: document.querySelector('input[name="equipment-level"]:checked')?.value || '',
+            
+            // 词缀选择 - 使用更精确的选择器
+            affixes: {
+                // 基础词缀
+                basic: document.querySelector('.affix-category:nth-child(1) .affix-row:nth-child(1) select')?.value || '0',
+                basicT0: document.querySelector('.affix-category:nth-child(1) .affix-row:nth-child(2) select')?.value || '0',
+                basicUpgrade: document.querySelector('.affix-category:nth-child(1) .affix-row:nth-child(3) select')?.value || '0',
+                // 进阶词缀
+                advanced: document.querySelector('.affix-category:nth-child(2) .affix-row:nth-child(1) select')?.value || '0',
+                advancedT0: document.querySelector('.affix-category:nth-child(2) .affix-row:nth-child(2) select')?.value || '0',
+                advancedUpgrade: document.querySelector('.affix-category:nth-child(2) .affix-row:nth-child(3) select')?.value || '0',
+                // 至臻词缀
+                perfect: document.querySelector('.affix-category:nth-child(3) .affix-row:nth-child(1) select')?.value || '0',
+                perfectT0: document.querySelector('.affix-category:nth-child(3) .affix-row:nth-child(2) select')?.value || '0',
+                perfectUpgrade: document.querySelector('.affix-category:nth-child(3) .affix-row:nth-child(3) select')?.value || '0'
+            },
+            
+            // 材料价格
+            materials: {
+                lingsha: document.getElementById('lingsha-price')?.value || '',
+                zhengui: document.getElementById('zhengui-price')?.value || '',
+                xishi: document.getElementById('xishi-price')?.value || '',
+                zhizhen: document.getElementById('zhizhen-price')?.value || '',
+                shensheng: document.getElementById('shensheng-price')?.value || ''
+            },
+            
+            // 解梦和序列成本选项
+            includeDreamCost: document.getElementById('include-dream-cost')?.checked || false,
+            includeSequenceCost: document.getElementById('include-sequence-cost')?.checked || false
         };
     },
 
@@ -2567,38 +2632,60 @@ const DataPersistence = {
     setCraftingData(data) {
         if (!data) return;
         
-        // 恢复武器类型
+        // 恢复装备参数
         if (data.weaponType) {
             const weaponRadio = document.querySelector(`input[name="weapon-type"][value="${data.weaponType}"]`);
             if (weaponRadio) weaponRadio.checked = true;
         }
         
-        // 恢复其他字段
-        if (data.itemLevel) {
-            const itemLevelEl = document.getElementById('item-level');
-            if (itemLevelEl) itemLevelEl.value = data.itemLevel;
-        }
-        if (data.targetAffixes) {
-            const targetAffixesEl = document.getElementById('target-affixes');
-            if (targetAffixesEl) targetAffixesEl.value = data.targetAffixes;
+        if (data.equipmentLevel) {
+            const equipmentRadio = document.querySelector(`input[name="equipment-level"][value="${data.equipmentLevel}"]`);
+            if (equipmentRadio) equipmentRadio.checked = true;
         }
         
-        // 恢复升级选择
-        const t0Select = document.querySelector('select[name="t0-upgrade"]');
-        const t1Select = document.querySelector('select[name="t1-upgrade"]');
-        const t2Select = document.querySelector('select[name="t2-upgrade"]');
-        if (t0Select && data.t0Upgrade) t0Select.value = data.t0Upgrade;
-        if (t1Select && data.t1Upgrade) t1Select.value = data.t1Upgrade;
-        if (t2Select && data.t2Upgrade) t2Select.value = data.t2Upgrade;
+        // 恢复词缀选择
+        if (data.affixes) {
+            const affixSelectors = [
+                { key: 'basic', selector: '.affix-category:nth-child(1) .affix-row:nth-child(1) select' },
+                { key: 'basicT0', selector: '.affix-category:nth-child(1) .affix-row:nth-child(2) select' },
+                { key: 'basicUpgrade', selector: '.affix-category:nth-child(1) .affix-row:nth-child(3) select' },
+                { key: 'advanced', selector: '.affix-category:nth-child(2) .affix-row:nth-child(1) select' },
+                { key: 'advancedT0', selector: '.affix-category:nth-child(2) .affix-row:nth-child(2) select' },
+                { key: 'advancedUpgrade', selector: '.affix-category:nth-child(2) .affix-row:nth-child(3) select' },
+                { key: 'perfect', selector: '.affix-category:nth-child(3) .affix-row:nth-child(1) select' },
+                { key: 'perfectT0', selector: '.affix-category:nth-child(3) .affix-row:nth-child(2) select' },
+                { key: 'perfectUpgrade', selector: '.affix-category:nth-child(3) .affix-row:nth-child(3) select' }
+            ];
+            
+            affixSelectors.forEach(({ key, selector }) => {
+                if (data.affixes[key]) {
+                    const element = document.querySelector(selector);
+                    if (element) element.value = data.affixes[key];
+                }
+            });
+        }
         
         // 恢复材料价格
-        const priceFields = ['lingsha', 'zhengui', 'xishi', 'zhizhen', 'shensheng'];
-        priceFields.forEach(field => {
-            if (data[field]) {
-                const element = document.getElementById(`${field}-price`);
-                if (element) element.value = data[field];
-            }
-        });
+        if (data.materials) {
+            const priceFields = ['lingsha', 'zhengui', 'xishi', 'zhizhen', 'shensheng'];
+            priceFields.forEach(field => {
+                if (data.materials[field]) {
+                    const element = document.getElementById(`${field}-price`);
+                    if (element) element.value = data.materials[field];
+                }
+            });
+        }
+        
+        // 恢复解梦和序列成本勾选状态
+        if (data.includeDreamCost !== undefined) {
+            const dreamCheckbox = document.getElementById('include-dream-cost');
+            if (dreamCheckbox) dreamCheckbox.checked = data.includeDreamCost;
+        }
+        
+        if (data.includeSequenceCost !== undefined) {
+            const sequenceCheckbox = document.getElementById('include-sequence-cost');
+            if (sequenceCheckbox) sequenceCheckbox.checked = data.includeSequenceCost;
+        }
     },
 
     // 伤害系统数据获取
@@ -2722,10 +2809,14 @@ const DataPersistence = {
     // 解梦系统数据获取
     getDreamData() {
         return {
-            equipmentType: document.querySelector('input[name="equipment-type"]:checked')?.value || '',
-            itemType: document.getElementById('item-type')?.value || '',
-            itemLevel: document.getElementById('dream-item-level')?.value || '',
-            targetAffixes: document.getElementById('dream-target-affixes')?.value || '',
+            // 武器部位和类型
+            position: document.getElementById('dream-position')?.value || '',
+            type: document.getElementById('dream-type')?.value || '',
+            // 装备等级
+            level: document.getElementById('dream-level')?.value || '',
+            // 词缀选择
+            affix: document.getElementById('dream-affix')?.value || '',
+            // 材料价格
             weaponPrice: document.getElementById('dream-weapon-price')?.value || '',
             accessoryPrice: document.getElementById('dream-accessory-price')?.value || ''
         };
@@ -2735,24 +2826,41 @@ const DataPersistence = {
     setDreamData(data) {
         if (!data) return;
         
-        // 恢复装备类型
-        if (data.equipmentType) {
-            const equipmentRadio = document.querySelector(`input[name="equipment-type"][value="${data.equipmentType}"]`);
-            if (equipmentRadio) equipmentRadio.checked = true;
+        // 恢复武器部位
+        if (data.position) {
+            const positionEl = document.getElementById('dream-position');
+            if (positionEl) {
+                positionEl.value = data.position;
+                // 触发change事件以更新类型选项
+                positionEl.dispatchEvent(new Event('change'));
+            }
         }
         
-        // 恢复其他字段
-        if (data.itemType) {
-            const itemTypeEl = document.getElementById('item-type');
-            if (itemTypeEl) itemTypeEl.value = data.itemType;
-        }
-        if (data.itemLevel) {
-            const itemLevelEl = document.getElementById('dream-item-level');
-            if (itemLevelEl) itemLevelEl.value = data.itemLevel;
-        }
-        if (data.targetAffixes) {
-            const targetAffixesEl = document.getElementById('dream-target-affixes');
-            if (targetAffixesEl) targetAffixesEl.value = data.targetAffixes;
+        // 延迟恢复类型和词缀，确保选项已更新
+        setTimeout(() => {
+            // 恢复装备类型
+            if (data.type) {
+                const typeEl = document.getElementById('dream-type');
+                if (typeEl) {
+                    typeEl.value = data.type;
+                    // 触发change事件以更新词缀选项
+                    typeEl.dispatchEvent(new Event('change'));
+                }
+            }
+            
+            // 再次延迟恢复词缀选择
+            setTimeout(() => {
+                if (data.affix) {
+                    const affixEl = document.getElementById('dream-affix');
+                    if (affixEl) affixEl.value = data.affix;
+                }
+            }, 100);
+        }, 100);
+        
+        // 恢复装备等级
+        if (data.level) {
+            const levelEl = document.getElementById('dream-level');
+            if (levelEl) levelEl.value = data.level;
         }
         
         // 恢复材料价格
@@ -2970,10 +3078,15 @@ const DataPersistence = {
     }
 };
 
+// 将DataPersistence暴露到全局作用域
+window.DataPersistence = DataPersistence;
+
 // 自动保存功能
 function setupAutoSave() {
     // 为所有输入框添加自动保存事件
     const inputs = document.querySelectorAll('input, select, textarea');
+    console.log(`找到 ${inputs.length} 个输入元素，正在设置自动保存`);
+    
     inputs.forEach(input => {
         input.addEventListener('change', () => {
             // 延迟保存，避免频繁操作
@@ -2989,34 +3102,26 @@ function setupAutoSave() {
         });
     });
     
-    // 页面卸载时保存数据
+    // 页面卸载时保存数据到localStorage
     window.addEventListener('beforeunload', () => {
-        // 使用同步方式保存，确保在页面关闭前完成
-        navigator.sendBeacon('/api/save-data', JSON.stringify({
-            crafting: DataPersistence.getCraftingData(),
-            damage: DataPersistence.getDamageData(),
-            dream: DataPersistence.getDreamData(),
-            skill: DataPersistence.getSkillData(),
-            seal: DataPersistence.getSealData(),
-            tower: DataPersistence.getTowerData()
-        }));
+        try {
+            const allData = {
+                crafting: DataPersistence.getCraftingData(),
+                damage: DataPersistence.getDamageData(),
+                dream: DataPersistence.getDreamData(),
+                skill: DataPersistence.getSkillData(),
+                seal: DataPersistence.getSealData(),
+                tower: DataPersistence.getTowerData()
+            };
+            localStorage.setItem('torchlight-all-data', JSON.stringify(allData));
+            console.log('页面卸载时数据已保存到localStorage');
+        } catch (error) {
+            console.error('页面卸载时保存失败:', error);
+        }
     });
 }
 
-// 在DOM加载完成后初始化数据持久化
-document.addEventListener('DOMContentLoaded', function() {
-    // 延迟加载数据，确保DOM完全加载
-    setTimeout(async () => {
-        try {
-            await DataPersistence.loadAllData();
-            setupAutoSave();
-            console.log('数据持久化系统已初始化');
-        } catch (error) {
-            console.error('数据加载失败:', error);
-            setupAutoSave(); // 即使加载失败也要启用自动保存
-        }
-    }, 1000);
-});
+// 数据持久化初始化已移至 initializeApp 函数中
 
 console.log('火炬之光无限计算器已加载完成！');
 console.log('快捷键：Ctrl+Enter 执行计算，Ctrl+S 导出数据');
