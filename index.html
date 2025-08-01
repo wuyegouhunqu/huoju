@@ -84,6 +84,10 @@
                         <i class="fas fa-magic"></i>
                         侵蚀模拟
                     </button>
+                    <button class="function-btn" onclick="showCraftingModule('memory-crafting')">
+                        <i class="fas fa-gem"></i>
+                        追忆打造
+                    </button>
                 </div>
 
                 <!-- 装备打造模块 -->
@@ -544,6 +548,176 @@
                                                 <div class="equipment-status" id="equipment-status" style="display: none;">
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 追忆打造模块 -->
+                <div class="crafting-module" id="memory-crafting" style="display: none;">
+                    <div class="memory-container">
+                        <!-- 追忆参数设置区域 -->
+                        <div class="memory-params-area">
+                            <div class="module-card">
+                                <h3><i class="fas fa-gem"></i> 追忆参数设置</h3>
+                                <div class="memory-params-grid">
+                                    <!-- 第一行：品质选择、当前等级、追忆碎絮、追忆游丝 -->
+                                    <div class="memory-params-row">
+                                        <div class="form-group">
+                                            <label>品质选择</label>
+                                            <div class="radio-group">
+                                                <label class="radio-option">
+                                                    <input type="radio" name="memory-quality" value="excellent" checked>
+                                                    <span class="radio-custom"></span>
+                                                    卓越
+                                                </label>
+                                                <label class="radio-option">
+                                                    <input type="radio" name="memory-quality" value="perfect">
+                                                    <span class="radio-custom"></span>
+                                                    至臻
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>当前等级</label>
+                                            <select id="current-level" class="dream-select">
+                                                <option value="1">1级</option>
+                                                <option value="2">2级</option>
+                                                <option value="3">3级</option>
+                                                <option value="4">4级</option>
+                                                <option value="5">5级</option>
+                                                <option value="6">6级</option>
+                                                <option value="7">7级</option>
+                                                <option value="8">8级</option>
+                                                <option value="9">9级</option>
+                                                <option value="10">10级</option>
+                                                <option value="11">11级</option>
+                                                <option value="12">12级</option>
+                                                <option value="13">13级</option>
+                                                <option value="14">14级</option>
+                                                <option value="15">15级</option>
+                                                <option value="16">16级</option>
+                                                <option value="17">17级</option>
+                                                <option value="18">18级</option>
+                                                <option value="19">19级</option>
+                                                <option value="20">20级</option>
+                                                <option value="21">21级</option>
+                                                <option value="22">22级</option>
+                                                <option value="23">23级</option>
+                                                <option value="24">24级</option>
+                                                <option value="25">25级</option>
+                                                <option value="26">26级</option>
+                                                <option value="27">27级</option>
+                                                <option value="28">28级</option>
+                                                <option value="29">29级</option>
+                                                <option value="30">30级</option>
+                                                <option value="31">31级</option>
+                                                <option value="32">32级</option>
+                                                <option value="33">33级</option>
+                                                <option value="34">34级</option>
+                                                <option value="35">35级</option>
+                                                <option value="36">36级</option>
+                                                <option value="37">37级</option>
+                                                <option value="38">38级</option>
+                                                <option value="39">39级</option>
+                                                <option value="40">40级</option>
+                                                <option value="41">41级</option>
+                                                <option value="42">42级</option>
+                                                <option value="43">43级</option>
+                                                <option value="44">44级</option>
+                                                <option value="45">45级</option>
+                                                <option value="46">46级</option>
+                                                <option value="47">47级</option>
+                                                <option value="48">48级</option>
+                                                <option value="49">49级</option>
+                                                <option value="50">50级</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>追忆碎絮</label>
+                                            <input type="number" id="fragment-price" class="form-input" value="0" min="0" step="0.1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>追忆游丝</label>
+                                            <input type="number" id="thread-price" class="form-input" value="0" min="0" step="0.1">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 第二行：词缀1搜索和选择 -->
+                                    <div class="memory-params-row">
+                                        <div class="form-group">
+                                            <label>词缀1搜索</label>
+                                            <input type="text" id="affix1-search" class="form-input" placeholder="输入关键词搜索词缀...">
+                                        </div>
+                                        <div class="form-group" style="grid-column: span 3;">
+                                            <label>目标词缀1</label>
+                                            <select id="target-affix-1" class="tower-select">
+                                                <option value="">请选择词缀</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 第三行：词缀2搜索和选择 -->
+                                    <div class="memory-params-row">
+                                        <div class="form-group">
+                                            <label>词缀2搜索</label>
+                                            <input type="text" id="affix2-search" class="form-input" placeholder="输入关键词搜索词缀...">
+                                        </div>
+                                        <div class="form-group" style="grid-column: span 3;">
+                                            <label>目标词缀2</label>
+                                            <select id="target-affix-2" class="tower-select">
+                                                <option value="">请选择词缀</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 计算按钮区域 -->
+                        <div class="memory-calculate-area">
+                            <div class="module-card">
+                                <div class="calculate-buttons">
+                                    <button class="calculate-btn" onclick="calculateMemoryCost()">
+                                        <i class="fas fa-calculator"></i>
+                                        计算成本
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 结果显示区域 -->
+                        <div class="memory-result-area">
+                            <div class="module-card">
+                                <h3><i class="fas fa-chart-bar"></i> 成本结果</h3>
+                                <div class="result-grid">
+                                    <div class="result-item">
+                                        <label>升级成本</label>
+                                        <div class="cost-breakdown">
+                                            <span id="enhancement-fragment-cost">0</span> 追忆碎絮 + 
+                                            <span id="enhancement-thread-cost">0</span> 追忆游丝
+                                        </div>
+                                        <div class="total-cost">
+                                            总计: <span id="enhancement-total-cost">0</span>
+                                        </div>
+                                    </div>
+                                    <div class="result-item">
+                                        <label>重构成本</label>
+                                        <div class="cost-breakdown">
+                                            <span id="reconstruction-fragment-cost">0</span> 追忆碎絮 + 
+                                            <span id="reconstruction-thread-cost">0</span> 追忆游丝
+                                        </div>
+                                        <div class="total-cost">
+                                            总计: <span id="reconstruction-total-cost">0</span>
+                                        </div>
+                                    </div>
+                                    <div class="result-item total-result">
+                                        <label>总成本</label>
+                                        <div class="grand-total">
+                                            <span id="grand-total-cost">0</span>
                                         </div>
                                     </div>
                                 </div>

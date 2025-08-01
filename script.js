@@ -2542,7 +2542,8 @@ const DataPersistence = {
             dream: this.getDreamData(),
             skill: this.getSkillData(),
             seal: this.getSealData(),
-            tower: this.getTowerData()
+            tower: this.getTowerData(),
+            memory: this.getMemoryData()
         };
         
         // 尝试保存到服务器，失败则使用localStorage
@@ -2567,6 +2568,7 @@ const DataPersistence = {
                 if (data.skill) this.setSkillData(data.skill);
                 if (data.seal) this.setSealData(data.seal);
                 if (data.tower) this.setTowerData(data.tower);
+                if (data.memory) this.setMemoryData(data.memory);
                 return;
             }
         } catch (error) {
@@ -2584,6 +2586,7 @@ const DataPersistence = {
                 if (data.skill) this.setSkillData(data.skill);
                 if (data.seal) this.setSealData(data.seal);
                 if (data.tower) this.setTowerData(data.tower);
+                if (data.memory) this.setMemoryData(data.memory);
             } catch (parseError) {
                 console.error('解析本地数据失败:', parseError);
             }
@@ -3075,6 +3078,74 @@ const DataPersistence = {
                 if (element) element.value = data[field.key];
             }
         });
+    },
+
+    // 追忆打造数据获取
+    getMemoryData() {
+        return {
+            quality: document.querySelector('input[name="memory-quality"]:checked')?.value || 'excellent',
+            currentLevel: document.getElementById('current-level')?.value || '1',
+            targetAffix1: document.getElementById('target-affix-1')?.value || '',
+            targetAffix2: document.getElementById('target-affix-2')?.value || '',
+            fragmentPrice: document.getElementById('fragment-price')?.value || '0',
+            threadPrice: document.getElementById('thread-price')?.value || '0',
+            affix1Search: document.getElementById('affix1-search')?.value || '',
+            affix2Search: document.getElementById('affix2-search')?.value || ''
+        };
+    },
+
+    // 追忆打造数据设置
+    setMemoryData(data) {
+        if (!data) return;
+        
+        // 设置品质选择
+        if (data.quality) {
+            const qualityRadio = document.querySelector(`input[name="memory-quality"][value="${data.quality}"]`);
+            if (qualityRadio) qualityRadio.checked = true;
+        }
+        
+        // 设置等级选择
+        const levelSelect = document.getElementById('current-level');
+        if (levelSelect && data.currentLevel) {
+            levelSelect.value = data.currentLevel;
+        }
+        
+        // 设置词缀选择
+        const affix1Select = document.getElementById('target-affix-1');
+        if (affix1Select && data.targetAffix1) {
+            affix1Select.value = data.targetAffix1;
+        }
+        
+        const affix2Select = document.getElementById('target-affix-2');
+        if (affix2Select && data.targetAffix2) {
+            affix2Select.value = data.targetAffix2;
+        }
+        
+        // 设置材料价格
+        const fragmentPriceInput = document.getElementById('fragment-price');
+        if (fragmentPriceInput && data.fragmentPrice) {
+            fragmentPriceInput.value = data.fragmentPrice;
+        }
+        
+        const threadPriceInput = document.getElementById('thread-price');
+        if (threadPriceInput && data.threadPrice) {
+            threadPriceInput.value = data.threadPrice;
+        }
+        
+        // 设置搜索关键词
+        const search1Input = document.getElementById('affix1-search');
+        if (search1Input && data.affix1Search) {
+            search1Input.value = data.affix1Search;
+            // 触发搜索
+            initializeAffix1Selector(data.affix1Search);
+        }
+        
+        const search2Input = document.getElementById('affix2-search');
+        if (search2Input && data.affix2Search) {
+            search2Input.value = data.affix2Search;
+            // 触发搜索
+            initializeAffix2Selector(data.affix2Search);
+        }
     }
 };
 
@@ -3111,7 +3182,8 @@ function setupAutoSave() {
                 dream: DataPersistence.getDreamData(),
                 skill: DataPersistence.getSkillData(),
                 seal: DataPersistence.getSealData(),
-                tower: DataPersistence.getTowerData()
+                tower: DataPersistence.getTowerData(),
+                memory: DataPersistence.getMemoryData()
             };
             localStorage.setItem('torchlight-all-data', JSON.stringify(allData));
             console.log('页面卸载时数据已保存到localStorage');
@@ -3821,6 +3893,8 @@ document.addEventListener('DOMContentLoaded', function() {
         showCraftingModule('equipment-crafting');
         // 初始化侵蚀模拟功能
         initializeErosionSimulation();
+        // 初始化追忆打造功能
+        initializeMemoryCrafting();
     }, 500);
 });
 
@@ -4768,3 +4842,599 @@ function setupErosionEventListeners() {
 }
 
 // 侵蚀模拟功能初始化已合并到主DOMContentLoaded事件中
+
+// ==================== 追忆打造系统 ====================
+
+// 追忆词缀数据库
+const memoryAffixes = [
+    // 技能范围
+    { tier: 0, description: "+39% 技能范围", level: 86, weight: 1000 },
+    { tier: 1, description: "+30% 技能范围", level: 86, weight: 2000 },
+    { tier: 2, description: "+23% 技能范围", level: 82, weight: 3000 },
+    { tier: 3, description: "+15% 技能范围", level: 1, weight: 4000 },
+    
+    // 投射物速度
+    { tier: 0, description: "+52% 投射物速度", level: 86, weight: 1000 },
+    { tier: 1, description: "+40% 投射物速度", level: 86, weight: 2000 },
+    { tier: 2, description: "+30% 投射物速度", level: 82, weight: 3000 },
+    { tier: 3, description: "+20% 投射物速度", level: 1, weight: 4000 },
+    
+    // 加剧效果
+    { tier: 0, description: "+(26–40)% 加剧效果", level: 86, weight: 1000 },
+    { tier: 1, description: "+(20–30)% 加剧效果", level: 86, weight: 2000 },
+    { tier: 2, description: "+(14–18)% 加剧效果", level: 82, weight: 3000 },
+    { tier: 3, description: "+(10–12)% 加剧效果", level: 1, weight: 4000 },
+    
+    // 收割冷却回复速度
+    { tier: 0, description: "+(26–40)% 收割冷却回复速度", level: 86, weight: 1000 },
+    { tier: 1, description: "+(20–30)% 收割冷却回复速度", level: 86, weight: 2000 },
+    { tier: 2, description: "+(14–18)% 收割冷却回复速度", level: 82, weight: 3000 },
+    { tier: 3, description: "+(10–12)% 收割冷却回复速度", level: 1, weight: 4000 },
+    
+    // 最大生命
+    { tier: 0, description: "+(14–20)% 最大生命", level: 86, weight: 2167 },
+    { tier: 1, description: "+(10–16)% 最大生命", level: 86, weight: 4333 },
+    { tier: 2, description: "+(6–8)% 最大生命", level: 82, weight: 6500 },
+    { tier: 3, description: "+(4–6)% 最大生命", level: 1, weight: 8667 },
+    
+    // 最大护盾
+    { tier: 0, description: "+(14–20)% 最大护盾", level: 86, weight: 2167 },
+    { tier: 1, description: "+(10–16)% 最大护盾", level: 86, weight: 4333 },
+    { tier: 2, description: "+(6–8)% 最大护盾", level: 82, weight: 6500 },
+    { tier: 3, description: "+(4–6)% 最大护盾", level: 1, weight: 8667 },
+    
+    // 护甲值
+    { tier: 0, description: "+(40–46)% 护甲值", level: 86, weight: 2167 },
+    { tier: 1, description: "+(30–36)% 护甲值", level: 86, weight: 4333 },
+    { tier: 2, description: "+(20–28)% 护甲值", level: 82, weight: 6500 },
+    { tier: 3, description: "+(12–18)% 护甲值", level: 1, weight: 8667 },
+    
+    // 闪避值
+    { tier: 0, description: "+(40–46)% 闪避值", level: 86, weight: 2167 },
+    { tier: 1, description: "+(30–36)% 闪避值", level: 86, weight: 4333 },
+    { tier: 2, description: "+(20–28)% 闪避值", level: 82, weight: 6500 },
+    { tier: 3, description: "+(12–18)% 闪避值", level: 1, weight: 8667 },
+    
+    // 攻击暴击伤害
+    { tier: 0, description: "+(46–58)% 攻击暴击伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(36–44)% 攻击暴击伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(26–34)% 攻击暴击伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(16–24)% 攻击暴击伤害", level: 1, weight: 8667 },
+    
+    // 法术暴击伤害
+    { tier: 0, description: "+(46–58)% 法术暴击伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(36–44)% 法术暴击伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(26–34)% 法术暴击伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(16–24)% 法术暴击伤害", level: 1, weight: 8667 },
+    
+    // 物理技能暴击伤害
+    { tier: 0, description: "+(55–70)% 物理技能暴击伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(43–53)% 物理技能暴击伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(31–41)% 物理技能暴击伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(19–29)% 物理技能暴击伤害", level: 1, weight: 8667 },
+    
+    // 火焰技能暴击伤害
+    { tier: 0, description: "+(55–70)% 火焰技能暴击伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(43–53)% 火焰技能暴击伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(31–41)% 火焰技能暴击伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(19–29)% 火焰技能暴击伤害", level: 1, weight: 8667 },
+    
+    // 冰冷技能暴击伤害
+    { tier: 0, description: "+(55–70)% 冰冷技能暴击伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(43–53)% 冰冷技能暴击伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(31–41)% 冰冷技能暴击伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(19–29)% 冰冷技能暴击伤害", level: 1, weight: 8667 },
+    
+    // 闪电技能暴击伤害
+    { tier: 0, description: "+(55–70)% 闪电技能暴击伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(43–53)% 闪电技能暴击伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(31–41)% 闪电技能暴击伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(19–29)% 闪电技能暴击伤害", level: 1, weight: 8667 },
+    
+    // 腐蚀技能暴击伤害
+    { tier: 0, description: "+(55–70)% 腐蚀技能暴击伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(43–53)% 腐蚀技能暴击伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(31–41)% 腐蚀技能暴击伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(19–29)% 腐蚀技能暴击伤害", level: 1, weight: 8667 },
+    
+    // 召唤物暴击伤害
+    { tier: 0, description: "+(55–70)% 召唤物暴击伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(43–53)% 召唤物暴击伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(31–41)% 召唤物暴击伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(19–29)% 召唤物暴击伤害", level: 1, weight: 8667 },
+    
+    // 攻击暴击值
+    { tier: 0, description: "+104% 攻击暴击值", level: 86, weight: 2167 },
+    { tier: 1, description: "+80% 攻击暴击值", level: 86, weight: 4333 },
+    { tier: 2, description: "+60% 攻击暴击值", level: 82, weight: 6500 },
+    { tier: 3, description: "+40% 攻击暴击值", level: 1, weight: 8667 },
+    
+    // 法术暴击值
+    { tier: 0, description: "+104% 法术暴击值", level: 86, weight: 2167 },
+    { tier: 1, description: "+80% 法术暴击值", level: 86, weight: 4333 },
+    { tier: 2, description: "+60% 法术暴击值", level: 82, weight: 6500 },
+    { tier: 3, description: "+40% 法术暴击值", level: 1, weight: 8667 },
+    
+    // 召唤物暴击值
+    { tier: 0, description: "+104% 召唤物暴击值", level: 86, weight: 2167 },
+    { tier: 1, description: "+80% 召唤物暴击值", level: 86, weight: 4333 },
+    { tier: 2, description: "+60% 召唤物暴击值", level: 82, weight: 6500 },
+    { tier: 3, description: "+40% 召唤物暴击值", level: 1, weight: 8667 },
+    
+    // 攻击与施法速度
+    { tier: 0, description: "+18% 攻击与施法速度\n+18% 召唤物攻击与施法速度", level: 86, weight: 2167 },
+    { tier: 1, description: "+14% 攻击与施法速度\n+14% 召唤物攻击与施法速度", level: 86, weight: 4333 },
+    { tier: 2, description: "+10% 攻击与施法速度\n+10% 召唤物攻击与施法速度", level: 82, weight: 6500 },
+    { tier: 3, description: "+6% 攻击与施法速度\n+6% 召唤物攻击与施法速度", level: 1, weight: 8667 },
+    
+    // 攻击伤害
+    { tier: 0, description: "+(58–68)% 攻击伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(44–52)% 攻击伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(30–42)% 攻击伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(20–28)% 攻击伤害", level: 1, weight: 8667 },
+    
+    // 法术伤害
+    { tier: 0, description: "+(58–68)% 法术伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(44–52)% 法术伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(30–42)% 法术伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(20–28)% 法术伤害", level: 1, weight: 8667 },
+    
+    // 物理伤害
+    { tier: 0, description: "+(58–68)% 物理伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(44–52)% 物理伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(30–42)% 物理伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(20–28)% 物理伤害", level: 1, weight: 8667 },
+    
+    // 冰冷伤害
+    { tier: 0, description: "+(58–68)% 冰冷伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(44–52)% 冰冷伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(30–42)% 冰冷伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(20–28)% 冰冷伤害", level: 1, weight: 8667 },
+    
+    // 火焰伤害
+    { tier: 0, description: "+(58–68)% 火焰伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(44–52)% 火焰伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(30–42)% 火焰伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(20–28)% 火焰伤害", level: 1, weight: 8667 },
+    
+    // 闪电伤害
+    { tier: 0, description: "+(58–68)% 闪电伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(44–52)% 闪电伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(30–42)% 闪电伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(20–28)% 闪电伤害", level: 1, weight: 8667 },
+    
+    // 腐蚀伤害
+    { tier: 0, description: "+(58–68)% 腐蚀伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(44–52)% 腐蚀伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(30–42)% 腐蚀伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(20–28)% 腐蚀伤害", level: 1, weight: 8667 },
+    
+    // 持续伤害
+    { tier: 0, description: "+(58–68)% 持续伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(44–52)% 持续伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(30–42)% 持续伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(20–28)% 持续伤害", level: 1, weight: 8667 },
+    
+    // 召唤物伤害
+    { tier: 0, description: "+(58–68)% 召唤物伤害", level: 86, weight: 2167 },
+    { tier: 1, description: "+(44–52)% 召唤物伤害", level: 86, weight: 4333 },
+    { tier: 2, description: "+(30–42)% 召唤物伤害", level: 82, weight: 6500 },
+    { tier: 3, description: "+(20–28)% 召唤物伤害", level: 1, weight: 8667 },
+    
+    // 攻击格挡率
+    { tier: 0, description: "+(21–31)% 攻击格挡率", level: 86, weight: 2167 },
+    { tier: 1, description: "+(16–24)% 攻击格挡率", level: 86, weight: 4333 },
+    { tier: 2, description: "+(11–16)% 攻击格挡率", level: 82, weight: 6500 },
+    { tier: 3, description: "+(7–11)% 攻击格挡率", level: 1, weight: 8667 },
+    
+    // 法术格挡率
+    { tier: 0, description: "+(21–31)% 法术格挡率", level: 86, weight: 2167 },
+    { tier: 1, description: "+(16–24)% 法术格挡率", level: 86, weight: 4333 },
+    { tier: 2, description: "+(11–16)% 法术格挡率", level: 82, weight: 6500 },
+    { tier: 3, description: "+(7–11)% 法术格挡率", level: 1, weight: 8667 },
+    
+    // 魔灵之源效果
+    { tier: 0, description: "+(18–23)% 魔灵之源效果", level: 86, weight: 1000 },
+    { tier: 1, description: "+(14–18)% 魔灵之源效果", level: 86, weight: 2000 },
+    { tier: 2, description: "+(9–12)% 魔灵之源效果", level: 82, weight: 3000 },
+    { tier: 3, description: "+(6–8)% 魔灵之源效果", level: 1, weight: 4000 },
+    
+    // 贯注速度
+    { tier: 0, description: "+(25–32)% 贯注速度", level: 86, weight: 1000 },
+    { tier: 1, description: "+(18–24)% 贯注速度", level: 86, weight: 2000 },
+    { tier: 2, description: "+(12–17)% 贯注速度", level: 82, weight: 3000 },
+    { tier: 3, description: "+(6–11)% 贯注速度", level: 1, weight: 4000 },
+    
+    // 最大魔力
+    { tier: 0, description: "+(22–27)% 最大魔力", level: 86, weight: 2167 },
+    { tier: 1, description: "+(16–21)% 最大魔力", level: 86, weight: 4333 },
+    { tier: 2, description: "+(12–15)% 最大魔力", level: 82, weight: 6500 },
+    { tier: 3, description: "+(9–11)% 最大魔力", level: 1, weight: 8667 }
+];
+
+// 追忆强化成本配置
+const memoryEnhancementCosts = {
+    excellent: {
+        ranges: [
+            { start: 1, end: 10, fragment: 8, thread: 0 },
+            { start: 10, end: 19, fragment: 12, thread: 0 },
+            { start: 19, end: 20, fragment: 90, thread: 9 },
+            { start: 20, end: 29, fragment: 16, thread: 0 },
+            { start: 29, end: 30, fragment: 115, thread: 9 },
+            { start: 30, end: 39, fragment: 20, thread: 0 },
+            { start: 39, end: 40, fragment: 140, thread: 9 }
+        ]
+    },
+    perfect: {
+        ranges: [
+            { start: 1, end: 10, fragment: 16, thread: 0 },
+            { start: 10, end: 19, fragment: 24, thread: 0 },
+            { start: 19, end: 20, fragment: 180, thread: 18 },
+            { start: 20, end: 29, fragment: 32, thread: 0 },
+            { start: 29, end: 30, fragment: 230, thread: 23 },
+            { start: 30, end: 39, fragment: 40, thread: 0 },
+            { start: 39, end: 40, fragment: 280, thread: 29 },
+            { start: 40, end: 49, fragment: 60, thread: 0 },
+            { start: 49, end: 50, fragment: 330, thread: 34 }
+        ]
+    }
+};
+
+// 追忆重构成本配置
+const memoryReconstructionCosts = {
+    excellent: { fragment: 10, thread: 1 },
+    perfect: { fragment: 20, thread: 2 }
+};
+
+// 初始化追忆打造系统
+function initializeMemoryCrafting() {
+    // 初始化等级选择范围
+    updateLevelOptions();
+    
+    // 初始化词缀选择器
+    initializeAffixSelectors();
+    
+    // 添加事件监听器
+    setupMemoryEventListeners();
+    
+    console.log('追忆打造系统初始化完成');
+}
+
+
+
+// 初始化词缀1选择器
+function initializeAffix1Selector(searchKeyword = '') {
+    const affix1Select = document.getElementById('target-affix-1');
+    if (!affix1Select) return;
+    
+    // 保存当前选中的值
+    const currentAffix1 = affix1Select.value;
+    
+    // 清空现有选项
+    affix1Select.innerHTML = '<option value="">请选择词缀</option>';
+    
+    // 获取当前品质
+    const quality = document.querySelector('input[name="memory-quality"]:checked')?.value || 'excellent';
+    
+    // 过滤词缀（如果有搜索关键词）
+    let filteredAffixes = memoryAffixes;
+    if (searchKeyword.trim()) {
+        const keyword = searchKeyword.toLowerCase();
+        filteredAffixes = memoryAffixes.filter(affix => 
+            affix.description.toLowerCase().includes(keyword)
+        );
+    }
+    
+    // 按T级分组词缀
+    const affixesByTier = {};
+    filteredAffixes.forEach((affix, originalIndex) => {
+        // 找到原始索引
+        const realIndex = memoryAffixes.findIndex(a => a === affix);
+        if (!affixesByTier[affix.tier]) {
+            affixesByTier[affix.tier] = [];
+        }
+        affixesByTier[affix.tier].push({ ...affix, index: realIndex });
+    });
+    
+    // 为每个T级创建选项组（使用高塔系统样式）
+    for (let tier = 0; tier <= 3; tier++) {
+        if (affixesByTier[tier]) {
+            // 添加分组标题
+            const headerOption = document.createElement('option');
+            headerOption.value = '';
+            headerOption.disabled = true;
+            headerOption.className = 'weapon-group-header';
+            headerOption.textContent = `━━━ T${tier}级词缀 ━━━`;
+            affix1Select.appendChild(headerOption);
+            
+            // 添加词缀选项
+            affixesByTier[tier].forEach(affix => {
+                const option = document.createElement('option');
+                option.value = affix.index;
+                option.textContent = `　　${affix.description}`;
+                affix1Select.appendChild(option);
+            });
+        }
+    }
+    
+    // 恢复之前选中的值（如果还存在）
+    if (currentAffix1 && Array.from(affix1Select.options).some(opt => opt.value === currentAffix1)) {
+        affix1Select.value = currentAffix1;
+    }
+}
+
+// 初始化词缀2选择器
+function initializeAffix2Selector(searchKeyword = '') {
+    const affix2Select = document.getElementById('target-affix-2');
+    if (!affix2Select) return;
+    
+    // 保存当前选中的值
+    const currentAffix2 = affix2Select.value;
+    
+    // 清空现有选项
+    affix2Select.innerHTML = '<option value="">请选择词缀</option>';
+    
+    // 获取当前品质
+    const quality = document.querySelector('input[name="memory-quality"]:checked')?.value || 'excellent';
+    
+    // 过滤词缀（如果有搜索关键词）
+    let filteredAffixes = memoryAffixes;
+    if (searchKeyword.trim()) {
+        const keyword = searchKeyword.toLowerCase();
+        filteredAffixes = memoryAffixes.filter(affix => 
+            affix.description.toLowerCase().includes(keyword)
+        );
+    }
+    
+    // 按T级分组词缀
+    const affixesByTier = {};
+    filteredAffixes.forEach((affix, originalIndex) => {
+        // 找到原始索引
+        const realIndex = memoryAffixes.findIndex(a => a === affix);
+        if (!affixesByTier[affix.tier]) {
+            affixesByTier[affix.tier] = [];
+        }
+        affixesByTier[affix.tier].push({ ...affix, index: realIndex });
+    });
+    
+    // 为每个T级创建选项组（使用高塔系统样式）
+    for (let tier = 0; tier <= 3; tier++) {
+        if (affixesByTier[tier]) {
+            // 添加分组标题
+            const headerOption = document.createElement('option');
+            headerOption.value = '';
+            headerOption.disabled = true;
+            headerOption.className = 'weapon-group-header';
+            headerOption.textContent = `━━━ T${tier}级词缀 ━━━`;
+            affix2Select.appendChild(headerOption);
+            
+            // 添加词缀选项
+            affixesByTier[tier].forEach(affix => {
+                const option = document.createElement('option');
+                option.value = affix.index;
+                option.textContent = `　　${affix.description}`;
+                affix2Select.appendChild(option);
+            });
+        }
+    }
+    
+    // 恢复之前选中的值（如果还存在）
+    if (currentAffix2 && Array.from(affix2Select.options).some(opt => opt.value === currentAffix2)) {
+        affix2Select.value = currentAffix2;
+    }
+}
+
+// 初始化所有词缀选择器
+function initializeAffixSelectors() {
+    initializeAffix1Selector();
+    initializeAffix2Selector();
+}
+
+// 根据品质更新等级选择范围
+function updateLevelOptions() {
+    const quality = document.querySelector('input[name="memory-quality"]:checked')?.value || 'excellent';
+    const levelSelect = document.getElementById('current-level');
+    
+    if (!levelSelect) return;
+    
+    const currentValue = parseInt(levelSelect.value) || 1;
+    let maxLevel;
+    
+    // 根据品质设置最大等级
+    if (quality === 'excellent') {
+        maxLevel = 40; // 卓越品质1-40级
+    } else if (quality === 'perfect') {
+        maxLevel = 50; // 至臻品质1-50级
+    } else {
+        maxLevel = 40; // 默认卓越品质
+    }
+    
+    // 清空现有选项
+    levelSelect.innerHTML = '';
+    
+    // 添加新的选项
+    for (let i = 1; i <= maxLevel; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i + '级';
+        levelSelect.appendChild(option);
+    }
+    
+    // 恢复之前的选择值，如果超出范围则设为最大值
+    if (currentValue <= maxLevel) {
+        levelSelect.value = currentValue;
+    } else {
+        levelSelect.value = maxLevel;
+    }
+}
+
+// 设置事件监听器
+function setupMemoryEventListeners() {
+    // 品质变化时重新计算并调整等级选择范围
+    const qualityRadios = document.querySelectorAll('input[name="memory-quality"]');
+    qualityRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            updateLevelOptions();
+            calculateMemoryCost();
+        });
+    });
+    
+    // 等级变化时重新计算
+    const levelSelect = document.getElementById('current-level');
+    if (levelSelect) {
+        levelSelect.addEventListener('change', calculateMemoryCost);
+    }
+    
+    // 词缀1搜索框事件监听
+    const search1Input = document.getElementById('affix1-search');
+    if (search1Input) {
+        search1Input.addEventListener('input', function() {
+            const keyword = this.value;
+            initializeAffix1Selector(keyword);
+        });
+    }
+    
+    // 词缀2搜索框事件监听
+    const search2Input = document.getElementById('affix2-search');
+    if (search2Input) {
+        search2Input.addEventListener('input', function() {
+            const keyword = this.value;
+            initializeAffix2Selector(keyword);
+        });
+    }
+    
+    // 词缀选择变化时重新计算
+    const affix1Select = document.getElementById('target-affix-1');
+    const affix2Select = document.getElementById('target-affix-2');
+    if (affix1Select) {
+        affix1Select.addEventListener('change', calculateMemoryCost);
+    }
+    if (affix2Select) {
+        affix2Select.addEventListener('change', calculateMemoryCost);
+    }
+    
+    // 材料价格变化时自动计算
+    const fragmentPriceInput = document.getElementById('fragment-price');
+    const threadPriceInput = document.getElementById('thread-price');
+    
+    if (fragmentPriceInput) {
+        fragmentPriceInput.addEventListener('input', function() {
+            // 延迟计算，避免频繁计算
+            clearTimeout(this.calculateTimeout);
+            this.calculateTimeout = setTimeout(calculateMemoryCost, 300);
+        });
+    }
+    
+    if (threadPriceInput) {
+        threadPriceInput.addEventListener('input', function() {
+            // 延迟计算，避免频繁计算
+            clearTimeout(this.calculateTimeout);
+            this.calculateTimeout = setTimeout(calculateMemoryCost, 300);
+        });
+    }
+}
+
+// 计算追忆成本
+function calculateMemoryCost() {
+    try {
+        const quality = document.querySelector('input[name="memory-quality"]:checked')?.value || 'excellent';
+        const currentLevel = parseInt(document.getElementById('current-level')?.value) || 1;
+        const fragmentPrice = parseFloat(document.getElementById('fragment-price')?.value) || 0;
+        const threadPrice = parseFloat(document.getElementById('thread-price')?.value) || 0;
+        
+        const affix1Index = document.getElementById('target-affix-1')?.value;
+        const affix2Index = document.getElementById('target-affix-2')?.value;
+        
+        // 获取品质对应的最高等级
+        const maxLevel = quality === 'perfect' ? 50 : 40;
+        
+        // 计算升级成本（从当前等级到最高等级）
+        const enhancementCost = calculateEnhancementCostToMax(quality, currentLevel, maxLevel);
+        const enhancementTotal = enhancementCost.fragment * fragmentPrice + enhancementCost.thread * threadPrice;
+        
+        // 计算重构成本
+        let reconstructionCost = { fragment: 0, thread: 0 };
+        let reconstructionTotal = 0;
+        
+        const selectedAffixes = [];
+        if (affix1Index && affix1Index !== '') selectedAffixes.push(parseInt(affix1Index));
+        if (affix2Index && affix2Index !== '') selectedAffixes.push(parseInt(affix2Index));
+        
+        if (selectedAffixes.length > 0) {
+            // 计算总权重
+            const totalWeight = memoryAffixes.reduce((sum, affix) => sum + affix.weight, 0);
+            
+            // 计算每个词缀的重构成本
+            selectedAffixes.forEach(affixIndex => {
+                const affix = memoryAffixes[affixIndex];
+                if (affix) {
+                    const singleReconstructionCost = memoryReconstructionCosts[quality];
+                    const weightRatio = affix.weight / totalWeight;
+                    const adjustedCost = {
+                        fragment: Math.ceil(singleReconstructionCost.fragment / weightRatio),
+                        thread: Math.ceil(singleReconstructionCost.thread / weightRatio)
+                    };
+                    reconstructionCost.fragment += adjustedCost.fragment;
+                    reconstructionCost.thread += adjustedCost.thread;
+                }
+            });
+            
+            reconstructionTotal = reconstructionCost.fragment * fragmentPrice + reconstructionCost.thread * threadPrice;
+        }
+        
+        // 更新显示
+        updateCostDisplay(enhancementCost, enhancementTotal, reconstructionCost, reconstructionTotal);
+        
+    } catch (error) {
+        console.error('计算追忆成本时出错:', error);
+    }
+}
+
+// 计算升级成本（从当前等级到最高等级）
+function calculateEnhancementCostToMax(quality, currentLevel, maxLevel) {
+    const costs = memoryEnhancementCosts[quality];
+    if (!costs) return { fragment: 0, thread: 0 };
+    
+    let totalFragment = 0;
+    let totalThread = 0;
+    
+    // 计算从当前等级到最高等级的升级成本
+    for (let level = currentLevel; level < maxLevel; level++) {
+        // 查找当前等级所在的区间
+        const range = costs.ranges.find(r => level >= r.start && level < r.end);
+        if (range) {
+            totalFragment += range.fragment;
+            totalThread += range.thread;
+        }
+    }
+    
+    return { fragment: totalFragment, thread: totalThread };
+}
+
+// 更新成本显示
+function updateCostDisplay(enhancementCost, enhancementTotal, reconstructionCost, reconstructionTotal) {
+    // 更新强化成本显示
+    const enhancementFragmentElement = document.getElementById('enhancement-fragment-cost');
+    const enhancementThreadElement = document.getElementById('enhancement-thread-cost');
+    const enhancementTotalElement = document.getElementById('enhancement-total-cost');
+    
+    if (enhancementFragmentElement) enhancementFragmentElement.textContent = enhancementCost.fragment;
+    if (enhancementThreadElement) enhancementThreadElement.textContent = enhancementCost.thread;
+    if (enhancementTotalElement) enhancementTotalElement.textContent = enhancementTotal.toFixed(1);
+    
+    // 更新重构成本显示
+    const reconstructionFragmentElement = document.getElementById('reconstruction-fragment-cost');
+    const reconstructionThreadElement = document.getElementById('reconstruction-thread-cost');
+    const reconstructionTotalElement = document.getElementById('reconstruction-total-cost');
+    
+    if (reconstructionFragmentElement) reconstructionFragmentElement.textContent = reconstructionCost.fragment;
+    if (reconstructionThreadElement) reconstructionThreadElement.textContent = reconstructionCost.thread;
+    if (reconstructionTotalElement) reconstructionTotalElement.textContent = reconstructionTotal.toFixed(1);
+    
+    // 更新总成本显示
+    const grandTotal = enhancementTotal + reconstructionTotal;
+    const grandTotalElement = document.getElementById('grand-total-cost');
+    if (grandTotalElement) grandTotalElement.textContent = grandTotal.toFixed(1);
+}
+
+// 重置追忆计算
