@@ -3832,6 +3832,166 @@ select.select-input option {
     font-size: 14px;
 }
 
+/* 侵蚀成本计算样式 */
+.erosion-cost-calculation {
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.erosion-cost-calculation h4 {
+    margin: 0 0 20px 0;
+    color: var(--primary-color);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.erosion-type-selection {
+    margin-bottom: 20px;
+}
+
+.erosion-type-selection label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.erosion-type-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.erosion-type-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.erosion-type-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.erosion-type-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #667eea;
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.target-affixes-selection {
+    margin-bottom: 20px;
+}
+
+.target-affix-group {
+    margin-bottom: 15px;
+}
+
+.target-affix-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+
+.calculate-erosion-btn {
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #4a90e2, #357abd);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.calculate-erosion-btn:hover {
+    background: linear-gradient(135deg, #357abd, #2968a3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+}
+
+.erosion-cost-result {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cost-result-header h5 {
+    margin: 0 0 15px 0;
+    color: var(--accent-color);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cost-result-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cost-result-content .cost-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--input-bg);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.cost-result-content .cost-item label {
+    font-size: 13px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.cost-result-content .cost-item span {
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.cost-result-content .total-expected-cost {
+    background: rgba(74, 144, 226, 0.1);
+    border-color: var(--primary-color);
+}
+
+.cost-result-content .total-expected-cost span {
+    color: var(--accent-color);
+    font-size: 16px;
+}
+
 /* 侵蚀模拟响应式设计 */
 @media (max-width: 1200px) {
     .erosion-main-content {
@@ -3862,6 +4022,14 @@ select.select-input option {
     
     .stat-row {
         flex-direction: column;
+    }
+    
+    .erosion-type-buttons {
+        flex-direction: column;
+    }
+    
+    .erosion-cost-calculation {
+        padding: 15px;
     }
 }
 

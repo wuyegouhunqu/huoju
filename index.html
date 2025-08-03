@@ -489,19 +489,86 @@
                                             </div>
                                             
                                             <!-- 侵蚀结果展示区域 -->
-                                            <div class="erosion-result-area" id="erosion-result-area" style="display: none;">
-                                                <div class="result-header">
-                                                    <h4><i class="fas fa-star"></i> 侵蚀结果</h4>
-                                                </div>
-                                                <div class="result-content" id="erosion-result-content">
-                                                    <!-- 侵蚀结果将在这里显示 -->
-                                                </div>
-                                            </div>
-                                            
-                                            <button class="reset-btn" onclick="resetErosionCount()">
-                                                <i class="fas fa-undo"></i>
-                                                重置计数
-                                            </button>
+                            <div class="erosion-result-area" id="erosion-result-area" style="display: none;">
+                                <div class="result-header">
+                                    <h4><i class="fas fa-star"></i> 侵蚀结果</h4>
+                                </div>
+                                <div class="result-content" id="erosion-result-content">
+                                    <!-- 侵蚀结果将在这里显示 -->
+                                </div>
+                            </div>
+                            
+                            <!-- 侵蚀成本计算功能 -->
+                            <div class="erosion-cost-calculation">
+                                <h4><i class="fas fa-calculator"></i> 侵蚀成本计算</h4>
+                                
+                                <!-- 侵蚀类型选择 -->
+                                <div class="erosion-type-selection">
+                                    <label>侵蚀类型</label>
+                                    <div class="erosion-type-buttons">
+                                        <button class="erosion-type-btn active" id="cost-dark-btn" onclick="selectErosionType('dark')">
+                                            <i class="fas fa-moon"></i>
+                                            黑暗侵蚀
+                                        </button>
+                                        <button class="erosion-type-btn" id="cost-deepest-btn" onclick="selectErosionType('deepest')">
+                                            <i class="fas fa-skull"></i>
+                                            至暗侵蚀
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 侵蚀需求选择 -->
+                                 <div class="target-affixes-selection">
+                                     <div class="target-affix-group">
+                                          <label>需要提升的词缀数量</label>
+                                          <select id="target-upgrade-count" class="equipment-select" onchange="calculateErosionCost()">
+                                              <option value="">请选择提升数量</option>
+                                              <option value="1">提升1个词缀</option>
+                                              <option value="2">提升2个词缀</option>
+                                          </select>
+                                      </div>
+                                      <div class="target-affix-group">
+                                          <label>装备词条数量</label>
+                                          <input type="number" id="equipment-affix-count" class="equipment-select" placeholder="装备总词条数" min="1" max="10" value="4" onchange="calculateErosionCost()">
+                                      </div>
+                                 </div>
+                                
+                                <!-- 计算按钮 -->
+                                <button class="calculate-erosion-btn" onclick="calculateErosionCost()">
+                                    <i class="fas fa-calculator"></i>
+                                    计算侵蚀成本
+                                </button>
+                                
+                                <!-- 成本结果显示 -->
+                                <div class="erosion-cost-result" id="erosion-cost-result" style="display: none;">
+                                    <div class="cost-result-header">
+                                        <h5><i class="fas fa-coins"></i> 预期成本</h5>
+                                    </div>
+                                    <div class="cost-result-content">
+                                        <div class="cost-item">
+                                            <label>预期侵蚀次数：</label>
+                                            <span id="expected-erosion-count">0</span>
+                                        </div>
+                                        <div class="cost-item">
+                                            <label>预期材料消耗：</label>
+                                            <span id="expected-material-cost">0 异魔之核 + 0 使魔之核</span>
+                                        </div>
+                                        <div class="cost-item">
+                                            <label>预期装备消耗：</label>
+                                            <span id="expected-equipment-cost">0 个装备</span>
+                                        </div>
+                                        <div class="cost-item total-expected-cost">
+                                            <label>预期总成本：</label>
+                                            <span id="expected-total-cost">0 初火源质</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button class="reset-btn" onclick="resetErosionCount()">
+                                <i class="fas fa-undo"></i>
+                                重置计数
+                            </button>
                                         </div>
                                     </div>
                                 </div>

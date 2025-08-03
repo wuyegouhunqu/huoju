@@ -4017,6 +4017,9 @@ async function initializeErosionSimulation() {
             equipmentNameSelect.addEventListener('change', onEquipmentNameChange);
         }
         
+        // 初始化侵蚀成本计算功能
+        updateTargetAffixOptions('dark'); // 默认显示黑暗侵蚀的选项
+        
         console.log('侵蚀模拟功能初始化完成');
     } catch (error) {
         console.error('侵蚀模拟功能初始化失败:', error);
@@ -4839,6 +4842,197 @@ function setupErosionEventListeners() {
     }
     
     console.log('侵蚀系统事件监听器设置完成');
+}
+
+// 侵蚀成本计算相关变量
+let selectedErosionType = 'dark'; // 默认选择黑暗侵蚀
+
+// 侵蚀类型选择函数
+function selectErosionType(type) {
+    selectedErosionType = type;
+    
+    // 更新按钮状态
+    const darkBtn = document.getElementById('cost-dark-btn');
+    const deepestBtn = document.getElementById('cost-deepest-btn');
+    
+    if (type === 'dark') {
+        darkBtn.classList.add('active');
+        deepestBtn.classList.remove('active');
+    } else {
+        deepestBtn.classList.add('active');
+        darkBtn.classList.remove('active');
+    }
+    
+    // 更新目标词条选项
+    updateTargetAffixOptions(type);
+    
+    // 重新计算成本
+    calculateErosionCost();
+}
+
+// 更新目标词条选项（现在不需要根据侵蚀类型更新，因为改为选择提升数量）
+function updateTargetAffixOptions(erosionType) {
+    // 界面已改为选择提升词缀数量，此函数保留但不执行任何操作
+    // 可以在未来需要时重新启用
+}
+
+// 计算侵蚀成本
+function calculateErosionCost() {
+    const targetUpgradeCount = parseInt(document.getElementById('target-upgrade-count').value);
+    const affixCount = parseInt(document.getElementById('equipment-affix-count').value) || 4;
+    
+    if (!targetUpgradeCount) {
+        // 如果没有选择提升数量，隐藏结果
+        document.getElementById('erosion-cost-result').style.display = 'none';
+        return;
+    }
+    
+    // 获取价格设置
+    const equipmentPrice = parseFloat(document.getElementById('equipment-price').value) || 0;
+    const darkCorePrice = parseFloat(document.getElementById('dark-core-price').value) || 0;
+    const demonCorePrice = parseFloat(document.getElementById('demon-core-price').value) || 0;
+    const equipmentLevel = parseInt(document.getElementById('equipment-level-erosion').value) || 82;
+    
+    if (equipmentPrice <= 0 || darkCorePrice <= 0 || demonCorePrice <= 0) {
+        showNotification('请设置正确的装备和核心价格', 'warning');
+        return;
+    }
+    
+    if (affixCount < 1 || affixCount > 10) {
+        showNotification('装备词条数量应在1-10之间', 'warning');
+        return;
+    }
+    
+    // 获取基础侵蚀概率
+    const baseProbabilities = getErosionProbabilities(selectedErosionType);
+    
+    // 计算满足需求的侵蚀结果概率
+    let actualProbability = 0;
+    let satisfyingResults = [];
+    
+    if (targetUpgradeCount === 1) {
+        // 需要提升1个词缀：傲慢（提升1条）和亵渎（提升2条，包含1条）都可以满足
+        
+        // 傲慢：提升1条词缀，从N个词条中选择1个目标词条的概率
+        if (baseProbabilities['傲慢']) {
+            const prideProbability = baseProbabilities['傲慢'] * (1 / affixCount);
+            actualProbability += prideProbability;
+            satisfyingResults.push({ type: '傲慢', probability: prideProbability });
+        }
+        
+        // 亵渎：提升2条词缀，但也能满足提升1条的需求，从N个词条中选择1个目标词条的概率
+        if (baseProbabilities['亵渎']) {
+            const profaneProbability = baseProbabilities['亵渎'] * (1 / affixCount);
+            actualProbability += profaneProbability;
+            satisfyingResults.push({ type: '亵渎', probability: profaneProbability });
+        }
+        
+    } else if (targetUpgradeCount === 2) {
+        // 需要提升2个词缀：只有亵渎可以满足（亵渎提升2条词缀）
+        
+        if (baseProbabilities['亵渎'] && affixCount >= 2) {
+            // 亵渎：提升2条词缀，从N个词条中选择2个目标词条的概率
+            // 概率为 C(2,2)/C(N,2) = 1/C(N,2)
+            const totalCombinations = (affixCount * (affixCount - 1)) / 2; // C(N,2)
+            const targetProbability = 1 / totalCombinations;
+            const profaneProbability = baseProbabilities['亵渎'] * targetProbability;
+            actualProbability = profaneProbability;
+            satisfyingResults.push({ type: '亵渎', probability: profaneProbability });
+        } else {
+            showNotification('装备词条数量不足或当前侵蚀类型无法提升2个词缀', 'warning');
+            return;
+        }
+    }
+    
+    if (actualProbability === 0) {
+        showNotification('当前侵蚀类型无法满足提升需求', 'warning');
+        return;
+    }
+    
+    // 确保概率不超过1
+    actualProbability = Math.min(actualProbability, 1);
+    
+    // 计算期望侵蚀次数（几何分布的期望值）
+    const expectedAttempts = Math.ceil(1 / actualProbability);
+    
+    // 计算材料消耗
+    let expectedDarkCores = 0;
+    let expectedDemonCores = 0;
+    
+    if (selectedErosionType === 'dark') {
+        expectedDarkCores = expectedAttempts * (equipmentLevel > 82 ? 7 : 4);
+    } else {
+        expectedDemonCores = expectedAttempts;
+    }
+    
+    // 计算总成本
+    const materialCost = (expectedDarkCores * darkCorePrice) + (expectedDemonCores * demonCorePrice);
+    const equipmentCost = expectedAttempts * equipmentPrice;
+    const totalCost = materialCost + equipmentCost;
+    
+    // 更新显示
+    updateErosionCostDisplay({
+        expectedAttempts,
+        expectedDarkCores,
+        expectedDemonCores,
+        expectedEquipmentCount: expectedAttempts,
+        totalCost,
+        actualProbability,
+        affixCount,
+        targetUpgradeCount,
+        satisfyingResults
+    });
+}
+
+// 获取侵蚀概率
+function getErosionProbabilities(erosionType) {
+    if (erosionType === 'dark') {
+        return {
+            '异化': 0.25,
+            '混沌': 0.25,
+            '傲慢': 0.30,
+            '虚无': 0.20
+        };
+    } else {
+        return {
+            '异化': 0.30,
+            '混沌': 0.30,
+            '亵渎': 0.15,
+            '傲慢': 0.15,
+            '虚无': 0.10
+        };
+    }
+}
+
+// 更新侵蚀成本显示
+function updateErosionCostDisplay(costData) {
+    // 构建满足需求的侵蚀结果说明
+    let resultDescription = `提升${costData.targetUpgradeCount}个词缀 (`;
+    if (costData.satisfyingResults && costData.satisfyingResults.length > 0) {
+        const resultTypes = costData.satisfyingResults.map(result => 
+            `${result.type}: ${(result.probability * 100).toFixed(2)}%`
+        ).join(', ');
+        resultDescription += resultTypes;
+    }
+    resultDescription += ')';
+    
+    document.getElementById('expected-erosion-count').textContent = `${costData.expectedAttempts} 次 (总成功概率: ${(costData.actualProbability * 100).toFixed(2)}%)`;
+    
+    let materialText = '';
+    if (costData.expectedDarkCores > 0) {
+        materialText += `${costData.expectedDarkCores} 异魔之核`;
+    }
+    if (costData.expectedDemonCores > 0) {
+        if (materialText) materialText += ' + ';
+        materialText += `${costData.expectedDemonCores} 使魔之核`;
+    }
+    document.getElementById('expected-material-cost').textContent = materialText;
+    
+    document.getElementById('expected-equipment-cost').textContent = `${costData.expectedEquipmentCount} 个装备 (${costData.affixCount}词条, ${resultDescription})`;
+    document.getElementById('expected-total-cost').textContent = `${Math.round(costData.totalCost)} 初火源质`;
+    
+    // 显示结果区域
+    document.getElementById('erosion-cost-result').style.display = 'block';
 }
 
 // 侵蚀模拟功能初始化已合并到主DOMContentLoaded事件中
