@@ -4288,3 +4288,397 @@ select.select-input option {
         font-size: 18px;
     }
 }
+
+/* 神格石板模块样式 */
+.godstone-puzzle-section,
+.godstone-inventory-section,
+.godstone-results-section,
+.godstone-suggestions-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.godstone-puzzle-section h4,
+.godstone-inventory-section h4,
+.godstone-results-section h4,
+.godstone-suggestions-section h4 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* 拼图网格样式 */
+.puzzle-container {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.puzzle-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 40px);
+    grid-template-rows: repeat(9, 40px);
+    gap: 1px;
+    background: var(--border-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.puzzle-cell {
+    width: 40px;
+    height: 40px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.puzzle-cell:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+}
+
+.puzzle-cell.occupied {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.puzzle-cell.legendary {
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #8b4513;
+    border-color: #ffd700;
+}
+
+.puzzle-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.control-btn {
+    background: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.control-btn:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+/* 库存标签页样式 */
+.inventory-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.inventory-tab {
+    background: transparent;
+    color: var(--text-color);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px 8px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.inventory-tab:hover {
+    background: var(--hover-bg);
+    color: var(--primary-color);
+}
+
+.inventory-tab.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.inventory-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+}
+
+/* 石板网格样式 */
+.godstone-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--input-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.godstone-item {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    position: relative;
+}
+
+.godstone-item:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+}
+
+.godstone-item.legendary {
+    border-color: #ffd700;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 237, 78, 0.05));
+}
+
+.godstone-item.legendary:hover {
+    border-color: #ffed4e;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+.godstone-name {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+.godstone-shape {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.godstone-attributes {
+    font-size: 10px;
+    color: var(--text-secondary);
+    line-height: 1.3;
+}
+
+/* 结果显示样式 */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.result-category {
+    background: var(--input-bg);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+.result-category h5 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.attribute-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.attribute-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--card-bg);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.attribute-item:hover {
+    border-color: var(--primary-color);
+    background: var(--hover-bg);
+}
+
+.attribute-item.highlight {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    font-weight: 600;
+}
+
+.attribute-item.highlight:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+}
+
+.attr-name {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.attr-value {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.attribute-item.highlight .attr-name,
+.attribute-item.highlight .attr-value {
+    color: white;
+}
+
+/* 优化建议样式 */
+.suggestions-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 12px;
+    background: var(--input-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.suggestion-item i {
+    color: var(--primary-color);
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.suggestion-item.warning {
+    background: rgba(255, 193, 7, 0.1);
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.suggestion-item.warning i {
+    color: #ffc107;
+}
+
+.suggestion-item.success {
+    background: rgba(40, 167, 69, 0.1);
+    border-color: #28a745;
+    color: #155724;
+}
+
+.suggestion-item.success i {
+    color: #28a745;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .puzzle-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .puzzle-controls {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 768px) {
+    .puzzle-grid {
+        grid-template-columns: repeat(9, 35px);
+        grid-template-rows: repeat(9, 35px);
+    }
+    
+    .puzzle-cell {
+        width: 35px;
+        height: 35px;
+        font-size: 9px;
+    }
+    
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .godstone-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        max-height: 250px;
+    }
+    
+    .inventory-tabs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .inventory-tab {
+        border-radius: 8px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .puzzle-grid {
+        grid-template-columns: repeat(9, 30px);
+        grid-template-rows: repeat(9, 30px);
+    }
+    
+    .puzzle-cell {
+        width: 30px;
+        height: 30px;
+        font-size: 8px;
+    }
+    
+    .godstone-puzzle-section,
+    .godstone-inventory-section,
+    .godstone-results-section,
+    .godstone-suggestions-section {
+        padding: 1rem;
+    }
+    
+    .control-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}

@@ -552,10 +552,489 @@ function getDreamCostForCrafting() {
         
         return totalCost;
     } catch (error) {
-        console.error('获取解梦成本错误:', error);
+        console.error('解梦成本计算错误:', error);
         return 0;
     }
 }
+
+// 神格石板模块功能
+class GodstonePuzzleSimulator {
+    constructor() {
+        this.puzzleGrid = Array(9).fill().map(() => Array(9).fill(null));
+        this.legendaryStones = [];
+        this.normalStones = [];
+        this.currentAttributes = {
+            health: 0,
+            mana: 0,
+            armor: 0,
+            physicalDamage: 0,
+            elementalDamage: 0,
+            critChance: 0
+        };
+        this.selectedStone = null;
+        this.init();
+    }
+
+    init() {
+        this.initializePuzzleGrid();
+        this.initializeStoneInventory();
+        this.setupEventListeners();
+        this.updateResults();
+    }
+
+    initializePuzzleGrid() {
+        const puzzleGridElement = document.getElementById('puzzle-grid');
+        puzzleGridElement.innerHTML = '';
+        
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                const cell = document.createElement('div');
+                cell.className = 'puzzle-cell';
+                cell.dataset.row = row;
+                cell.dataset.col = col;
+                cell.addEventListener('click', () => this.onCellClick(row, col));
+                puzzleGridElement.appendChild(cell);
+            }
+        }
+    }
+
+    initializeStoneInventory() {
+        // 传奇石板数据
+        this.legendaryStones = [
+            {
+                id: 'legendary_1',
+                name: '烈焰之心',
+                shape: [[1, 1], [1, 0], [0, 1]],
+                attributes: { physicalDamage: 15, elementalDamage: 20 },
+                type: 'legendary'
+            },
+            {
+                id: 'legendary_2',
+                name: '寒冰护盾',
+                shape: [[1, 1, 1], [0, 1, 0]],
+                attributes: { health: 100, armor: 25 },
+                type: 'legendary'
+            },
+            {
+                id: 'legendary_3',
+                name: '雷霆之眼',
+                shape: [[1], [1], [1], [1]],
+                attributes: { elementalDamage: 30, critChance: 8 },
+                type: 'legendary'
+            },
+            {
+                id: 'legendary_4',
+                name: '生命源泉',
+                shape: [[1, 1], [1, 1]],
+                attributes: { health: 150, mana: 80 },
+                type: 'legendary'
+            },
+            {
+                id: 'legendary_5',
+                name: '破甲之刃',
+                shape: [[1, 0], [1, 1], [0, 1]],
+                attributes: { physicalDamage: 25, critChance: 5 },
+                type: 'legendary'
+            }
+        ];
+
+        // 普通石板数据
+        this.normalStones = [
+            {
+                id: 'normal_1',
+                name: '力量石板',
+                shape: [[1, 1]],
+                attributes: { physicalDamage: 8 },
+                type: 'normal'
+            },
+            {
+                id: 'normal_2',
+                name: '生命石板',
+                shape: [[1], [1]],
+                attributes: { health: 50 },
+                type: 'normal'
+            },
+            {
+                id: 'normal_3',
+                name: '魔力石板',
+                shape: [[1]],
+                attributes: { mana: 30 },
+                type: 'normal'
+            },
+            {
+                id: 'normal_4',
+                name: '护甲石板',
+                shape: [[1, 1, 1]],
+                attributes: { armor: 15 },
+                type: 'normal'
+            },
+            {
+                id: 'normal_5',
+                name: '元素石板',
+                shape: [[1, 1], [0, 1]],
+                attributes: { elementalDamage: 12 },
+                type: 'normal'
+            },
+            {
+                id: 'normal_6',
+                name: '暴击石板',
+                shape: [[1, 0], [1, 1]],
+                attributes: { critChance: 3 },
+                type: 'normal'
+            }
+        ];
+
+        this.renderStoneInventory();
+    }
+
+    renderStoneInventory() {
+        const legendaryContainer = document.getElementById('legendary-stones');
+        const normalContainer = document.getElementById('normal-stones');
+        
+        legendaryContainer.innerHTML = '';
+        normalContainer.innerHTML = '';
+
+        // 渲染传奇石板
+        this.legendaryStones.forEach(stone => {
+            const stoneElement = this.createStoneElement(stone);
+            legendaryContainer.appendChild(stoneElement);
+        });
+
+        // 渲染普通石板
+        this.normalStones.forEach(stone => {
+            const stoneElement = this.createStoneElement(stone);
+            normalContainer.appendChild(stoneElement);
+        });
+    }
+
+    createStoneElement(stone) {
+        const element = document.createElement('div');
+        element.className = `godstone-item ${stone.type}`;
+        element.dataset.stoneId = stone.id;
+        
+        const shapeText = stone.shape.map(row => 
+            row.map(cell => cell ? '■' : '□').join('')
+        ).join('\n');
+        
+        const attributeText = Object.entries(stone.attributes)
+            .map(([key, value]) => `${this.getAttributeName(key)}: +${value}`)
+            .join('\n');
+
+        element.innerHTML = `
+            <div class="godstone-name">${stone.name}</div>
+            <div class="godstone-shape">${shapeText}</div>
+            <div class="godstone-attributes">${attributeText}</div>
+        `;
+
+        element.addEventListener('click', () => this.selectStone(stone));
+        return element;
+    }
+
+    getAttributeName(key) {
+        const names = {
+            health: '生命值',
+            mana: '法力值',
+            armor: '护甲',
+            physicalDamage: '物理伤害',
+            elementalDamage: '元素伤害',
+            critChance: '暴击率'
+        };
+        return names[key] || key;
+    }
+
+    selectStone(stone) {
+        // 移除之前选中的石板高亮
+        document.querySelectorAll('.godstone-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        
+        // 高亮当前选中的石板
+        const stoneElement = document.querySelector(`[data-stone-id="${stone.id}"]`);
+        if (stoneElement) {
+            stoneElement.classList.add('selected');
+        }
+        
+        this.selectedStone = stone;
+        this.updateSuggestions([`已选择石板: ${stone.name}，点击拼图区域放置`]);
+    }
+
+    onCellClick(row, col) {
+        if (!this.selectedStone) {
+            this.updateSuggestions(['请先选择一个石板']);
+            return;
+        }
+
+        if (this.canPlaceStone(row, col, this.selectedStone.shape)) {
+            this.placeStone(row, col, this.selectedStone);
+            this.selectedStone = null;
+            // 移除选中高亮
+            document.querySelectorAll('.godstone-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            this.updateResults();
+        } else {
+            this.updateSuggestions(['无法在此位置放置石板，请检查空间是否足够']);
+        }
+    }
+
+    canPlaceStone(startRow, startCol, shape) {
+        for (let i = 0; i < shape.length; i++) {
+            for (let j = 0; j < shape[i].length; j++) {
+                if (shape[i][j] === 1) {
+                    const newRow = startRow + i;
+                    const newCol = startCol + j;
+                    
+                    // 检查边界
+                    if (newRow >= 9 || newCol >= 9 || newRow < 0 || newCol < 0) {
+                        return false;
+                    }
+                    
+                    // 检查是否已被占用
+                    if (this.puzzleGrid[newRow][newCol] !== null) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    placeStone(startRow, startCol, stone) {
+        const stoneData = {
+            id: stone.id,
+            name: stone.name,
+            attributes: stone.attributes,
+            type: stone.type
+        };
+
+        for (let i = 0; i < stone.shape.length; i++) {
+            for (let j = 0; j < stone.shape[i].length; j++) {
+                if (stone.shape[i][j] === 1) {
+                    const newRow = startRow + i;
+                    const newCol = startCol + j;
+                    this.puzzleGrid[newRow][newCol] = stoneData;
+                    
+                    // 更新UI
+                    const cell = document.querySelector(`[data-row="${newRow}"][data-col="${newCol}"]`);
+                    if (cell) {
+                        cell.classList.add('occupied');
+                        if (stone.type === 'legendary') {
+                            cell.classList.add('legendary');
+                        }
+                        cell.textContent = stone.name.charAt(0);
+                        cell.title = stone.name;
+                    }
+                }
+            }
+        }
+    }
+
+    updateResults() {
+        // 重置属性
+        this.currentAttributes = {
+            health: 0,
+            mana: 0,
+            armor: 0,
+            physicalDamage: 0,
+            elementalDamage: 0,
+            critChance: 0
+        };
+
+        // 统计已放置石板的属性
+        const placedStones = new Set();
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                const stone = this.puzzleGrid[row][col];
+                if (stone && !placedStones.has(stone.id)) {
+                    placedStones.add(stone.id);
+                    Object.entries(stone.attributes).forEach(([key, value]) => {
+                        if (this.currentAttributes.hasOwnProperty(key)) {
+                            this.currentAttributes[key] += value;
+                        }
+                    });
+                }
+            }
+        }
+
+        // 更新UI显示
+        document.getElementById('health-value').textContent = this.currentAttributes.health;
+        document.getElementById('mana-value').textContent = this.currentAttributes.mana;
+        document.getElementById('armor-value').textContent = this.currentAttributes.armor;
+        document.getElementById('physical-damage-value').textContent = this.currentAttributes.physicalDamage;
+        document.getElementById('elemental-damage-value').textContent = this.currentAttributes.elementalDamage;
+        document.getElementById('crit-chance-value').textContent = this.currentAttributes.critChance + '%';
+
+        // 计算等效增伤
+        const equivalentMultiplier = this.calculateEquivalentDamage();
+        document.getElementById('equivalent-multiplier').textContent = equivalentMultiplier.toFixed(2) + 'x';
+        document.getElementById('relative-improvement').textContent = ((equivalentMultiplier - 1) * 100).toFixed(1) + '%';
+
+        // 更新优化建议
+        this.updateOptimizationSuggestions();
+    }
+
+    calculateEquivalentDamage() {
+        // 简化的等效增伤计算公式
+        const baseDamage = 100; // 假设基础伤害
+        const totalDamage = baseDamage + this.currentAttributes.physicalDamage + this.currentAttributes.elementalDamage;
+        const critMultiplier = 1 + (this.currentAttributes.critChance / 100) * 0.5; // 假设暴击伤害为150%
+        const survivalMultiplier = 1 + (this.currentAttributes.health / 1000) * 0.1 + (this.currentAttributes.armor / 100) * 0.05;
+        
+        return (totalDamage / baseDamage) * critMultiplier * survivalMultiplier;
+    }
+
+    updateOptimizationSuggestions() {
+        const suggestions = [];
+        const occupiedCells = this.getOccupiedCellsCount();
+        
+        if (occupiedCells === 0) {
+            suggestions.push('请放置石板开始计算');
+        } else {
+            if (this.currentAttributes.physicalDamage > this.currentAttributes.elementalDamage * 2) {
+                suggestions.push('物理伤害过高，建议平衡元素伤害');
+            }
+            if (this.currentAttributes.critChance < 10) {
+                suggestions.push('暴击率较低，建议增加暴击石板');
+            }
+            if (this.currentAttributes.health < 200) {
+                suggestions.push('生命值偏低，建议增加生命石板');
+            }
+            if (occupiedCells < 20) {
+                suggestions.push('还有空间可以放置更多石板');
+            }
+            if (suggestions.length === 0) {
+                suggestions.push('当前配置较为均衡');
+            }
+        }
+        
+        this.updateSuggestions(suggestions);
+    }
+
+    updateSuggestions(suggestions) {
+        const container = document.getElementById('optimization-suggestions');
+        container.innerHTML = '';
+        
+        suggestions.forEach(suggestion => {
+            const item = document.createElement('div');
+            item.className = 'suggestion-item';
+            item.innerHTML = `
+                <i class="fas fa-info-circle"></i>
+                <span>${suggestion}</span>
+            `;
+            container.appendChild(item);
+        });
+    }
+
+    getOccupiedCellsCount() {
+        let count = 0;
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                if (this.puzzleGrid[row][col] !== null) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    clearPuzzle() {
+        // 清空数据
+        this.puzzleGrid = Array(9).fill().map(() => Array(9).fill(null));
+        
+        // 清空UI
+        document.querySelectorAll('.puzzle-cell').forEach(cell => {
+            cell.classList.remove('occupied', 'legendary');
+            cell.textContent = '';
+            cell.title = '';
+        });
+        
+        // 更新结果
+        this.updateResults();
+    }
+
+    savePuzzleConfig() {
+        const config = {
+            puzzleGrid: this.puzzleGrid,
+            timestamp: new Date().toISOString()
+        };
+        
+        localStorage.setItem('godstone_puzzle_config', JSON.stringify(config));
+        this.updateSuggestions(['配置已保存到本地存储']);
+    }
+
+    loadPuzzleConfig() {
+        const saved = localStorage.getItem('godstone_puzzle_config');
+        if (saved) {
+            try {
+                const config = JSON.parse(saved);
+                this.clearPuzzle();
+                this.puzzleGrid = config.puzzleGrid;
+                
+                // 重建UI
+                for (let row = 0; row < 9; row++) {
+                    for (let col = 0; col < 9; col++) {
+                        const stone = this.puzzleGrid[row][col];
+                        if (stone) {
+                            const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                            if (cell) {
+                                cell.classList.add('occupied');
+                                if (stone.type === 'legendary') {
+                                    cell.classList.add('legendary');
+                                }
+                                cell.textContent = stone.name.charAt(0);
+                                cell.title = stone.name;
+                            }
+                        }
+                    }
+                }
+                
+                this.updateResults();
+                this.updateSuggestions(['配置已从本地存储加载']);
+            } catch (error) {
+                this.updateSuggestions(['加载配置失败，请检查数据格式']);
+            }
+        } else {
+            this.updateSuggestions(['未找到保存的配置']);
+        }
+    }
+
+    setupEventListeners() {
+        // 全局函数绑定
+        window.clearPuzzle = () => this.clearPuzzle();
+        window.savePuzzleConfig = () => this.savePuzzleConfig();
+        window.loadPuzzleConfig = () => this.loadPuzzleConfig();
+        window.showInventoryTab = (tab) => this.showInventoryTab(tab);
+    }
+
+    showInventoryTab(tabName) {
+        // 切换标签页
+        document.querySelectorAll('.inventory-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.inventory-tab-content').forEach(content => {
+            content.style.display = 'none';
+        });
+        
+        document.querySelector(`[onclick="showInventoryTab('${tabName}')"]`).classList.add('active');
+        document.getElementById(`${tabName}-inventory`).style.display = 'block';
+    }
+}
+
+// 初始化神格石板模拟器
+let godstonePuzzleSimulator = null;
+
+// 在DOM加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 延迟初始化，确保其他模块先加载
+    setTimeout(() => {
+        if (document.getElementById('godstone-calc')) {
+            godstonePuzzleSimulator = new GodstonePuzzleSimulator();
+            console.log('神格石板模拟器已初始化');
+        }
+    }, 1000);
+});
+
+console.log('神格石板模块功能已加载！');
 
 // 获取序列成本用于打造系统
 function getSequenceCostForCrafting() {
@@ -982,7 +1461,7 @@ const accessoryAffixes = {
         { name: '造成伤害时，触发 20 级易伤诅咒，冷却时间为 0.2 秒', weight: 1 },
         { name: '造成伤害时，触发 20 级炽热诅咒，冷却时间为 0.2 秒', weight: 1 },
         { name: '造成伤害时，触发 20 级蚀骨之寒诅咒，冷却时间为 0.2 秒', weight: 1 },
-        { name: '造成伤害时，触发 20 级感电诅咒，冷却时间为 0.2 秒', weight: 1 },
+        { name: '造成伤害时，触发 20 级感电诅咒，冷却时间为 0.2 秒', weight: 1 }
 
     ],
     belt: [
@@ -1797,7 +2276,7 @@ const supportSkillsData = {
         '精密 激流': { compensation: -14.5, multiplier: 100 },
         '精密 超能共生': { compensation: -20, multiplier: 100 },
         '精密 魔灵之友': { compensation: -30, multiplier: 100 },
-        '精密 封印转化': { compensation: -60, multiplier: 100 },
+
         '精密 无私': { compensation: -12, multiplier: 100 },
         '精密 自私': { compensation: -12, multiplier: 100 },
         '精密 多则能成': { compensation: 0, multiplier: 100 },
@@ -1841,6 +2320,15 @@ const supportSkillsData = {
                 11: -67.5, 12: -67.25, 13: -67, 14: -66.75, 15: -66.5, 16: -66.25, 17: -66, 18: -65.75, 19: -65.5, 20: -65.25,
                 21: -65, 22: -64.25, 23: -63.5, 24: -62.75, 25: -62, 26: -61.25, 27: -60.5, 28: -59.75, 29: -59, 30: -58.25,
                 31: -57.5, 32: -56.75, 33: -56, 34: -55.25, 35: -54.5, 36: -53.75, 37: -53, 38: -52.25, 39: -51.5, 40: -50.75
+            }
+        },
+        '精密 封印转化': {
+            multiplier: 100,
+            levels: {
+                1: -60, 2: -59.5, 3: -59, 4: -58.5, 5: -58, 6: -57.5, 7: -57, 8: -56.5, 9: -56, 10: -55.5,
+                11: -55, 12: -54.5, 13: -54, 14: -53.5, 15: -53, 16: -52.5, 17: -52, 18: -51.5, 19: -51, 20: -50.5,
+                21: -50, 22: -49.75, 23: -49.5, 24: -49.25, 25: -49, 26: -48.75, 27: -48.5, 28: -48.25, 29: -48, 30: -47.75,
+                31: -47.5, 32: -47.25, 33: -47, 34: -46.75, 35: -46.5, 36: -46.25, 37: -46, 38: -45.75, 39: -45.5, 40: -45.25
             }
         },
         '超能共生': {
@@ -5632,3 +6120,39 @@ function updateCostDisplay(enhancementCost, enhancementTotal, reconstructionCost
 }
 
 // 重置追忆计算
+function resetMemoryCalculation() {
+    // 重置所有输入字段
+    const qualityRadios = document.querySelectorAll('input[name="memory-quality"]');
+    qualityRadios.forEach(radio => radio.checked = false);
+    
+    const currentLevelInput = document.getElementById('current-level');
+    if (currentLevelInput) currentLevelInput.value = '1';
+    
+    const fragmentPriceInput = document.getElementById('fragment-price');
+    if (fragmentPriceInput) fragmentPriceInput.value = '0';
+    
+    const threadPriceInput = document.getElementById('thread-price');
+    if (threadPriceInput) threadPriceInput.value = '0';
+    
+    const affix1Select = document.getElementById('target-affix-1');
+    if (affix1Select) affix1Select.value = '';
+    
+    const affix2Select = document.getElementById('target-affix-2');
+    if (affix2Select) affix2Select.value = '';
+    
+    // 重置显示
+    const costElements = [
+        'enhancement-fragment-cost',
+        'enhancement-thread-cost', 
+        'enhancement-total-cost',
+        'reconstruction-fragment-cost',
+        'reconstruction-thread-cost',
+        'reconstruction-total-cost',
+        'grand-total-cost'
+    ];
+    
+    costElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = '0';
+    });
+}
