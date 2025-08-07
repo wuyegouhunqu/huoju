@@ -828,10 +828,7 @@
                         <i class="fas fa-bullseye"></i>
                         贯注计算
                     </button>
-                    <button class="function-btn" onclick="showDamageModule('godstone-calc')">
-                        <i class="fas fa-gem"></i>
-                        神格石板
-                    </button>
+
                 </div>
 
                 <!-- 减伤计算模块 -->
@@ -1266,123 +1263,7 @@
                     </div>
                 </div>
 
-                <!-- 神格石板计算模块 -->
-                <div class="damage-module" id="godstone-calc" style="display: none;">
-                    <div class="module-card">
-                        <h3><i class="fas fa-gem"></i> 神格石板属性计算模拟器</h3>
-                        
-                        <!-- 石板拼图区域 -->
-                        <div class="godstone-puzzle-section">
-                            <h4><i class="fas fa-puzzle-piece"></i> 石板拼图区域</h4>
-                            <div class="puzzle-container">
-                                <div class="puzzle-grid" id="puzzle-grid">
-                                    <!-- 9x9拼图网格将通过JavaScript生成 -->
-                                </div>
-                                <div class="puzzle-controls">
-                                    <button class="control-btn" onclick="clearPuzzle()">
-                                        <i class="fas fa-trash"></i> 清空拼图
-                                    </button>
-                                    <button class="control-btn" onclick="savePuzzleConfig()">
-                                        <i class="fas fa-save"></i> 保存配置
-                                    </button>
-                                    <button class="control-btn" onclick="loadPuzzleConfig()">
-                                        <i class="fas fa-upload"></i> 加载配置
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- 石板库存区域 -->
-                        <div class="godstone-inventory-section">
-                            <h4><i class="fas fa-box"></i> 石板库存</h4>
-                            <div class="inventory-tabs">
-                                <button class="inventory-tab active" onclick="showInventoryTab('legendary')">
-                                    <i class="fas fa-star"></i> 传奇石板
-                                </button>
-                                <button class="inventory-tab" onclick="showInventoryTab('normal')">
-                                    <i class="fas fa-square"></i> 普通石板
-                                </button>
-                            </div>
-                            <div class="inventory-content">
-                                <div class="inventory-tab-content" id="legendary-inventory">
-                                    <div class="godstone-grid" id="legendary-stones">
-                                        <!-- 传奇石板将通过JavaScript生成 -->
-                                    </div>
-                                </div>
-                                <div class="inventory-tab-content" id="normal-inventory" style="display: none;">
-                                    <div class="godstone-grid" id="normal-stones">
-                                        <!-- 普通石板将通过JavaScript生成 -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 属性计算结果 -->
-                        <div class="godstone-results-section">
-                            <h4><i class="fas fa-calculator"></i> 属性计算结果</h4>
-                            <div class="results-grid">
-                                <div class="result-category">
-                                    <h5>基础属性</h5>
-                                    <div class="attribute-list" id="basic-attributes">
-                                        <div class="attribute-item">
-                                            <span class="attr-name">生命值:</span>
-                                            <span class="attr-value" id="health-value">0</span>
-                                        </div>
-                                        <div class="attribute-item">
-                                            <span class="attr-name">法力值:</span>
-                                            <span class="attr-value" id="mana-value">0</span>
-                                        </div>
-                                        <div class="attribute-item">
-                                            <span class="attr-name">护甲:</span>
-                                            <span class="attr-value" id="armor-value">0</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="result-category">
-                                    <h5>伤害属性</h5>
-                                    <div class="attribute-list" id="damage-attributes">
-                                        <div class="attribute-item">
-                                            <span class="attr-name">物理伤害:</span>
-                                            <span class="attr-value" id="physical-damage-value">0</span>
-                                        </div>
-                                        <div class="attribute-item">
-                                            <span class="attr-name">元素伤害:</span>
-                                            <span class="attr-value" id="elemental-damage-value">0</span>
-                                        </div>
-                                        <div class="attribute-item">
-                                            <span class="attr-name">暴击率:</span>
-                                            <span class="attr-value" id="crit-chance-value">0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="result-category">
-                                    <h5>等效增伤</h5>
-                                    <div class="attribute-list" id="equivalent-damage">
-                                        <div class="attribute-item highlight">
-                                            <span class="attr-name">等效增伤倍率:</span>
-                                            <span class="attr-value" id="equivalent-multiplier">1.00x</span>
-                                        </div>
-                                        <div class="attribute-item">
-                                            <span class="attr-name">相对提升:</span>
-                                            <span class="attr-value" id="relative-improvement">0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 优化建议 -->
-                        <div class="godstone-suggestions-section">
-                            <h4><i class="fas fa-lightbulb"></i> 优化建议</h4>
-                            <div class="suggestions-content" id="optimization-suggestions">
-                                <div class="suggestion-item">
-                                    <i class="fas fa-info-circle"></i>
-                                    <span>请放置石板开始计算</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- 解梦系统 -->
