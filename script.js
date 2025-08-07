@@ -383,21 +383,21 @@ function calculateCraftingCost() {
             }
         }
         
-        // 至臻T0 = 基础T0 + 至臻升T0
+        // 至臻T0 = 至臻词缀 + 至臻升T0
         if (affixes.perfectT0 > 0) {
-            const basicConfig = levelData['basic'];
+            const perfectConfig = levelData['perfect'];
             const perfectUpgradeConfig = levelData['perfectUpgrade'];
-            if (basicConfig && perfectUpgradeConfig) {
+            if (perfectConfig && perfectUpgradeConfig) {
                 let combinedCost = 0;
                 
-                // 计算基础T0成本
-                let basicCost = 0;
-                Object.keys(basicConfig.materials).forEach(materialKey => {
-                    const materialCount = basicConfig.materials[materialKey];
+                // 计算至臻词缀成本
+                let perfectCost = 0;
+                Object.keys(perfectConfig.materials).forEach(materialKey => {
+                    const materialCount = perfectConfig.materials[materialKey];
                     const materialPrice = materials[materialKey];
-                    basicCost += materialCount * materialPrice;
+                    perfectCost += materialCount * materialPrice;
                 });
-                const basicExpectedCost = basicCost / basicConfig.successRate;
+                const perfectExpectedCost = perfectCost / perfectConfig.successRate;
                 
                 // 计算至臻升T0成本
                 let perfectUpgradeCost = 0;
@@ -408,7 +408,7 @@ function calculateCraftingCost() {
                 });
                 const perfectUpgradeExpectedCost = perfectUpgradeCost / perfectUpgradeConfig.successRate;
                 
-                combinedCost = (basicExpectedCost + perfectUpgradeExpectedCost) * affixes.perfectT0;
+                combinedCost = (perfectExpectedCost + perfectUpgradeExpectedCost) * affixes.perfectT0;
                 totalCost += combinedCost;
             }
         }
