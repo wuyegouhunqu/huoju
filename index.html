@@ -19,27 +19,27 @@
             
             <ul class="nav-menu">
                 <li class="nav-item active" data-tab="crafting">
-                    <img src="./页签/打造系统.png" alt="打造系统" class="nav-icon">
+                    <img src="页签/打造系统.png" alt="打造系统" class="nav-icon">
                     <span class="nav-text">打造系统</span>
                 </li>
                 <li class="nav-item" data-tab="damage">
-                    <img src="./页签/伤害系统.png" alt="伤害系统" class="nav-icon">
+                    <img src="页签/伤害系统.png" alt="伤害系统" class="nav-icon">
                     <span class="nav-text">伤害系统</span>
                 </li>
                 <li class="nav-item" data-tab="dream">
-                    <img src="./页签/解梦系统.png" alt="解梦系统" class="nav-icon">
+                    <img src="页签/解梦系统.png" alt="解梦系统" class="nav-icon">
                     <span class="nav-text">解梦系统</span>
                 </li>
                 <li class="nav-item" data-tab="seal">
-                    <img src="./页签/封印系统.png" alt="封印系统" class="nav-icon">
+                    <img src="页签/封印系统.png" alt="封印系统" class="nav-icon">
                     <span class="nav-text">封印系统</span>
                 </li>
                 <li class="nav-item" data-tab="skill">
-                    <img src="./页签/技能系统.png" alt="技能系统" class="nav-icon">
+                    <img src="页签/技能系统.png" alt="技能系统" class="nav-icon">
                     <span class="nav-text">技能系统</span>
                 </li>
                 <li class="nav-item" data-tab="tower">
-                    <img src="./页签/高塔系统.png" alt="高塔系统" class="nav-icon">
+                    <img src="页签/高塔系统.png" alt="高塔系统" class="nav-icon">
                     <span class="nav-text">高塔系统</span>
                 </li>
             </ul>
@@ -828,6 +828,10 @@
                         <i class="fas fa-bullseye"></i>
                         贯注计算
                     </button>
+                    <button class="function-btn" onclick="showDamageModule('harvest-tier')">
+                        <i class="fas fa-cut"></i>
+                        收割档位
+                    </button>
 
                 </div>
 
@@ -1263,6 +1267,48 @@
                     </div>
                 </div>
 
+                <!-- 收割档位模块 -->
+                <div class="damage-module" id="harvest-tier" style="display: none;">
+                    <div class="module-card">
+                        <h3><i class="fas fa-cut"></i> 收割档位查询</h3>
+                        <div class="harvest-query-section">
+                            <div class="form-group">
+                                <label>当前面板收割冷却(%)（面板上收割冷却回复已计算宠物）</label>
+                                <input type="number" id="current-harvest-cooldown" placeholder="0" min="0" step="0.01" class="number-input" oninput="updateHarvestTierDisplay()">
+                            </div>
+                            <div class="result-display mt-3">
+                                <div id="current-tier-info">
+                                    <h5>当前档位信息</h5>
+                                    <div id="current-tier-details" class="tier-details"></div>
+                                </div>
+                                <div id="next-tier-info" class="mt-3">
+                                    <h5>下一档位要求</h5>
+                                    <div id="next-tier-details" class="tier-details"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="harvest-data-section mt-4">
+                            <h4>收割档位数据表</h4>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped" id="harvest-tier-table">
+                                    <thead>
+                                        <tr>
+                                            <th>档位</th>
+                                            <th>收割次数</th>
+                                            <th>触发间隔(秒)</th>
+                                            <th>无宠物冷却(%)</th>
+                                            <th>1级宠物冷却(%)</th>
+                                            <th>6级宠物冷却(%)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
 
