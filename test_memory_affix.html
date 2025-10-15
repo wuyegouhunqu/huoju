@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>追忆词缀测试</title>
+</head>
+<body>
+    <h1>追忆词缀加载测试</h1>
+    
+    <div>
+        <label>词缀搜索测试:</label>
+        <input type="text" id="test-search" placeholder="输入关键词搜索词缀...">
+    </div>
+    
+    <div>
+        <label>词缀选择:</label>
+        <select id="test-select">
+            <option value="">请选择词缀</option>
+        </select>
+    </div>
+    
+    <div>
+        <button onclick="testLoadAffixData()">测试加载词缀数据</button>
+        <button onclick="testSearchAffixes()">测试搜索词缀</button>
+    </div>
+    
+    <div id="result"></div>
+
+    <script>
+        let affixData = null;
+
+        // 加载词缀数据
+        async function loadAffixData() {
+            if (affixData) return affixData;
+            
+            try {
+                const response = await fetch('quanzhong.JSON');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                affixData = await response.json();
+                console.log('词缀数据加载成功', affixData);
+                return affixData;
+            } catch (error) {
+                console.error('加载词缀数据失败:', error);
+                return null;
+            }
+        }
+
+        // 获取所有词缀列表
+        function getAllAffixes() {
+            if (!affixData) return [];
+            
+            const allAffixes = new Set();
+            affixData.forEach(equipment => {
+                if (equipment.词缀列表) {
+                    equipment.词缀列表.forEach(affixItem => {
+                        if (affixItem.词缀) {
+                            allAffixes.add(affixItem.词缀);
+                        }
+                    });
+                }
+            });
+            
+            return Array.from(allAffixes).sort();
+        }
+
+        // 搜索词缀
+        function searchAffixes(keyword) {
+            if (!keyword) return [];
+            
+            const allAffixes = getAllAffixes();
+            return allAffixes.filter(affix => 
+                affix.toLowerCase().includes(keyword.toLowerCase())
+            );
+        }
+
+        // 填充词缀选择器
+        function populateAffixSelect(selectId, affixes) {
+            const selectElement = document.getElementById(selectId);
+            if (!selectElement) return;
+            
+            // 清空现有选项
+            selectElement.innerHTML = '<option value="">请选择词缀</option>';
+            
+            // 添加词缀选项
+            affixes.forEach(affix => {
+                const option = document.createElement('option');
+                option.value = affix;
+                option.textContent = affix;
+                selectElement.appendChild(option);
+            });
+        }
+
+        // 测试函数
+        async function testLoadAffixData() {
+            const result = document.getElementById('result');
+            result.innerHTML = '正在加载词缀数据...';
+            
+            const data = await loadAffixData();
+            if (data) {
+                const allAffixes = getAllAffixes();
+                result.innerHTML = `
+                    <h3>词缀数据加载成功!</h3>
+                    <p>装备类型数量: ${data.length}</p>
+                    <p>总词缀数量: ${allAffixes.length}</p>
+                    <p>前10个词缀: ${allAffixes.slice(0, 10).join(', ')}</p>
+                `;
+            } else {
+                result.innerHTML = '<h3 style="color: red;">词缀数据加载失败!</h3>';
+            }
+        }
+
+        function testSearchAffixes() {
+            const keyword = document.getElementById('test-search').value;
+            const result = document.getElementById('result');
+            
+            if (!keyword) {
+                result.innerHTML = '<p>请输入搜索关键词</p>';
+                return;
+            }
+            
+            const matchedAffixes = searchAffixes(keyword);
+            populateAffixSelect('test-select', matchedAffixes);
+            
+            result.innerHTML = `
+                <h3>搜索结果</h3>
+                <p>关键词: ${keyword}</p>
+                <p>匹配数量: ${matchedAffixes.length}</p>
+                <p>匹配词缀: ${matchedAffixes.slice(0, 20).join(', ')}</p>
+            `;
+        }
+
+        // 设置搜索监听
+        document.getElementById('test-search').addEventListener('input', function() {
+            const keyword = this.value.trim();
+            if (keyword.length >= 1) {
+                const matchedAffixes = searchAffixes(keyword);
+                populateAffixSelect('test-select', matchedAffixes);
+            } else {
+                populateAffixSelect('test-select', []);
+            }
+        });
+
+        // 页面加载时自动测试
+        window.addEventListener('load', async () => {
+            await testLoadAffixData();
+        });
+    </script>
+</body>
+</html>
