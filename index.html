@@ -1279,14 +1279,16 @@
                 <div class="damage-module" id="harvest-tier" style="display: none;">
                     <div class="module-card">
                         <h3><i class="fas fa-cut"></i> 收割档位查询</h3>
+                        
+                        <!-- 新的查询输入界面 -->
                         <div class="harvest-query-section">
                             <div class="form-group">
-                                <label>当前面板收割冷却(%)（面板上收割冷却回复已计算宠物）</label>
-                                <input type="number" id="current-harvest-cooldown" placeholder="0" min="0" step="0.01" class="number-input" oninput="calculateHarvestTier()">
+                                <label>当前面板收割冷却(%)（面板数据已计算宠物）</label>
+                                <input type="number" id="current-harvest-cooldown" placeholder="0" min="0" step="0.01" class="number-input">
                             </div>
                             <div class="form-group">
                                 <label>宠物等级</label>
-                                <select id="harvest-pet-level" class="tower-select" onchange="calculateHarvestTier()">
+                                <select id="harvest-pet-level" class="tower-select">
                                     <option value="none">无宠物</option>
                                     <option value="pet1">1级宠物</option>
                                     <option value="pet6">6级宠物</option>
@@ -1294,14 +1296,33 @@
                             </div>
                         </div>
                         
+                        <!-- 查询结果显示 -->
                         <div class="result-display mt-3">
-                            <div id="current-tier-info">
-                                <h5>当前档位信息</h5>
-                                <div id="current-tier-details" class="tier-details"></div>
-                            </div>
-                            <div id="next-tier-info" class="mt-3">
-                                <h5>下一档位要求</h5>
-                                <div id="next-tier-details" class="tier-details"></div>
+                            <div id="harvest-tier-result" class="tier-result-display">
+                                <div class="result-item">
+                                    <label>档位：</label>
+                                    <span id="current-tier-number">-</span>
+                                </div>
+                                <div class="result-item">
+                                    <label>收割次数：</label>
+                                    <span id="harvest-count">-</span>
+                                </div>
+                                <div class="result-item">
+                                    <label>触发间隔：</label>
+                                    <span id="trigger-interval">-</span>
+                                </div>
+                                <div class="result-item">
+                                    <label>下一档位：</label>
+                                    <span id="next-tier-number">-</span>
+                                </div>
+                                <div class="result-item">
+                                    <label>收割冷却：</label>
+                                    <span id="current-cooldown-display">-</span>
+                                </div>
+                                <div class="result-item">
+                                    <label>还需提升：</label>
+                                    <span id="required-improvement">-</span>
+                                </div>
                             </div>
                         </div>
                         
@@ -1314,9 +1335,9 @@
                                             <th>档位</th>
                                             <th>收割次数</th>
                                             <th>触发间隔(秒)</th>
-                                            <th>无宠物冷却(%)</th>
-                                            <th>1级宠物冷却(%)</th>
-                                            <th>6级宠物冷却(%)</th>
+                                            <th>收割冷却(%)</th>
+                                            <th>1级宠物</th>
+                                            <th>6级宠物</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2153,6 +2174,6 @@
         </main>
     </div>
 
-    <script src="script_v2.js?v=2"></script>
+    <script src="script.js?v=2"></script>
 </body>
 </html>

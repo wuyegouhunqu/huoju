@@ -238,7 +238,164 @@ function populateWeaponSubtypes(weaponType) {
 }
 
 // 收割档位相关功能
-// 解析收割.txt文本为档位数据
+// 新的收割档位数据（根据用户提供的1-15档数据）
+const newHarvestTierData = [
+    { tier: 1, harvestsCount: 30, interval: 0.033, cooldown: 2900.00 },
+    { tier: 2, harvestsCount: 15, interval: 0.066, cooldown: 1400 },
+    { tier: 3, harvestsCount: 10, interval: 0.1, cooldown: 900 },
+    { tier: 4, harvestsCount: 7.5, interval: 0.133, cooldown: 650 },
+    { tier: 5, harvestsCount: 6, interval: 0.166, cooldown: 500 },
+    { tier: 6, harvestsCount: 5, interval: 0.2, cooldown: 400 },
+    { tier: 7, harvestsCount: 4.28, interval: 0.233, cooldown: 328.57 },
+    { tier: 8, harvestsCount: 3.75, interval: 0.266, cooldown: 275.00 },
+    { tier: 9, harvestsCount: 3.33, interval: 0.3, cooldown: 233.33 },
+    { tier: 10, harvestsCount: 3, interval: 0.33, cooldown: 200.00 },
+    { tier: 11, harvestsCount: 2.72, interval: 0.36, cooldown: 172.73 },
+    { tier: 12, harvestsCount: 2.5, interval: 0.4, cooldown: 150.00 },
+    { tier: 13, harvestsCount: 2.3, interval: 0.43, cooldown: 130.77 },
+    { tier: 14, harvestsCount: 2.14, interval: 0.46, cooldown: 114.29 },
+    { tier: 15, harvestsCount: 2, interval: 0.5, cooldown: 100.00 }
+];
+
+// 计算宠物效果
+function calculatePetEffect(baseCooldown, petLevel) {
+    switch (petLevel) {
+        case 'pet1':
+            // 1级宠物 额外+25%收割冷却回复速度
+            return baseCooldown * (1 + 0.25);
+        case 'pet6':
+            // 6级宠物 额外+25%*(1+33%)收割冷却回复速度
+            return baseCooldown * (1 + 0.25 * (1 + 0.33));
+        default:
+            return baseCooldown;
+    }
+}
+
+// 新的收割档位查询计算
+function calculateNewHarvestTier() {
+    console.log('calculateNewHarvestTier 函数被调用');
+    
+    const cooldownInput = document.getElementById('current-harvest-cooldown');
+    const petSelect = document.getElementById('harvest-pet-level');
+    
+    console.log('cooldownInput:', cooldownInput);
+    console.log('petSelect:', petSelect);
+    
+    if (!cooldownInput) {
+        console.error('未找到 current-harvest-cooldown 元素');
+        return;
+    }
+    
+    const currentCooldown = parseFloat(cooldownInput.value) || 0;
+    const petLevel = petSelect ? petSelect.value : 'none';
+    
+    console.log('当前冷却值:', currentCooldown);
+    console.log('宠物等级:', petLevel);
+    console.log('档位数据:', newHarvestTierData);
+    
+    // 查找当前档位
+    let currentTier = null;
+    let nextTier = null;
+    
+    // 按冷却从高到低查找档位
+    for (let i = 0; i < newHarvestTierData.length; i++) {
+        const tier = newHarvestTierData[i];
+        if (currentCooldown >= tier.cooldown) {
+            currentTier = tier;
+            // 下一档位是更高要求的档位（数组中的前一个）
+            nextTier = i > 0 ? newHarvestTierData[i - 1] : null;
+            break;
+        }
+    }
+    
+    // 如果低于最低档位，则为最低档位
+    if (!currentTier) {
+        currentTier = newHarvestTierData[newHarvestTierData.length - 1];
+        nextTier = newHarvestTierData.length > 1 ? newHarvestTierData[newHarvestTierData.length - 2] : null;
+    }
+    
+    console.log('找到的当前档位:', currentTier);
+    console.log('下一档位:', nextTier);
+    
+    // 更新显示
+    updateNewHarvestTierDisplay(currentTier, nextTier, currentCooldown, petLevel);
+}
+
+// 更新新的收割档位显示
+function updateNewHarvestTierDisplay(currentTier, nextTier, currentCooldown, petLevel) {
+    console.log('updateNewHarvestTierDisplay 函数被调用');
+    console.log('参数 - currentTier:', currentTier, 'nextTier:', nextTier, 'currentCooldown:', currentCooldown, 'petLevel:', petLevel);
+    
+    // 检查所有需要的DOM元素是否存在
+    const elements = {
+        'current-tier-number': document.getElementById('current-tier-number'),
+        'harvest-count': document.getElementById('harvest-count'),
+        'trigger-interval': document.getElementById('trigger-interval'),
+        'current-cooldown-display': document.getElementById('current-cooldown-display'),
+        'next-tier-number': document.getElementById('next-tier-number'),
+        'required-improvement': document.getElementById('required-improvement')
+    };
+    
+    console.log('DOM元素检查:', elements);
+    
+    // 更新当前档位信息
+    if (elements['current-tier-number']) {
+        elements['current-tier-number'].textContent = currentTier ? currentTier.tier : '-';
+        console.log('更新档位号:', currentTier ? currentTier.tier : '-');
+    }
+    if (elements['harvest-count']) {
+        elements['harvest-count'].textContent = currentTier ? currentTier.harvestsCount : '-';
+        console.log('更新收割次数:', currentTier ? currentTier.harvestsCount : '-');
+    }
+    if (elements['trigger-interval']) {
+        elements['trigger-interval'].textContent = currentTier ? currentTier.interval : '-';
+        console.log('更新触发间隔:', currentTier ? currentTier.interval : '-');
+    }
+    if (elements['current-cooldown-display']) {
+        elements['current-cooldown-display'].textContent = currentTier ? `${currentTier.cooldown}%` : '-';
+        console.log('更新收割冷却:', currentTier ? `${currentTier.cooldown}%` : '-');
+    }
+    
+    // 更新下一档位和还需提升
+    if (nextTier && elements['next-tier-number']) {
+        elements['next-tier-number'].textContent = nextTier.tier;
+        
+        // 计算还需提升的数值
+        const requiredCooldown = nextTier.cooldown;
+        const currentValue = currentCooldown || 0;
+        const stillNeeded = Math.max(0, requiredCooldown - currentValue);
+        
+        // 根据宠物等级计算实际需要提升的数值
+        let actualNeeded = stillNeeded;
+        if (stillNeeded > 0) {
+            if (petLevel === 'pet1') {
+                // 1级宠物有25%加成
+                actualNeeded = stillNeeded / (1 + 0.25);
+            } else if (petLevel === 'pet6') {
+                // 6级宠物有25% * (1 + 33%) = 33.25%加成
+                actualNeeded = stillNeeded / (1 + 0.25 * (1 + 0.33));
+            }
+            // 无宠物时actualNeeded = stillNeeded，不需要额外计算
+        }
+        
+        if (elements['required-improvement']) {
+            elements['required-improvement'].textContent = stillNeeded > 0 ? `${actualNeeded.toFixed(2)}%` : '已达到';
+        }
+        
+        console.log('更新下一档位:', nextTier.tier);
+        console.log('还需提升:', stillNeeded > 0 ? `${actualNeeded.toFixed(2)}%` : '已达到');
+    } else {
+        if (elements['next-tier-number']) {
+            elements['next-tier-number'].textContent = '已达最高档位';
+        }
+        if (elements['required-improvement']) {
+            elements['required-improvement'].textContent = '-';
+        }
+        console.log('已达最高档位');
+    }
+}
+
+// 解析收割.txt文本为档位数据（保留原有功能用于数据表显示）
 function parseHarvestDataText(text) {
     const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
     const tiers = [];
@@ -288,152 +445,82 @@ async function loadHarvestTierDataFromFile() {
     }
 }
 
-// 计算收割档位
-function calculateHarvestTier() {
-    const cooldownInput = document.getElementById('current-harvest-cooldown');
-    const petSelect = document.getElementById('harvest-pet-level');
-    if (!cooldownInput || !harvestTierData.tiers.length) return;
-
-    const currentCooldown = parseFloat(cooldownInput.value) || 0;
-    let currentTier = null;
-    let nextTier = null;
-    const key = getPetPropertyKey(petSelect?.value);
-
-    // 档位数据按无宠物冷却从高到低排列
-    for (let i = 0; i < harvestTierData.tiers.length; i++) {
-        const tier = harvestTierData.tiers[i];
-        const threshold = tier[key] ?? tier.cooldownNoPet;
-        if (threshold != null && currentCooldown >= threshold) {
-            currentTier = tier;
-            // 下一档位为更高要求的上一项（高到低）
-            nextTier = i > 0 ? harvestTierData.tiers[i - 1] : null;
-            break;
-        }
-    }
-
-    // 若低于最低档位阈值，则当前为最低档位
-    if (!currentTier) {
-        currentTier = harvestTierData.tiers[harvestTierData.tiers.length - 1];
-        nextTier = harvestTierData.tiers.length > 1 ? harvestTierData.tiers[harvestTierData.tiers.length - 2] : null;
-    }
-
-    updateHarvestTierDisplay(currentTier, nextTier, currentCooldown);
-}
-
-// 更新收割档位显示
-function updateHarvestTierDisplay(currentTier, nextTier, currentCooldown) {
-    // 兼容无参数调用
-    const petSelect = document.getElementById('harvest-pet-level');
-    const key = getPetPropertyKey(petSelect?.value);
-    if (!harvestTierData.tiers.length || currentTier == null || nextTier === undefined || currentCooldown == null) {
-        const cooldownInput = document.getElementById('current-harvest-cooldown');
-        currentCooldown = parseFloat(cooldownInput?.value) || 0;
-
-        let cur = null;
-        let nxt = null;
-        for (let i = 0; i < harvestTierData.tiers.length; i++) {
-            const t = harvestTierData.tiers[i];
-            const threshold = t[key] ?? t.cooldownNoPet;
-            if (threshold != null && currentCooldown >= threshold) {
-                cur = t;
-                nxt = i > 0 ? harvestTierData.tiers[i - 1] : null;
-                break;
-            }
-        }
-        if (!cur && harvestTierData.tiers.length) {
-            cur = harvestTierData.tiers[harvestTierData.tiers.length - 1];
-            nxt = harvestTierData.tiers.length > 1 ? harvestTierData.tiers[harvestTierData.tiers.length - 2] : null;
-        }
-        currentTier = cur;
-        nextTier = nxt;
-    }
-
-    const currentTierDetails = document.getElementById('current-tier-details');
-    const nextTierDetails = document.getElementById('next-tier-details');
-
-    if (currentTierDetails && currentTier) {
-        const count = currentTier.harvestsCount;
-        const interval = currentTier.interval;
-        currentTierDetails.innerHTML = `
-            <div><strong>当前档位 ${currentTier.tier}</strong></div>
-            <div>收割次数: ${count != null ? Number(count).toFixed(2) : '-'}</div>
-            <div>收割间隔: ${interval != null ? Number(interval).toFixed(3) : '-'}秒</div>
-        `;
-    }
-
-    if (nextTierDetails) {
-        if (nextTier) {
-            const needed = nextTier[key] ?? nextTier.cooldownNoPet;
-            const diff = needed != null ? (needed - (currentCooldown || 0)) : null;
-            nextTierDetails.innerHTML = `
-                <div><strong>下一档位 ${nextTier.tier} （当前宠物）</strong></div>
-                <div>需要冷却：${needed != null ? Number(needed).toFixed(2) : '-'}%</div>
-                <div>还需提升：${diff != null ? Number(diff).toFixed(2) : '-'}%</div>
-            `;
-        } else {
-            nextTierDetails.innerHTML = '<strong>已达到最高档位</strong>';
-        }
-    }
-}
-
-// 初始化收割档位系统
-async function initializeHarvestTierSystem() {
-    const cooldownInput = document.getElementById('current-harvest-cooldown');
-    const petSelect = document.getElementById('harvest-pet-level');
-    if (!cooldownInput) return;
-
-    await loadHarvestTierDataFromFile();
-
-    // 初始化表格
-    initializeHarvestTierTable();
-
-    // 添加事件监听器
-    cooldownInput.addEventListener('input', calculateHarvestTier);
-    if (petSelect) petSelect.addEventListener('change', calculateHarvestTier);
-    cooldownInput.addEventListener('wheel', function(event) {
-        event.preventDefault();
-        const delta = event.deltaY > 0 ? -1 : 1;
-        const currentValue = parseFloat(this.value) || 0;
-        this.value = Math.max(0, currentValue + delta);
-        calculateHarvestTier();
-    });
-
-    // 初始计算
-    calculateHarvestTier();
-}
-
-// 获取宠物阈值字段名
-function getPetPropertyKey(val) {
-    switch (val) {
-        case 'pet1': return 'cooldownPet1';
-        case 'pet6': return 'cooldownPet6';
-        default: return 'cooldownNoPet';
-    }
-}
-
-// 初始化收割档位表格
+// 初始化收割档位表格（使用新数据）
 function initializeHarvestTierTable() {
     const tableBody = document.querySelector('#harvest-tier-table tbody');
     if (!tableBody) return;
 
     tableBody.innerHTML = '';
 
-    // 档位按编号升序展示
-    const sortedTiers = [...harvestTierData.tiers].sort((a, b) => a.tier - b.tier);
-
-    sortedTiers.forEach(tier => {
+    // 使用新的档位数据
+    newHarvestTierData.forEach(tier => {
+        // 计算1级宠物和6级宠物的冷却值
+        const pet1Cooldown = (tier.cooldown / (1 + 0.25)).toFixed(2);
+        const pet6Cooldown = (tier.cooldown / (1 + 0.25 * (1 + 0.33))).toFixed(2);
+        
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${tier.tier}</td>
-            <td>${tier.harvestsCount != null ? Number(tier.harvestsCount).toFixed(2) : '-'}</td>
-            <td>${tier.interval != null ? Number(tier.interval).toFixed(3) : '-'}秒</td>
-            <td>${tier.cooldownNoPet != null ? Number(tier.cooldownNoPet).toFixed(2) : '-'}%</td>
-            <td>${tier.cooldownPet1 != null ? Number(tier.cooldownPet1).toFixed(2) : '-'}%</td>
-            <td>${tier.cooldownPet6 != null ? Number(tier.cooldownPet6).toFixed(2) : '-'}%</td>
+            <td>${tier.harvestsCount.toFixed(2)}</td>
+            <td>${tier.interval.toFixed(3)}秒</td>
+            <td>${tier.cooldown.toFixed(2)}%</td>
+            <td>${pet1Cooldown}%</td>
+            <td>${pet6Cooldown}%</td>
         `;
         tableBody.appendChild(row);
     });
 }
+
+// 初始化收割档位系统
+async function initializeHarvestTierSystem() {
+    console.log('开始初始化收割档位系统');
+    
+    // 初始化表格
+    initializeHarvestTierTable();
+    
+    // 添加事件监听器
+    const cooldownInput = document.getElementById('current-harvest-cooldown');
+    const petSelect = document.getElementById('harvest-pet-level');
+    
+    console.log('DOM元素检查:');
+    console.log('cooldownInput:', cooldownInput);
+    console.log('petSelect:', petSelect);
+    
+    if (cooldownInput) {
+        console.log('为输入框添加事件监听器');
+        cooldownInput.addEventListener('input', function() {
+            console.log('输入框input事件触发');
+            calculateNewHarvestTier();
+        });
+        cooldownInput.addEventListener('wheel', function(event) {
+            console.log('输入框wheel事件触发');
+            event.preventDefault();
+            const delta = event.deltaY > 0 ? -1 : 1;
+            const currentValue = parseFloat(this.value) || 0;
+            this.value = Math.max(0, currentValue + delta);
+            calculateNewHarvestTier();
+        });
+    } else {
+        console.error('未找到current-harvest-cooldown元素');
+    }
+    
+    if (petSelect) {
+        console.log('为选择框添加事件监听器');
+        petSelect.addEventListener('change', function() {
+            console.log('选择框change事件触发');
+            calculateNewHarvestTier();
+        });
+    } else {
+        console.error('未找到harvest-pet-level元素');
+    }
+    
+    // 初始计算
+    console.log('执行初始计算');
+    calculateNewHarvestTier();
+    
+    console.log('收割档位系统初始化完成');
+}
+
 
 // 技能系统数据和函数
 const skillUpgradeData = {
