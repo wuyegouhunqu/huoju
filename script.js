@@ -932,40 +932,77 @@ function calculateCraftingCost() {
         // 计算各种词缀的成本
         const affixTypes = [
             { count: affixes.basic, type: 'basic' },
-            { count: affixes.basicT0, type: 'basic' }, // T0使用相同配置
+            { count: affixes.basicT0, type: 'basicT0' },
             { count: affixes.basicUpgrade, type: 'basicUpgrade' },
             { count: affixes.advanced, type: 'advanced' },
-            { count: affixes.advancedT0, type: 'advanced' }, // T0使用相同配置
+            { count: affixes.advancedT0, type: 'advancedT0' },
             { count: affixes.advancedUpgrade, type: 'advancedUpgrade' },
             { count: affixes.perfect, type: 'perfect' },
-            { count: affixes.perfectT0, type: 'perfect' }, // T0使用相同配置
+            { count: affixes.perfectT0, type: 'perfectT0' },
             { count: affixes.perfectUpgrade, type: 'perfectUpgrade' }
         ];
-        
+
+        // 辅助函数：计算某配置的期望成本
+        const computeExpectedCost = (config) => {
+            if (!config) return 0;
+            let singleCost = 0;
+            Object.keys(config.materials).forEach(materialKey => {
+                const materialCount = config.materials[materialKey];
+                const materialPrice = materials[materialKey];
+                singleCost += materialCount * materialPrice;
+            });
+            return singleCost / config.successRate;
+        };
+
         affixTypes.forEach(affix => {
-            if (affix.count > 0 && levelData[affix.type]) {
-                const config = levelData[affix.type];
-                let singleCost = 0;
-                
-                // 计算单次打造材料成本
-                Object.keys(config.materials).forEach(materialKey => {
-                    const materialCount = config.materials[materialKey];
-                    const materialPrice = materials[materialKey];
-                    singleCost += materialCount * materialPrice;
-                });
-                
-                // 根据成功率计算期望成本
-                const expectedCost = singleCost / config.successRate;
-                totalCost += expectedCost * affix.count;
+            if (affix.count > 0) {
+                let expectedCostForType = 0;
+
+                // T0 成本 = 基础成本 + 对应升级成本
+                if (affix.type.endsWith('T0')) {
+                    const baseType = affix.type.replace('T0', '');
+                    const baseConfig = levelData[baseType];
+                    const upgradeConfig = levelData[`${baseType}Upgrade`];
+                    expectedCostForType = computeExpectedCost(baseConfig) + computeExpectedCost(upgradeConfig);
+                } else {
+                    const config = levelData[affix.type];
+                    expectedCostForType = computeExpectedCost(config);
+                }
+
+                totalCost += expectedCostForType * affix.count;
             }
         });
         
+        // 合并解梦与序列成本（可选）
+        const baseCost = totalCost;
+        const includeDream = document.getElementById('include-dream-cost')?.checked || false;
+        const includeSequence = document.getElementById('include-sequence-cost')?.checked || false;
+
+        let dreamCost = 0;
+        let sequenceCost = 0;
+
+        if (includeDream) {
+            dreamCost = computeDreamCost();
+        }
+        if (includeSequence) {
+            sequenceCost = computeSequenceCost();
+        }
+
+        const dreamItem = document.getElementById('dream-cost-item');
+        const sequenceItem = document.getElementById('sequence-cost-item');
+        if (dreamItem) dreamItem.style.display = includeDream ? 'flex' : 'none';
+        if (sequenceItem) sequenceItem.style.display = includeSequence ? 'flex' : 'none';
+
+        const grandTotal = baseCost + dreamCost + sequenceCost;
+
         // 显示结果
         const totalResultElement = document.getElementById('crafting-total-result');
         const baseCostElement = document.getElementById('crafting-base-cost');
+        const craftingDreamCostElement = document.getElementById('crafting-dream-cost');
+        const craftingSequenceCostElement = document.getElementById('crafting-sequence-cost');
         
         if (totalResultElement) {
-            totalResultElement.textContent = `${totalCost.toFixed(2)} 初火源质`;
+            totalResultElement.textContent = `${grandTotal.toFixed(2)} 初火源质`;
             
             // 添加结果动画
             totalResultElement.style.transform = 'scale(1.1)';
@@ -976,7 +1013,14 @@ function calculateCraftingCost() {
         }
         
         if (baseCostElement) {
-            baseCostElement.textContent = `${totalCost.toFixed(2)} 初火源质`;
+            baseCostElement.textContent = `${baseCost.toFixed(2)} 初火源质`;
+        }
+
+        if (craftingDreamCostElement) {
+            craftingDreamCostElement.textContent = `${dreamCost.toFixed(2)} 初火源质`;
+        }
+        if (craftingSequenceCostElement) {
+            craftingSequenceCostElement.textContent = `${sequenceCost.toFixed(2)} 初火源质`;
         }
         
         // 显示成功提示
@@ -988,6 +1032,153 @@ function calculateCraftingCost() {
     } catch (error) {
         console.error('计算错误:', error);
         showNotification('计算出错，请检查输入数据', 'error');
+    }
+}
+
+// 计算并返回当前解梦成本（用于打造总成本合并）
+function computeDreamCost() {
+    try {
+        const dreamPosition = document.getElementById('dream-position')?.value;
+        const dreamType = document.getElementById('dream-type')?.value;
+        const dreamLevel = parseInt(document.getElementById('dream-level')?.value);
+        const affixValue = document.getElementById('dream-affix')?.value;
+        const selectedAffixIndex = affixValue !== undefined ? parseInt(affixValue) : NaN;
+
+        const weaponPrice = parseFloat(document.getElementById('dream-weapon-price')?.value) || 0;
+        const accessoryPrice = parseFloat(document.getElementById('dream-accessory-price')?.value) || 0;
+
+        if (!dreamPosition || !dreamType) return 0;
+        if (isNaN(selectedAffixIndex)) return 0;
+
+        const isAccessory = dreamData[dreamPosition]?.isAccessory;
+        const finalMaterialPrice = isAccessory ? accessoryPrice : weaponPrice;
+        if (finalMaterialPrice <= 0) return 0;
+
+        let affixes = [];
+
+        if (affixData && Array.isArray(affixData)) {
+            let targetEquipmentType = '';
+            if (dreamPosition === 'weapon') {
+                const weaponTypeMap = {
+                    'claw': '爪',
+                    'dagger': '匕首',
+                    'one_hand_sword': '单手剑',
+                    'one_hand_hammer': '单手锤',
+                    'one_hand_axe': '单手斧',
+                    'staff': '法杖',
+                    'spirit_staff': '灵杖',
+                    'magic_wand': '魔杖',
+                    'hand_staff': '手杖',
+                    'pistol': '手枪',
+                    'two_hand_sword': '双手剑',
+                    'two_hand_hammer': '双手锤',
+                    'two_hand_axe': '双手斧',
+                    'tin_staff': '锡杖',
+                    'war_staff': '武杖',
+                    'bow': '弓',
+                    'crossbow': '弩',
+                    'rifle': '火枪',
+                    'cannon': '火炮'
+                };
+                targetEquipmentType = weaponTypeMap[dreamType] || dreamType;
+            } else if (dreamPosition === 'accessory') {
+                const accessoryTypeMap = {
+                    'ring': '戒指',
+                    'necklace': '项链',
+                    'belt': '腰带'
+                };
+                targetEquipmentType = accessoryTypeMap[dreamType] || dreamType;
+            }
+
+            const equipmentData = affixData.find(item => item.装备类型 === targetEquipmentType);
+            if (equipmentData && equipmentData.词缀列表) {
+                affixes = equipmentData.词缀列表
+                    .filter(affix => affix.权重 && affix.权重 > 0)
+                    .map(affix => ({ name: affix.词缀, weight: affix.权重 }));
+            }
+        }
+
+        if (affixes.length === 0) {
+            if (dreamPosition === 'weapon' && weaponAffixes[dreamType]) {
+                affixes = weaponAffixes[dreamType];
+            } else if (dreamPosition === 'accessory' && accessoryAffixes[dreamType]) {
+                affixes = accessoryAffixes[dreamType];
+            }
+        }
+
+        if (!affixes[selectedAffixIndex]) return 0;
+        const selectedAffix = affixes[selectedAffixIndex];
+        const totalWeight = affixes.reduce((sum, affix) => sum + (affix.weight || 0), 0);
+        if (totalWeight <= 0) return 0;
+
+        let materialCount;
+        switch (dreamLevel) {
+            case 82: materialCount = 1; break;
+            case 86: materialCount = 2; break;
+            case 100: materialCount = 3; break;
+            default: materialCount = 1;
+        }
+
+        const singleProbability = selectedAffix.weight / totalWeight;
+        const dreamProbability = 1 - Math.pow(1 - singleProbability, 3);
+        const cost = (finalMaterialPrice * materialCount) / dreamProbability;
+
+        const elem = document.getElementById('crafting-dream-cost');
+        if (elem) elem.textContent = `${cost.toFixed(2)} 初火源质`;
+        return cost;
+    } catch (e) {
+        return 0;
+    }
+}
+
+// 计算并返回当前序列期望成本（用于打造总成本合并）
+function computeSequenceCost() {
+    try {
+        const sequence = document.getElementById('target-sequence')?.value.trim() || '';
+        if (!/^[1-7]{3,4}$/.test(sequence)) {
+            const seqElem = document.getElementById('crafting-sequence-cost');
+            if (seqElem) seqElem.textContent = `0 初火源质`;
+            return 0;
+        }
+
+        // 获取武器参数与研究类型
+        const weaponType = document.getElementById('weapon-type')?.value;
+        const weaponLevel = document.getElementById('weapon-level')?.value;
+        const weaponCategory = document.getElementById('weapon-category')?.value;
+        const researchType = document.getElementById('research-type')?.value;
+
+        // 依据新规则获取材料并计算单次成本
+        const materials = calculateRequiredMaterials(weaponType, weaponLevel, weaponCategory, researchType, gameData.towerSequence || getDefaultTowerData());
+        const prices = getTowerComponentPrices();
+        let singleCost = 0;
+        const fireEssence = materials['初火源质'] || 0;
+        singleCost += fireEssence;
+        const componentMap = {
+            '基础元件': 'basic',
+            '拓展元件-术士': 'caster',
+            '拓展元件-近卫': 'guard',
+            '拓展元件-狙击': 'sniper',
+            '拓展元件-重装': 'defense'
+        };
+        for (const [name, count] of Object.entries(materials)) {
+            if (name === '初火源质') continue;
+            const key = componentMap[name];
+            const unitPrice = key ? (prices[key] || 0) : 0;
+            singleCost += (count || 0) * unitPrice;
+        }
+
+        // 复杂度选择：3位用“普通”，4位用“深度”
+        const pattern = analyzeSequencePattern(sequence);
+        const complexity = sequence.length === 4 ? '深度' : '普通';
+        const patternData = towerSystemData.patterns[complexity] || {};
+        const successProbability = patternData[pattern] || 1.0;
+        const expectedCost = singleCost / (successProbability / 100);
+
+        const elem = document.getElementById('crafting-sequence-cost');
+        if (elem) elem.textContent = `${expectedCost.toFixed(2)} 初火源质`;
+        return expectedCost;
+    } catch (e) {
+        return 0;
     }
 }
 
@@ -2528,6 +2719,8 @@ function initializeTowerSystem() {
     setupTowerEventListeners();
     updateTowerMaterialsDisplay();
     populateTowerWeaponTypes();
+    // 初始化时根据研发类型调整序列输入规则
+    updateSequenceInputValidation();
 }
 
 // 填充武器类型选择器
@@ -2573,6 +2766,7 @@ function setupTowerEventListeners() {
     if (researchTypeSelect) {
         researchTypeSelect.addEventListener('change', function() {
             updateTowerMaterialsDisplay();
+            updateSequenceInputValidation();
             calculateTowerResearch();
         });
     }
@@ -2660,13 +2854,11 @@ function getDefaultTowerData() {
             "研发流程": {
                 "基础研发": {
                     "消耗资源": {
-                        "初火源质": 100,
                         "基础元件": 10
                     }
                 },
                 "深度研发": {
                     "消耗资源": {
-                        "初火源质": 500,
                         "拓展元件": 10
                     }
                 }
@@ -2684,70 +2876,57 @@ function getDefaultTowerData() {
 
 function calculateRequiredMaterials(weaponType, weaponLevel, weaponCategory, researchType, towerData) {
     const materials = {};
-    
+
     try {
-        // 根据武器等级、类别和研发类型获取基础材料需求
-        let fireEssence = 0;
-        let componentAmount = 0;
+        // 不再计入初火源质，仅计算对应元件数量
+
+        // 组件类型与数量按新规则计算
+        const isLevel100 = String(weaponLevel) === '100';
+        const isSingleHand = String(weaponCategory) === '单手';
+
+        // 映射拓展元件类型
         let componentType = '基础元件';
-        
-        // 根据研发类型确定基础消耗
-        if (researchType === '基础') {
-            fireEssence = 100;
-            componentAmount = 10;
-            componentType = '基础元件';
-        } else if (researchType === '深度') {
-            fireEssence = 500;
-            componentAmount = 10;
-            
-            // 根据武器类型确定拓展元件类型
+        if (researchType === '深度') {
             const weaponMapping = {
                 '拓展元件-术士': ['法杖', '灵杖', '魔杖', '手杖', '锡杖', '武杖'],
                 '拓展元件-近卫': ['剑', '斧', '锤', '爪', '匕首'],
                 '拓展元件-狙击': ['手枪', '弓', '弩', '炮', '火枪'],
                 '拓展元件-重装': ['盾']
             };
-            
-            for (const [componentName, weapons] of Object.entries(weaponMapping)) {
-                if (weapons.includes(weaponType)) {
-                    componentType = componentName;
+            for (const [name, list] of Object.entries(weaponMapping)) {
+                if (list.includes(weaponType)) {
+                    componentType = name;
                     break;
                 }
             }
         }
-        
-        // 根据武器等级和类别调整消耗
-        let levelMultiplier = 1;
-        let categoryMultiplier = 1;
-        
-        if (weaponLevel === '100') {
-            levelMultiplier = 1.5; // 100等武器消耗更多
+
+        // 新材料消耗规则
+        let componentAmount = 0;
+        if (!isLevel100) {
+            // 86等武器
+            if (researchType === '基础') {
+                componentAmount = isSingleHand ? 2 : 4;
+            } else if (researchType === '深度') {
+                componentAmount = isSingleHand ? 2 : 4;
+            }
+        } else {
+            // 100等武器
+            if (researchType === '基础') {
+                componentAmount = isSingleHand ? 10 : 20;
+            } else if (researchType === '深度') {
+                componentAmount = isSingleHand ? 10 : 20;
+            }
         }
-        
-        if (weaponCategory === '双手') {
-            categoryMultiplier = 1.2; // 双手武器消耗更多
-        }
-        
-        // 应用倍数
-        fireEssence = Math.floor(fireEssence * levelMultiplier * categoryMultiplier);
-        componentAmount = Math.floor(componentAmount * levelMultiplier * categoryMultiplier);
-        
-        // 添加材料到结果中
-        if (fireEssence > 0) {
-            materials['初火源质'] = fireEssence;
-        }
-        
+
+        // 写入材料结果（仅元件，不含初火源质）
         if (componentAmount > 0) {
             materials[componentType] = componentAmount;
         }
-        
     } catch (error) {
         console.error('计算材料需求时出错:', error);
-        // 返回默认材料需求
-        materials['初火源质'] = researchType === '深度' ? 500 : 100;
-        materials['基础元件'] = 10;
     }
-    
+
     return materials;
 }
 
@@ -2777,52 +2956,41 @@ function displayMaterialRequirements(materials, container) {
     container.innerHTML = html;
 }
 
-// 更新序列输入验证
+// 更新序列输入验证（根据研发类型动态设定规则）
 function updateSequenceInputValidation() {
-    const sequenceInput = document.getElementById('tower-sequence');
-    const validationMsg = document.getElementById('sequence-validation');
-    
-    if (!sequenceInput || !validationMsg) return;
-    
-    const sequence = sequenceInput.value.trim();
-    
-    if (sequence.length === 0) {
-        validationMsg.textContent = '';
-        validationMsg.className = 'validation-message';
-        return;
+    const researchType = document.getElementById('research-type')?.value;
+    const sequenceInput = document.getElementById('target-sequence');
+    if (!sequenceInput) return;
+
+    const maxLen = researchType === '深度' ? 4 : 3;
+    sequenceInput.maxLength = maxLen;
+    sequenceInput.placeholder = researchType === '深度' ? '请输入4位数字(1-7)' : '请输入3位数字(1-7)';
+
+    // 如果当前输入超过新限制，进行截断
+    if (sequenceInput.value.length > maxLen) {
+        sequenceInput.value = sequenceInput.value.substring(0, maxLen);
     }
-    
-    if (!/^[1-3]+$/.test(sequence)) {
-        validationMsg.textContent = '只能输入数字1、2、3';
-        validationMsg.className = 'validation-message error';
-        return;
-    }
-    
-    if (sequence.length < 3 || sequence.length > 6) {
-        validationMsg.textContent = '序列长度应为3-6位';
-        validationMsg.className = 'validation-message warning';
-        return;
-    }
-    
-    validationMsg.textContent = '序列格式正确';
-    validationMsg.className = 'validation-message success';
 }
 
-// 验证序列输入
+// 验证序列输入（仅允许1-7，长度由研发类型决定）
 function validateSequenceInput(event) {
     const input = event.target;
-    let value = input.value;
-    
-    // 只允许数字1、2、3
-    value = value.replace(/[^123]/g, '');
-    
-    // 限制长度为6位
-    if (value.length > 6) {
-        value = value.substring(0, 6);
+    let value = input.value || '';
+    const researchType = document.getElementById('research-type')?.value;
+    const maxLen = researchType === '深度' ? 4 : 3;
+
+    // 只允许数字1-7
+    value = value.replace(/[^1-7]/g, '');
+
+    // 按当前研发类型限制长度
+    if (value.length > maxLen) {
+        value = value.substring(0, maxLen);
     }
-    
+
     input.value = value;
 }
+
+// （已移除序列键盘事件监听）
 
 // 分析序列模式
 function analyzeSequencePattern(sequence) {
@@ -2855,31 +3023,49 @@ function analyzeSequencePattern(sequence) {
 function calculateTowerResearch() {
     try {
         const sequence = document.getElementById('target-sequence')?.value.trim() || '';
-        
+
         if (!/^[1-7]{3,4}$/.test(sequence)) {
             updateTowerResults(0, 0, 0);
             return;
         }
-        
-        // 获取材料价格
+
+        // 获取武器参数与研究类型
+        const weaponType = document.getElementById('weapon-type')?.value;
+        const weaponLevel = document.getElementById('weapon-level')?.value;
+        const weaponCategory = document.getElementById('weapon-category')?.value;
+        const researchType = document.getElementById('research-type')?.value;
+
+        // 材料需求与价格
+        const materials = calculateRequiredMaterials(weaponType, weaponLevel, weaponCategory, researchType, gameData.towerSequence || getDefaultTowerData());
         const prices = getTowerComponentPrices();
-        
-        // 计算单次成本 - 这里需要根据实际的高塔系统逻辑来计算
-        // 暂时使用基础元件价格作为示例
-        let singleCost = sequence.length * (prices.basic || 100);
-        
-        // 分析序列模式
+
+        // 计算单次成本：组件数量×对应单价（不含初火源质）
+        let singleCost = 0;
+
+        const componentMap = {
+            '基础元件': 'basic',
+            '拓展元件-术士': 'caster',
+            '拓展元件-近卫': 'guard',
+            '拓展元件-狙击': 'sniper',
+            '拓展元件-重装': 'defense'
+        };
+        for (const [name, count] of Object.entries(materials)) {
+            const key = componentMap[name];
+            const unitPrice = key ? (prices[key] || 0) : 0;
+            singleCost += (count || 0) * unitPrice;
+        }
+
+        // 分析序列模式并选择复杂度（3位→普通；4位→深度）
         const pattern = analyzeSequencePattern(sequence);
-        
-        // 获取成功概率（使用固定的复杂度"简单"）
-        const patternData = towerSystemData.patterns['简单'];
+        const complexity = sequence.length === 4 ? '深度' : '普通';
+        const patternData = towerSystemData.patterns[complexity] || {};
         const successProbability = patternData[pattern] || 1.0;
-        
+
         // 计算期望成本
         const expectedCost = singleCost / (successProbability / 100);
-        
+
         updateTowerResults(successProbability, expectedCost, singleCost);
-        
+
         // 保存组件价格
         saveTowerComponentPrices();
         
@@ -2891,21 +3077,17 @@ function calculateTowerResearch() {
 
 // 更新高塔结果显示
 function updateTowerResults(probability, expectedCost, singleCost) {
-    const probabilityElement = document.getElementById('tower-probability');
-    const expectedCostElement = document.getElementById('tower-expected-cost');
-    const singleCostElement = document.getElementById('tower-single-cost');
+    const probabilityElement = document.getElementById('success-probability');
+    const expectedCostElement = document.getElementById('expected-cost');
     
     if (probabilityElement) {
         probabilityElement.textContent = `${probability.toFixed(2)}%`;
     }
     
     if (expectedCostElement) {
-        expectedCostElement.textContent = `${expectedCost.toFixed(2)} 初火源质`;
+        expectedCostElement.textContent = `${expectedCost.toFixed(2)}`;
     }
     
-    if (singleCostElement) {
-        singleCostElement.textContent = `${singleCost.toFixed(2)} 初火源质`;
-    }
 }
 
 // 保存高塔组件价格
@@ -2921,12 +3103,16 @@ function loadTowerComponentPrices() {
         try {
             const prices = JSON.parse(saved);
             const basicInput = document.getElementById('basic-component-price');
-            const advancedInput = document.getElementById('advanced-component-price');
-            const premiumInput = document.getElementById('premium-component-price');
-            
+            const casterInput = document.getElementById('caster-component-price');
+            const guardInput = document.getElementById('guard-component-price');
+            const sniperInput = document.getElementById('sniper-component-price');
+            const defenseInput = document.getElementById('defense-component-price');
+
             if (basicInput) basicInput.value = prices.basic || '';
-            if (advancedInput) advancedInput.value = prices.advanced || '';
-            if (premiumInput) premiumInput.value = prices.premium || '';
+            if (casterInput) casterInput.value = prices.caster || '';
+            if (guardInput) guardInput.value = prices.guard || '';
+            if (sniperInput) sniperInput.value = prices.sniper || '';
+            if (defenseInput) defenseInput.value = prices.defense || '';
             
             updateTowerMaterialsDisplay();
         } catch (e) {
@@ -3245,11 +3431,11 @@ const DataPersistence = {
      saveTowerData() {
          const data = {};
          
-         const sequenceInput = document.getElementById('tower-sequence');
-         const complexitySelect = document.getElementById('tower-complexity');
+         const sequenceInput = document.getElementById('target-sequence');
+         const researchTypeSelect = document.getElementById('research-type');
          
          if (sequenceInput) data.sequence = sequenceInput.value;
-         if (complexitySelect) data.complexity = complexitySelect.value;
+         if (researchTypeSelect) data.researchType = researchTypeSelect.value;
          
          localStorage.setItem('torchlight-tower-data', JSON.stringify(data));
      },
@@ -3260,11 +3446,18 @@ const DataPersistence = {
              try {
                  const data = JSON.parse(saved);
                  
-                 const sequenceInput = document.getElementById('tower-sequence');
-                 const complexitySelect = document.getElementById('tower-complexity');
+                 const sequenceInput = document.getElementById('target-sequence');
+                 const researchTypeSelect = document.getElementById('research-type');
                  
-                 if (sequenceInput) sequenceInput.value = data.sequence || '';
-                 if (complexitySelect) complexitySelect.value = data.complexity || '简单';
+                 if (researchTypeSelect && data.researchType) {
+                     researchTypeSelect.value = data.researchType;
+                     researchTypeSelect.dispatchEvent(new Event('change'));
+                 }
+                 if (sequenceInput && data.sequence) {
+                     sequenceInput.value = data.sequence;
+                     validateSequenceInput({ target: sequenceInput });
+                     updateSequenceInputValidation();
+                 }
              } catch (e) {
                  console.error('加载高塔数据失败:', e);
              }
@@ -4251,6 +4444,35 @@ function setupCraftingEventListeners() {
     const craftingResetBtn = document.getElementById('crafting-reset-btn');
     if (craftingResetBtn) {
         craftingResetBtn.addEventListener('click', resetCraftingInputs);
+    }
+
+    // 打造模块：合并解梦与序列成本的复选框监听
+    const includeDreamCheckbox = document.getElementById('include-dream-cost');
+    if (includeDreamCheckbox) {
+        includeDreamCheckbox.addEventListener('change', () => {
+            const item = document.getElementById('dream-cost-item');
+            if (item) item.style.display = includeDreamCheckbox.checked ? 'flex' : 'none';
+            calculateCraftingCost();
+        });
+    }
+
+    const includeSequenceCheckbox = document.getElementById('include-sequence-cost');
+    if (includeSequenceCheckbox) {
+        includeSequenceCheckbox.addEventListener('change', () => {
+            const item = document.getElementById('sequence-cost-item');
+            if (item) item.style.display = includeSequenceCheckbox.checked ? 'flex' : 'none';
+            calculateCraftingCost();
+        });
+    }
+
+    // 初始化可见状态
+    const dreamItem = document.getElementById('dream-cost-item');
+    const sequenceItem = document.getElementById('sequence-cost-item');
+    if (dreamItem && includeDreamCheckbox) {
+        dreamItem.style.display = includeDreamCheckbox.checked ? 'flex' : 'none';
+    }
+    if (sequenceItem && includeSequenceCheckbox) {
+        sequenceItem.style.display = includeSequenceCheckbox.checked ? 'flex' : 'none';
     }
 }
 

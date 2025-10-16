@@ -845,31 +845,44 @@ function calculateCraftingCost() {
         // 计算各种词缀的成本
         const affixTypes = [
             { count: affixes.basic, type: 'basic' },
-            { count: affixes.basicT0, type: 'basic' }, // T0使用相同配置
+            { count: affixes.basicT0, type: 'basicT0' },
             { count: affixes.basicUpgrade, type: 'basicUpgrade' },
             { count: affixes.advanced, type: 'advanced' },
-            { count: affixes.advancedT0, type: 'advanced' }, // T0使用相同配置
+            { count: affixes.advancedT0, type: 'advancedT0' },
             { count: affixes.advancedUpgrade, type: 'advancedUpgrade' },
             { count: affixes.perfect, type: 'perfect' },
-            { count: affixes.perfectT0, type: 'perfect' }, // T0使用相同配置
+            { count: affixes.perfectT0, type: 'perfectT0' },
             { count: affixes.perfectUpgrade, type: 'perfectUpgrade' }
         ];
-        
+
+        // 辅助函数：计算某配置的期望成本
+        const computeExpectedCost = (config) => {
+            if (!config) return 0;
+            let singleCost = 0;
+            Object.keys(config.materials).forEach(materialKey => {
+                const materialCount = config.materials[materialKey];
+                const materialPrice = materials[materialKey];
+                singleCost += materialCount * materialPrice;
+            });
+            return singleCost / config.successRate;
+        };
+
         affixTypes.forEach(affix => {
-            if (affix.count > 0 && levelData[affix.type]) {
-                const config = levelData[affix.type];
-                let singleCost = 0;
-                
-                // 计算单次打造材料成本
-                Object.keys(config.materials).forEach(materialKey => {
-                    const materialCount = config.materials[materialKey];
-                    const materialPrice = materials[materialKey];
-                    singleCost += materialCount * materialPrice;
-                });
-                
-                // 根据成功率计算期望成本
-                const expectedCost = singleCost / config.successRate;
-                totalCost += expectedCost * affix.count;
+            if (affix.count > 0) {
+                let expectedCostForType = 0;
+
+                // T0 成本 = 基础成本 + 对应升级成本
+                if (affix.type.endsWith('T0')) {
+                    const baseType = affix.type.replace('T0', '');
+                    const baseConfig = levelData[baseType];
+                    const upgradeConfig = levelData[`${baseType}Upgrade`];
+                    expectedCostForType = computeExpectedCost(baseConfig) + computeExpectedCost(upgradeConfig);
+                } else {
+                    const config = levelData[affix.type];
+                    expectedCostForType = computeExpectedCost(config);
+                }
+
+                totalCost += expectedCostForType * affix.count;
             }
         });
         
