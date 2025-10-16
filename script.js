@@ -2705,11 +2705,11 @@ const towerSystemData = {
             'one_quadruple': 0.25
         },
         '深度': {
-            'no_repeat': 5.19,
-            'one_double': 1.8,
-            'two_double': 6.0,
-            'one_triple': 2.0,
-            'one_quadruple': 0.50
+            'no_repeat': 10.38,
+            'one_double': 3.6,
+            'two_double': 12.0,
+            'one_triple': 4.0,
+            'one_quadruple': 1.00
         }
     }
 };
@@ -2792,6 +2792,8 @@ function setupTowerEventListeners() {
         sequenceInput.addEventListener('input', function(event) {
             validateSequenceInput(event);
             updateSequenceInputValidation();
+            // 序列变化时同步刷新材料显示，以便计算总消耗
+            updateTowerMaterialsDisplay();
             calculateTowerResearch();
         });
     }
@@ -2834,8 +2836,21 @@ function updateTowerMaterialsDisplay() {
         // 获取材料需求
         const materials = calculateRequiredMaterials(weaponType, weaponLevel, weaponCategory, researchType, towerData);
         
-        // 显示材料需求
-        displayMaterialRequirements(materials, materialsDisplay);
+        // 计算基于当前序列的期望尝试次数（用于总消耗）
+        const sequence = document.getElementById('target-sequence')?.value?.trim() || '';
+        let expectedAttempts = null;
+        if (/^[1-7]{3,4}$/.test(sequence)) {
+            const complexity = sequence.length === 4 ? '深度' : '普通';
+            const pattern = analyzeSequencePattern(sequence);
+            const probabilityMap = towerSystemData.patterns[complexity] || {};
+            const probability = probabilityMap[pattern] || 0;
+            if (probability > 0) {
+                expectedAttempts = 100 / probability;
+            }
+        }
+
+        // 显示材料需求（包含单次与总消耗）
+        displayMaterialRequirements(materials, materialsDisplay, expectedAttempts);
         
     } catch (error) {
         console.error('更新高塔材料显示时出错:', error);
@@ -2930,7 +2945,7 @@ function calculateRequiredMaterials(weaponType, weaponLevel, weaponCategory, res
     return materials;
 }
 
-function displayMaterialRequirements(materials, container) {
+function displayMaterialRequirements(materials, container, expectedAttempts = null) {
     if (!materials || Object.keys(materials).length === 0) {
         container.innerHTML = `
             <div class="materials-placeholder">
@@ -2941,8 +2956,12 @@ function displayMaterialRequirements(materials, container) {
         return;
     }
     
-    let html = '<div class="materials-list">';
-    
+    let html = '';
+
+    // 单次消耗
+    html += '<div class="materials-group">';
+    html += '<div class="materials-group-title">单次消耗</div>';
+    html += '<div class="materials-list">';
     for (const [materialName, amount] of Object.entries(materials)) {
         html += `
             <div class="material-item">
@@ -2951,8 +2970,35 @@ function displayMaterialRequirements(materials, container) {
             </div>
         `;
     }
-    
     html += '</div>';
+    html += '</div>';
+
+    // 总消耗（基于期望尝试次数）
+    html += '<div class="materials-group">';
+    html += '<div class="materials-group-title">总消耗</div>';
+    if (expectedAttempts && expectedAttempts > 0) {
+        html += '<div class="materials-list">';
+        for (const [materialName, amount] of Object.entries(materials)) {
+            const total = amount * expectedAttempts;
+            const formatted = Number.isInteger(total) ? total.toString() : total.toFixed(2).replace(/\.00$/, '');
+            html += `
+                <div class="material-item">
+                    <span class="material-name">${materialName}</span>
+                    <span class="material-amount">${formatted}</span>
+                </div>
+            `;
+        }
+        html += '</div>';
+    } else {
+        html += `
+            <div class="materials-placeholder">
+                <i class="fas fa-info-circle"></i>
+                <span>请先输入有效序列以计算总消耗</span>
+            </div>
+        `;
+    }
+    html += '</div>';
+
     container.innerHTML = html;
 }
 
