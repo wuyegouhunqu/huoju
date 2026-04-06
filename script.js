@@ -14,6 +14,872 @@ let gameData = {
     weights: null           // 权重数据
 };
 
+// 🔧 硬编码的传奇装备数据后备方案（用于CORS限制时）
+const fallbackLegendaryEquipment = {
+    "装备类型": {
+        "头部": ["力量头部", "敏捷头部", "智慧头部"],
+        "胸甲": ["力量胸甲", "敏捷胸甲", "智慧胸甲"],
+        "手套": ["力量手套", "敏捷手套", "智慧手套"],
+        "鞋子": ["力量鞋子", "敏捷鞋子", "智慧鞋子"],
+        "单手": ["爪", "匕首", "单手剑", "单手锤", "单手斧", "法杖", "灵杖", "魔杖", "手杖", "手枪"],
+        "双手": ["双手剑", "双手锤", "双手斧", "锡杖", "武杖", "弓", "弩", "火枪", "火炮"],
+        "盾牌": ["力量盾牌", "敏捷盾牌", "智慧盾牌"],
+        "饰品": ["项链", "戒指", "腰带", "灵戒"]
+    },
+    "装备数据": {
+        "力量头部": [
+            {
+                "装备名称": "岩石巨蜥之颅",
+                "需求等级": 4,
+                "基础词缀": "+235 该装备护甲值",
+                "普通词缀": [
+                    "+50 该装备护甲值",
+                    "+(80–100) 最大生命",
+                    "额外 (-8–-10)% 受到的物理伤害",
+                    "受击时， +60% 几率获得一层坚韧祝福"
+                ],
+                "已侵蚀词缀": [
+                    "+100 该装备护甲值",
+                    "+(150–200) 最大生命",
+                    "额外 (-12–-15)% 受到的物理伤害",
+                    "受击时， +100% 几率获得一层坚韧祝福"
+                ]
+            },
+            {
+                "装备名称": "莽夫的铁冠",
+                "需求等级": 25,
+                "基础词缀": "+779 该装备护甲值",
+                "普通词缀": [
+                    "+(150–170) 最大生命",
+                    "受到伤害时， +50% 几率获得屏障，间隔 4 秒",
+                    "具有屏障时，主手武器附加 (25–30) - (31–36) 点物理伤害"
+                ],
+                "已侵蚀词缀": [
+                    "+250 最大生命",
+                    "受到伤害时， +(60–80)% 几率获得屏障，间隔 3 秒",
+                    "具有屏障时，主手武器附加 (37–43) - (45–52) 点物理伤害"
+                ]
+            },
+            {
+                "装备名称": "猩红敕令",
+                "需求等级": 26,
+                "基础词缀": "+329 该装备护甲值",
+                "普通词缀": [
+                    "+(1000–1200) 该装备护甲值",
+                    "附加 (8–10)% 物理伤害的火焰伤害",
+                    "附加 (8–10)% 物理伤害的闪电伤害",
+                    "附加 (8–10)% 物理伤害的冰冷伤害"
+                ],
+                "已侵蚀词缀": [
+                    "+(1800–1900) 该装备护甲值",
+                    "附加 (12–15)% 物理伤害的火焰伤害",
+                    "附加 (12–15)% 物理伤害的闪电伤害",
+                    "附加 (12–15)% 物理伤害的冰冷伤害"
+                ]
+            },
+            {
+                "装备名称": "混沌遗言",
+                "需求等级": 58,
+                "基础词缀": "+1920 该装备护甲值",
+                "普通词缀": [
+                    "+(1200–1300) 该装备护甲值",
+                    "+(190–220) 最大生命",
+                    "+(12–16)% 火焰抗性",
+                    "+(40–50) 力量",
+                    "每 50 点力量， +1% 技能范围",
+                    "每 120 点力量， +1% 几率造成双倍伤害"
+                ],
+                "已侵蚀词缀": [
+                    "+(1600–1800) 该装备护甲值",
+                    "+(280–330) 最大生命",
+                    "+(20–24)% 火焰抗性",
+                    "+(50–60) 力量",
+                    "每 40 点力量， +1% 技能范围",
+                    "每 100 点力量， +1% 几率造成双倍伤害"
+                ]
+            },
+            {
+                "装备名称": "苏醒头颅",
+                "需求等级": 58,
+                "基础词缀": "+1777 该装备护甲值",
+                "普通词缀": [
+                    "+(150–220) 最大生命",
+                    "秘法",
+                    "+(500–800)% 技能消耗",
+                    "+(30–40) 技能消耗",
+                    "攻击技能 +(30–40)% 几率造成双倍伤害"
+                ],
+                "已侵蚀词缀": [
+                    "+(250–330) 最大生命",
+                    "秘法 额外 +10% 最大生命",
+                    "+(300–1000)% 技能消耗",
+                    "+(10–50) 技能消耗",
+                    "攻击技能 +(50–60)% 几率造成双倍伤害"
+                ]
+            },
+            {
+                "装备名称": "冥河潮汐",
+                "需求等级": 58,
+                "基础词缀": "+1777 该装备护甲值",
+                "普通词缀": [
+                    "+(280–330) 最大生命",
+                    "+(140–160) 攻击和法术暴击值",
+                    "最近每消耗 4000 生命， +10% 伤害",
+                    "最近每消耗 5000 生命， +1% 攻击速度",
+                    "非生命健康时，视为处于生命濒危状态",
+                    "无法充能护盾"
+                ],
+                "已侵蚀词缀": [
+                    "+(500–550) 最大生命",
+                    "+(70–80)% 暴击伤害",
+                    "最近每消耗 4000 生命， +15% 伤害",
+                    "最近每消耗 4500 生命， +1% 攻击速度",
+                    "非生命健康时，视为处于生命濒危状态  生命健康时， +40% 移动速度",
+                    "无法自然回复魔力"
+                ]
+            },
+            {
+                "装备名称": "烈阳之拥",
+                "需求等级": 58,
+                "基础词缀": "+1615 该装备护甲值",
+                "普通词缀": [
+                    "+(180–220) 最大生命",
+                    "+(130–160)% 火焰伤害",
+                    "+1 点燃上限",
+                    "额外造成 1 层点燃",
+                    "+(49–54)% 冰冷抗性"
+                ],
+                "已侵蚀词缀": [
+                    "+(400–440) 最大生命",
+                    "+(160–180)% 火焰伤害",
+                    "+1 点燃上限 免疫点燃",
+                    "额外造成 2 层点燃",
+                    "+(54–59)% 冰冷抗性"
+                ]
+            },
+            {
+                "装备名称": "愚人的帝冕",
+                "需求等级": 58,
+                "基础词缀": "+1920 该装备护甲值",
+                "普通词缀": [
+                    "+(4176–4464) 该装备护甲值",
+                    "额外 -99% 智慧",
+                    "主手武器附加 (92–108) - (122–138) 点物理伤害",
+                    "+(60–90) 力量",
+                    "+(2–4)% 火焰抗性"
+                ],
+                "已侵蚀词缀": [
+                    "+(7056–7344) 该装备护甲值",
+                    "额外 -50% 智慧",
+                    "主手武器附加 (152–161) - (201–208) 点物理伤害",
+                    "+(120–150) 力量",
+                    "+(4–6)% 火焰抗性"
+                ]
+            },
+            {
+                "装备名称": "神躯燃烬",
+                "需求等级": 58,
+                "基础词缀": "+1777 该装备护甲值",
+                "普通词缀": [
+                    "+(2500–2600) 该装备护甲值",
+                    "+(8–12)% 攻击与法术格挡率",
+                    "坚韧祝福达到上限时，攻击附加 5% 最大生命的火焰伤害，最多 (220–250) 点",
+                    "如果最近获得过聚能祝福或灵动祝福，无法回复生命和魔力"
+                ],
+                "已侵蚀词缀": [
+                    "+(3300–3400) 该装备护甲值",
+                    "+(14–18)% 攻击与法术格挡率",
+                    "坚韧祝福达到上限时，攻击附加 6% 最大生命的火焰伤害，最多 (330–350) 点",
+                    "额外 -90% 祝福持续时间"
+                ]
+            },
+            {
+                "装备名称": "玛格努斯的疤面",
+                "需求等级": 58,
+                "基础词缀": "+1920 该装备护甲值",
+                "普通词缀": [
+                    "+(18–22)% 力量",
+                    "每 10 点力量， +4 点最大生命",
+                    "每 10 点力量，额外 +(6–7)% 火焰伤害",
+                    "主属性基础不再额外增加伤害"
+                ],
+                "已侵蚀词缀": [
+                    "+(22–24)% 力量",
+                    "每 5 点力量， +3 点最大生命",
+                    "每 10 点力量，额外 +(8–9)% 火焰伤害",
+                    "主属性基础不再额外增加伤害 +20 全属性"
+                ]
+            }
+        ],
+        "敏捷头部": [
+            {
+                "装备名称": "蚀髓",
+                "需求等级": 4,
+                "基础词缀": "+18 该装备闪避值",
+                "普通词缀": [
+                    "攻击附加 (20–24) - (28–32) 点腐蚀伤害",
+                    "周围 10 米内敌人受到 (10–15) 级腐蚀诅咒",
+                    "免疫腐蚀"
+                ],
+                "已侵蚀词缀": [
+                    "攻击附加 (30–36) - (42–48) 点腐蚀伤害",
+                    "周围 10 米内敌人受到 (16–20) 级腐蚀诅咒",
+                    "免疫腐蚀"
+                ]
+            },
+            { "装备名称": "传奇战士护目镜", "需求等级": 58 },
+            { "装备名称": "机械领主", "需求等级": 58 },
+            { "装备名称": "敞开心扉", "需求等级": 58 },
+            { "装备名称": "盲眼之视", "需求等级": 58 },
+            { "装备名称": "万雷颚骨", "需求等级": 58 },
+            { "装备名称": "追猎海妖之眼", "需求等级": 58 },
+            { "装备名称": "飞光破晓", "需求等级": 58 },
+            { "装备名称": "无脚鸟的悲啼", "需求等级": 58 },
+            { "装备名称": "倒吊的半面", "需求等级": 58 }
+        ],
+        "智慧头部": [
+            {
+                "装备名称": "海妖面甲",
+                "需求等级": 4,
+                "基础词缀": "+18 该装备护盾",
+                "普通词缀": [
+                    "法术附加 (20–24) - (28–32) 点冰冷伤害",
+                    "周围 10 米内敌人受到 (10–15) 级蚀骨之寒诅咒",
+                    "免疫冰结"
+                ],
+                "已侵蚀词缀": [
+                    "法术附加 (30–36) - (42–48) 点冰冷伤害",
+                    "周围 10 米内敌人受到 (16–20) 级蚀骨之寒诅咒",
+                    "免疫冰封"
+                ]
+            },
+            { "装备名称": "冰冷呼吸", "需求等级": 58 },
+            { "装备名称": "涌动灵感", "需求等级": 58 },
+            { "装备名称": "邪龙头冠", "需求等级": 58 },
+            { "装备名称": "蛛网奥秘头巾", "需求等级": 58 },
+            { "装备名称": "皇家铁卫", "需求等级": 58 },
+            { "装备名称": "霜起之时", "需求等级": 58 },
+            { "装备名称": "巫神视界", "需求等级": 58 },
+            { "装备名称": "捣乱份子", "需求等级": 58 },
+            { "装备名称": "无首之冕", "需求等级": 58 },
+            { "装备名称": "凝河", "需求等级": 58 }
+        ],
+        "力量胸甲": [
+            { "装备名称": "辉煌旅途", "需求等级": 1 },
+            { "装备名称": "阿日斯兰", "需求等级": 20 },
+            { "装备名称": "怒汉之躯", "需求等级": 30 },
+            { "装备名称": "玛格努斯的妒火", "需求等级": 30 },
+            { "装备名称": "天籁长袍", "需求等级": 35 },
+            { "装备名称": "不破胸甲", "需求等级": 58 },
+            { "装备名称": "龙息护甲", "需求等级": 58 },
+            { "装备名称": "殉节神木", "需求等级": 58 },
+            { "装备名称": "虚空堤岸", "需求等级": 58 },
+            { "装备名称": "重器", "需求等级": 58 },
+            { "装备名称": "嗜炎之潮", "需求等级": 58 },
+            { "装备名称": "极夜照临", "需求等级": 58 },
+            { "装备名称": "区区永恒", "需求等级": 58 },
+            { "装备名称": "密友克星", "需求等级": 58 }
+        ],
+        "敏捷胸甲": [
+            { "装备名称": "幻躯", "需求等级": 10 },
+            { "装备名称": "萨日图雅", "需求等级": 20 },
+            { "装备名称": "雷尔夫的骨冢", "需求等级": 30 },
+            { "装备名称": "邪心护甲", "需求等级": 58 },
+            { "装备名称": "深红之王", "需求等级": 58 },
+            { "装备名称": "王事枯荣", "需求等级": 58 },
+            { "装备名称": "双虹", "需求等级": 58 },
+            { "装备名称": "疯医的镀银肺", "需求等级": 58 },
+            { "装备名称": "掣电者的骶骨", "需求等级": 58 },
+            { "装备名称": "三相", "需求等级": 58 }
+        ],
+        "智慧胸甲": [
+            { "装备名称": "伊斯拉菲尔的悲愿", "需求等级": 30 },
+            { "装备名称": "幻罪黑纱", "需求等级": 45 },
+            { "装备名称": "迸碎月光", "需求等级": 58 },
+            { "装备名称": "王魂护甲", "需求等级": 58 },
+            { "装备名称": "饮冰者的樊笼", "需求等级": 58 },
+            { "装备名称": "不灭信仰", "需求等级": 58 },
+            { "装备名称": "无限要塞", "需求等级": 58 },
+            { "装备名称": "浸蚀壁垒", "需求等级": 58 },
+            { "装备名称": "噬火之恶", "需求等级": 58 },
+            { "装备名称": "冰封行径", "需求等级": 58 },
+            { "装备名称": "苍蓝刹那", "需求等级": 58 },
+            { "装备名称": "蝉锐", "需求等级": 58 },
+            { "装备名称": "恢弘群星法袍", "需求等级": 58 },
+            { "装备名称": "薄暮笼罩法袍", "需求等级": 58 },
+            { "装备名称": "群星定势", "需求等级": 58 }
+        ],
+        "力量手套": [
+            { "装备名称": "力量手套1", "需求等级": 10 },
+            { "装备名称": "力量手套2", "需求等级": 30 }
+        ],
+        "敏捷手套": [
+            { "装备名称": "敏捷手套1", "需求等级": 10 },
+            { "装备名称": "敏捷手套2", "需求等级": 30 }
+        ],
+        "智慧手套": [
+            { "装备名称": "智慧手套1", "需求等级": 10 },
+            { "装备名称": "智慧手套2", "需求等级": 30 }
+        ],
+        "力量鞋子": [
+            { "装备名称": "力量鞋子1", "需求等级": 10 },
+            { "装备名称": "力量鞋子2", "需求等级": 30 }
+        ],
+        "敏捷鞋子": [
+            { "装备名称": "敏捷鞋子1", "需求等级": 10 },
+            { "装备名称": "敏捷鞋子2", "需求等级": 30 }
+        ],
+        "智慧鞋子": [
+            { "装备名称": "智慧鞋子1", "需求等级": 10 },
+            { "装备名称": "智慧鞋子2", "需求等级": 30 }
+        ],
+        "爪": [ { "装备名称": "爪1", "需求等级": 10 } ],
+        "匕首": [ { "装备名称": "匕首1", "需求等级": 10 } ],
+        "单手剑": [ { "装备名称": "单手剑1", "需求等级": 10 } ],
+        "单手锤": [ { "装备名称": "单手锤1", "需求等级": 10 } ],
+        "单手斧": [ { "装备名称": "单手斧1", "需求等级": 10 } ],
+        "法杖": [ { "装备名称": "法杖1", "需求等级": 10 } ],
+        "灵杖": [ { "装备名称": "灵杖1", "需求等级": 10 } ],
+        "魔杖": [ { "装备名称": "魔杖1", "需求等级": 10 } ],
+        "手杖": [ { "装备名称": "手杖1", "需求等级": 10 } ],
+        "手枪": [ { "装备名称": "手枪1", "需求等级": 10 } ],
+        "双手剑": [ { "装备名称": "双手剑1", "需求等级": 10 } ],
+        "双手锤": [ { "装备名称": "双手锤1", "需求等级": 10 } ],
+        "双手斧": [ { "装备名称": "双手斧1", "需求等级": 10 } ],
+        "锡杖": [ { "装备名称": "锡杖1", "需求等级": 10 } ],
+        "武杖": [ { "装备名称": "武杖1", "需求等级": 10 } ],
+        "弓": [ { "装备名称": "弓1", "需求等级": 10 } ],
+        "弩": [ { "装备名称": "弩1", "需求等级": 10 } ],
+        "火枪": [ { "装备名称": "火枪1", "需求等级": 10 } ],
+        "火炮": [ { "装备名称": "火炮1", "需求等级": 10 } ],
+        "力量盾牌": [ { "装备名称": "力量盾牌1", "需求等级": 15 } ],
+        "敏捷盾牌": [ { "装备名称": "敏捷盾牌1", "需求等级": 15 } ],
+        "智慧盾牌": [ { "装备名称": "智慧盾牌1", "需求等级": 15 } ],
+        "项链": [ { "装备名称": "项链1", "需求等级": 20 } ],
+        "戒指": [ { "装备名称": "戒指1", "需求等级": 20 } ],
+        "腰带": [ { "装备名称": "腰带1", "需求等级": 20 } ],
+        "灵戒": [ { "装备名称": "灵戒1", "需求等级": 20 } ]
+    }
+};
+
+// 材料价格管理器 - 统一管理所有材料价格的存储、验证和持久化
+const MaterialPriceManager = {
+    // localStorage存储键名
+    STORAGE_KEY: 'torchlight-material-prices',
+    MEMORY_STORAGE_KEY: 'memory-material-prices',
+    
+    // 价格验证规则配置
+    VALIDATION_RULES: {
+        minValue: 0,
+        maxValue: 999999,
+        decimalPlaces: 4,
+        step: 0.0001
+    },
+    
+    // 材料价格配置定义
+    MATERIAL_DEFINITIONS: {
+        // 装备打造材料
+        lingsha: { id: 'lingsha', elementId: 'lingsha-price', name: '灵砂', category: 'crafting' },
+        zhengui: { id: 'zhengui', elementId: 'zhengui-price', name: '珍贵灰烬', category: 'crafting' },
+        xishi: { id: 'xishi', elementId: 'xishi-price', name: '稀世灰烬', category: 'crafting' },
+        zhizhen: { id: 'zhizhen', elementId: 'zhizhen-price', name: '至臻灰烬', category: 'crafting' },
+        shensheng: { id: 'shensheng', elementId: 'shensheng-price', name: '神圣化石', category: 'crafting' },
+        
+        // 解梦材料
+        dreamWeapon: { id: 'dreamWeapon', elementId: 'dream-weapon-price', name: '解梦武器', category: 'dream' },
+        dreamAccessory: { id: 'dreamAccessory', elementId: 'dream-accessory-price', name: '解梦饰品', category: 'dream' },
+        
+        // 追忆打造材料
+        fragmentPrice: { id: 'fragmentPrice', elementId: 'fragment-price', name: '追忆碎絮', category: 'memory' },
+        threadPrice: { id: 'threadPrice', elementId: 'thread-price', name: '追忆游丝', category: 'memory' },
+        
+        // 技能系统材料
+        inspirationPrice: { id: 'inspirationPrice', elementId: 'inspiration-price', name: '灵感素', category: 'skill' },
+        t0Price: { id: 't0Price', elementId: 't0-price', name: 'T0材料', category: 'skill' },
+        t1Price: { id: 't1Price', elementId: 't1-price', name: 'T1材料', category: 'skill' },
+        t2Price: { id: 't2Price', elementId: 't2-price', name: 'T2材料', category: 'skill' },
+        // 侵蚀系统材料
+        darkCorePrice: { id: 'darkCorePrice', elementId: 'dark-core-price', name: '异魔之核', category: 'erosion' },
+        demonCorePrice: { id: 'demonCorePrice', elementId: 'demon-core-price', name: '使魔之核', category: 'erosion' },
+        // 高塔系统材料
+        basicComponentPrice: { id: 'basicComponentPrice', elementId: 'basic-component-price', name: '基础元件', category: 'tower' },
+        casterComponentPrice: { id: 'casterComponentPrice', elementId: 'caster-component-price', name: '拓展元件-术士', category: 'tower' },
+        guardComponentPrice: { id: 'guardComponentPrice', elementId: 'guard-component-price', name: '拓展元件-近卫', category: 'tower' },
+        sniperComponentPrice: { id: 'sniperComponentPrice', elementId: 'sniper-component-price', name: '拓展元件-狙击', category: 'tower' },
+        defenseComponentPrice: { id: 'defenseComponentPrice', elementId: 'defense-component-price', name: '拓展元件-重装', category: 'tower' }
+    },
+    
+    // 当前内存中的价格缓存
+    currentPrices: {},
+    
+    // 初始化管理器
+    init: function() {
+        console.log('[MaterialPriceManager] 初始化材料价格管理器');
+        this.loadAllPrices();
+        this.setupAllListeners();
+        this.validateAllInputs();
+        console.log('[MaterialPriceManager] 初始化完成');
+    },
+    
+    // ------------------------------
+    // 数据验证模块
+    // ------------------------------
+    
+    // 验证单个价格值
+    validatePrice: function(value, materialName = '未知材料') {
+        const errors = [];
+        const warnings = [];
+        
+        // 空值检查
+        if (value === null || value === undefined || value === '') {
+            return { isValid: true, value: 0, errors, warnings };
+        }
+        
+        // 类型检查
+        let numValue = parseFloat(value);
+        if (isNaN(numValue)) {
+            errors.push(`[${materialName}] 价格必须是有效的数字`);
+            return { isValid: false, value: 0, errors, warnings };
+        }
+        
+        // 范围检查
+        if (numValue < this.VALIDATION_RULES.minValue) {
+            errors.push(`[${materialName}] 价格不能小于 ${this.VALIDATION_RULES.minValue}`);
+        }
+        
+        if (numValue > this.VALIDATION_RULES.maxValue) {
+            warnings.push(`[${materialName}] 价格 ${numValue} 超出建议范围 (最大 ${this.VALIDATION_RULES.maxValue})`);
+        }
+        
+        // 小数位数检查（仅警告）
+        const decimalPart = numValue.toString().split('.')[1];
+        if (decimalPart && decimalPart.length > this.VALIDATION_RULES.decimalPlaces) {
+            numValue = parseFloat(numValue.toFixed(this.VALIDATION_RULES.decimalPlaces));
+            warnings.push(`[${materialName}] 价格已自动四舍五入到 ${this.VALIDATION_RULES.decimalPlaces} 位小数`);
+        }
+        
+        return { 
+            isValid: errors.length === 0, 
+            value: numValue, 
+            errors, 
+            warnings 
+        };
+    },
+    
+    // 验证并修正所有输入
+    validateAllInputs: function() {
+        console.log('[MaterialPriceManager] 开始验证所有材料价格输入');
+        let hasError = false;
+        
+        Object.keys(this.MATERIAL_DEFINITIONS).forEach(key => {
+            const def = this.MATERIAL_DEFINITIONS[key];
+            const element = document.getElementById(def.elementId);
+            
+            if (element && element.value !== '') {
+                const result = this.validatePrice(element.value, def.name);
+                
+                if (!result.isValid) {
+                    hasError = true;
+                    console.error('[MaterialPriceManager] 验证错误:', result.errors);
+                    this.showValidationError(element, result.errors[0]);
+                }
+                
+                if (result.warnings.length > 0) {
+                    console.warn('[MaterialPriceManager] 验证警告:', result.warnings);
+                }
+                
+                // 应用修正后的值
+                if (result.isValid) {
+                    element.value = result.value === 0 ? '' : result.value;
+                }
+            }
+        });
+        
+        console.log(`[MaterialPriceManager] 验证完成${hasError ? '（有错误）' : '（通过）'}`);
+        return !hasError;
+    },
+    
+    // 显示验证错误提示
+    showValidationError: function(element, message) {
+        // 添加错误样式
+        element.classList.add('input-error');
+        setTimeout(() => {
+            element.classList.remove('input-error');
+        }, 3000);
+        
+        // 显示通知
+        showNotification(message, 'warning');
+    },
+    
+    // ------------------------------
+    // 数据持久化模块
+    // ------------------------------
+    
+    // 从输入框获取所有当前价格
+    getPricesFromInputs: function() {
+        const prices = {};
+        
+        Object.keys(this.MATERIAL_DEFINITIONS).forEach(key => {
+            const def = this.MATERIAL_DEFINITIONS[key];
+            const element = document.getElementById(def.elementId);
+            
+            if (element) {
+                const validation = this.validatePrice(element.value, def.name);
+                prices[key] = validation.isValid ? validation.value : 0;
+            }
+        });
+        
+        // 初火源质是固定基准，不保存
+        prices.chuhuo = 1;
+        
+        return prices;
+    },
+    
+    // 保存所有价格到localStorage
+    saveAllPrices: function() {
+        console.log('[MaterialPriceManager] 开始保存材料价格');
+        
+        try {
+            const prices = this.getPricesFromInputs();
+            console.log('[MaterialPriceManager] 从输入框获取的价格:', prices);
+            
+            this.currentPrices = { ...prices };
+            
+            // 🔧 简化保存逻辑：直接保存所有价格，不用复杂的分类
+            const pricesForSave = {};
+            Object.keys(prices).forEach(key => {
+                // 不保存初火源质（固定为1）
+                if (key !== 'chuhuo') {
+                    pricesForSave[key] = prices[key];
+                }
+            });
+            
+            console.log('[MaterialPriceManager] 准备保存的价格:', pricesForSave);
+            
+            // 保存到localStorage
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(pricesForSave));
+            console.log('[MaterialPriceManager] 保存成功到:', this.STORAGE_KEY);
+            
+            // 验证保存是否成功
+            const verifySaved = localStorage.getItem(this.STORAGE_KEY);
+            console.log('[MaterialPriceManager] 验证保存结果:', verifySaved);
+            
+            showNotification('材料价格已保存', 'success');
+            return true;
+            
+        } catch (error) {
+            console.error('[MaterialPriceManager] 保存价格失败:', error);
+            
+            // 检查是否是localStorage容量问题
+            if (error.name === 'QuotaExceededError') {
+                showNotification('存储空间已满，请清理浏览器缓存', 'error');
+            } else {
+                showNotification('保存价格失败: ' + error.message, 'error');
+            }
+            
+            return false;
+        }
+    },
+    
+    // 从localStorage加载所有价格
+    loadAllPrices: function() {
+        console.log('[MaterialPriceManager] 开始加载材料价格');
+        console.log('[MaterialPriceManager] storageKey:', this.STORAGE_KEY);
+        
+        try {
+            // 加载主材料价格
+            const mainSaved = localStorage.getItem(this.STORAGE_KEY);
+            console.log('[MaterialPriceManager] mainSaved:', mainSaved);
+            const mainPrices = mainSaved ? JSON.parse(mainSaved) : {};
+            console.log('[MaterialPriceManager] mainPrices parsed:', mainPrices);
+            
+            // 加载追忆材料价格
+            const memorySaved = localStorage.getItem(this.MEMORY_STORAGE_KEY);
+            console.log('[MaterialPriceManager] memorySaved:', memorySaved);
+            const memoryPrices = memorySaved ? JSON.parse(memorySaved) : {};
+            console.log('[MaterialPriceManager] memoryPrices parsed:', memoryPrices);
+            
+            // 合并所有价格
+            const allPrices = { ...mainPrices, ...memoryPrices };
+            this.currentPrices = { ...allPrices };
+            console.log('[MaterialPriceManager] 合并后的所有价格:', allPrices);
+            
+            // 填充到输入框
+            let loadedCount = 0;
+            Object.keys(allPrices).forEach(key => {
+                const def = this.MATERIAL_DEFINITIONS[key];
+                if (def) {
+                    const element = document.getElementById(def.elementId);
+                    console.log(`[MaterialPriceManager] 处理 ${key} (${def.name}):`, {
+                        elementFound: !!element,
+                        value: allPrices[key],
+                        elementId: def.elementId
+                    });
+                    
+                    // 🔧 关键修复：移除 !==0 条件，只要有值就加载
+                    if (element && allPrices[key] !== undefined && allPrices[key] !== null) {
+                        // 只有非0值才显示在输入框中（0显示为空）
+                        element.value = allPrices[key] !== 0 ? allPrices[key] : '';
+                        loadedCount++;
+                        console.log(`[MaterialPriceManager] ✓ 已加载 ${def.name}: ${allPrices[key]}`);
+                    }
+                }
+            });
+            
+            console.log(`[MaterialPriceManager] 成功加载 ${loadedCount} 个材料价格`);
+            return true;
+            
+        } catch (error) {
+            console.error('[MaterialPriceManager] 加载价格失败:', error);
+            showNotification('加载价格失败，使用默认值', 'warning');
+            
+            // 清理可能损坏的存储数据
+            try {
+                localStorage.removeItem(this.STORAGE_KEY);
+                localStorage.removeItem(this.MEMORY_STORAGE_KEY);
+            } catch (e) {
+                console.warn('[MaterialPriceManager] 清理损坏数据失败:', e);
+            }
+            
+            return false;
+        }
+    },
+    
+    // 获取单个材料的当前价格
+    getPrice: function(materialKey) {
+        // 先检查缓存
+        if (this.currentPrices[materialKey] !== undefined) {
+            return this.currentPrices[materialKey];
+        }
+        
+        // 从输入框获取
+        const def = this.MATERIAL_DEFINITIONS[materialKey];
+        if (def) {
+            const element = document.getElementById(def.elementId);
+            if (element) {
+                const validation = this.validatePrice(element.value, def.name);
+                const price = validation.isValid ? validation.value : 0;
+                this.currentPrices[materialKey] = price;
+                return price;
+            }
+        }
+        
+        return 0;
+    },
+    
+    // 获取所有价格的对象（供计算函数使用）
+    getAllPrices: function() {
+        const prices = this.getPricesFromInputs();
+        this.currentPrices = { ...prices };
+        return prices;
+    },
+    
+    // ------------------------------
+    // 事件监听模块
+    // ------------------------------
+    
+    // 设置所有输入框的事件监听器
+    setupAllListeners: function() {
+        console.log('[MaterialPriceManager] 正在设置事件监听器');
+        
+        const inputIds = Object.values(this.MATERIAL_DEFINITIONS).map(def => def.elementId);
+        let listenerCount = 0;
+        
+        inputIds.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                // 使用防抖的事件处理
+                let debounceTimer = null;
+                
+                const handler = () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        this.onPriceInputChange(id);
+                    }, 300); // 300ms防抖延迟
+                };
+                
+                element.addEventListener('input', handler);
+                element.addEventListener('change', () => {
+                    clearTimeout(debounceTimer);
+                    this.onPriceInputChange(id);
+                });
+                
+                listenerCount++;
+            }
+        });
+        
+        console.log(`[MaterialPriceManager] 已为 ${listenerCount} 个输入框设置监听器`);
+    },
+    
+    // 价格输入变化时的处理
+    onPriceInputChange: function(elementId) {
+        // 验证该输入框
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        // 查找对应的材料定义
+        let materialKey = null;
+        let materialDef = null;
+        Object.keys(this.MATERIAL_DEFINITIONS).forEach(key => {
+            if (this.MATERIAL_DEFINITIONS[key].elementId === elementId) {
+                materialKey = key;
+                materialDef = this.MATERIAL_DEFINITIONS[key];
+            }
+        });
+        
+        if (!materialDef) return;
+        
+        const validation = this.validatePrice(element.value, materialDef.name);
+        
+        if (!validation.isValid) {
+            this.showValidationError(element, validation.errors[0]);
+            return;
+        }
+        
+        if (validation.warnings.length > 0) {
+            console.warn('[MaterialPriceManager]', validation.warnings);
+        }
+        
+        // 更新缓存
+        this.currentPrices[materialKey] = validation.value;
+        
+        // 🔧 如果是技能系统材料价格变化，触发技能升级计算
+        if (materialDef.category === 'skill' && typeof calculateSkillUpgrade === 'function') {
+            calculateSkillUpgrade();
+        }
+        
+        // 🔧 如果是侵蚀系统材料价格变化，触发侵蚀成本计算
+        if (materialDef.category === 'erosion' && typeof calculateErosionCost === 'function') {
+            calculateErosionCost();
+        }
+        
+        // 🔧 如果是高塔系统材料价格变化，触发高塔成本计算
+        if (materialDef.category === 'tower' && typeof calculateTowerResearch === 'function') {
+            calculateTowerResearch();
+        }
+        
+        // 自动保存（延迟保存以避免频繁IO）
+        this.scheduleAutoSave();
+    },
+    
+    // 自动保存调度器
+    autoSaveTimer: null,
+    scheduleAutoSave: function() {
+        if (this.autoSaveTimer) {
+            clearTimeout(this.autoSaveTimer);
+        }
+        
+        this.autoSaveTimer = setTimeout(() => {
+            this.saveAllPrices();
+        }, 1000); // 1秒后自动保存
+    },
+    
+    // ------------------------------
+    // 工具函数
+    // ------------------------------
+    
+    // 重置所有材料价格
+    resetAllPrices: function() {
+        if (confirm('确定要重置所有材料价格吗？')) {
+            Object.values(this.MATERIAL_DEFINITIONS).forEach(def => {
+                const element = document.getElementById(def.elementId);
+                if (element) {
+                    element.value = '';
+                }
+            });
+            
+            this.currentPrices = {};
+            localStorage.removeItem(this.STORAGE_KEY);
+            localStorage.removeItem(this.MEMORY_STORAGE_KEY);
+            
+            showNotification('所有材料价格已重置', 'success');
+            console.log('[MaterialPriceManager] 所有材料价格已重置');
+        }
+    },
+    
+    // 导出价格配置
+    exportPrices: function() {
+        const prices = this.getAllPrices();
+        const dataStr = 'data:text/json;charset=utf-8,' + 
+            encodeURIComponent(JSON.stringify(prices, null, 2));
+        
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.href = dataStr;
+        downloadAnchor.download = '火炬材料价格配置_' + 
+            new Date().toISOString().slice(0, 10) + '.json';
+        
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        document.body.removeChild(downloadAnchor);
+        
+        showNotification('价格配置已导出', 'success');
+    },
+    
+    // 导入价格配置
+    importPrices: function(file) {
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+            try {
+                const prices = JSON.parse(e.target.result);
+                
+                let importedCount = 0;
+                Object.keys(prices).forEach(key => {
+                    const def = this.MATERIAL_DEFINITIONS[key];
+                    if (def) {
+                        const element = document.getElementById(def.elementId);
+                        if (element) {
+                            const validation = this.validatePrice(prices[key], def.name);
+                            if (validation.isValid) {
+                                element.value = validation.value;
+                                this.currentPrices[key] = validation.value;
+                                importedCount++;
+                            }
+                        }
+                    }
+                });
+                
+                this.saveAllPrices();
+                showNotification(`成功导入 ${importedCount} 个材料价格`, 'success');
+                
+            } catch (error) {
+                console.error('[MaterialPriceManager] 导入失败:', error);
+                showNotification('导入失败：文件格式错误', 'error');
+            }
+        };
+        
+        reader.readAsText(file);
+    }
+};
+
+
+// ==========================================
+// 高塔系统手动诊断和初始化函数
+// 在浏览器控制台输入 debugTower() 运行
+// ==========================================
+window.debugTower = function() {
+    console.log('========== 高塔系统调试 ==========');
+    console.log('1. 检查 initializeTowerSystem 函数:', typeof initializeTowerSystem);
+    console.log('2. 手动调用 initializeTowerSystem...');
+    
+    try {
+        initializeTowerSystem();
+        console.log('3. initializeTowerSystem 调用成功！');
+    } catch (e) {
+        console.error('3. initializeTowerSystem 调用失败:', e);
+    }
+    
+    console.log('4. 手动调用 updateTowerMaterialsDisplay...');
+    try {
+        updateTowerMaterialsDisplay();
+        console.log('5. updateTowerMaterialsDisplay 调用成功！');
+    } catch (e) {
+        console.error('5. updateTowerMaterialsDisplay 调用失败:', e);
+    }
+    
+    console.log('========== 调试结束 ==========');
+};
+
 // DOM加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
@@ -21,6 +887,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 初始化应用
 function initializeApp() {
+    console.log('[初始化] ========== 开始初始化应用 ==========');
+    
     // 首先初始化UI相关功能（确保DOM已加载）
     setupThemeToggle();
     setupSidebarToggle();
@@ -29,64 +897,71 @@ function initializeApp() {
     setupAnimations();
     fixImagePaths();
     
-    // 先加载JSON数据，再初始化各系统
+    // 无论JSON加载如何，都先初始化关键系统（包括高塔系统！）
+    console.log('[初始化] 立即初始化高塔系统（不等待JSON）...');
+    try {
+        initializeTowerSystem();
+        console.log('[初始化] 高塔系统已立即初始化！');
+    } catch(e) {
+        console.error('[初始化] 高塔系统立即初始化失败:', e);
+    }
+    
+    // 同时尝试加载JSON数据（不阻塞）
+    console.log('[初始化] 开始加载JSON数据...');
     loadAllJSONData().then(() => {
-        console.log('所有JSON数据加载完成');
-        console.log('传奇装备数据检查:', gameData.legendaryEquipment ? '已加载' : '未加载');
+        console.log('[初始化] 所有JSON数据加载完成');
+        console.log('[初始化] 传奇装备数据检查:', gameData.legendaryEquipment ? '已加载' : '未加载');
         
-        // 确保数据加载完成后再初始化各个系统
+        // 初始化其他系统
         setTimeout(async () => {
-            // 初始化各个系统（按依赖顺序）
+            console.log('[初始化] 开始初始化其他系统...');
+            MaterialPriceManager.init();
             await initializeDreamSystem();
             initializeSkillSystem();
             initializeSealSystem();
-            initializeTowerSystem();
             initializeHarvestTierSystem();
             initializeErosionSimulation();
             await initializeMemoryCrafting();
             setupCraftingEventListeners();
-            setupMaterialPriceListeners();
+            console.log('[初始化] 所有其他系统初始化完成');
             
-            // 延迟加载保存的数据
             setTimeout(() => {
                 DataPersistence.loadAllData();
-                loadMaterialPrices();
                 loadTowerComponentPrices();
             }, 100);
-        }, 50); // 给JSON数据加载一点额外时间
+        }, 50);
     }).catch(error => {
-        console.error('加载数据文件失败:', error);
-        showNotification('数据文件加载失败，部分功能可能无法正常使用', 'error');
-        
-        // 即使JSON加载失败，也要初始化基本系统
+        console.error('[初始化] 加载JSON数据失败，但高塔系统已工作:', error);
         setTimeout(async () => {
+            console.log('[初始化] 初始化其他系统（无JSON）...');
+            MaterialPriceManager.init();
             await initializeDreamSystem();
             initializeSkillSystem();
             initializeSealSystem();
-            initializeTowerSystem();
             initializeHarvestTierSystem();
             initializeErosionSimulation();
+            await initializeMemoryCrafting();
             setupCraftingEventListeners();
         }, 100);
     });
     
-    // 设置自动保存
     setupAutoSave();
+    console.log('[初始化] ========== 应用初始化完成 ==========');
 }
 
 // 加载所有JSON数据文件
 async function loadAllJSONData() {
     const loadPromises = [
-        loadJSONFile('hunzhu.json', 'hunzhu'),
-        loadJSONFile('传奇装备.json', 'legendaryEquipment'),
-        loadJSONFile('异化.json', 'erosion'),
-        loadJSONFile('高塔序列.json', 'towerSequence'),
-        loadSupportSkillsData(), // 加载辅助技能数据
-        loadJSONFile('quanzhong.JSON', 'weights')
+        loadJSONFile('hunzhu.json', 'hunzhu').catch(e => console.warn('hunzhu.json加载失败，继续:', e)),
+        loadJSONFile('传奇装备.json', 'legendaryEquipment').catch(e => console.warn('传奇装备.json加载失败，继续:', e)),
+        loadJSONFile('异化.json', 'erosion').catch(e => console.warn('异化.json加载失败，继续:', e)),
+        loadJSONFile('高塔序列.json', 'towerSequence').catch(e => console.warn('高塔序列.json加载失败，继续:', e)),
+        loadSupportSkillsData().catch(e => console.warn('辅助.txt加载失败，继续:', e)),
+        loadJSONFile('quanzhong.JSON', 'weights').catch(e => console.warn('quanzhong.JSON加载失败，继续:', e))
     ];
     
-    await Promise.all(loadPromises);
-    console.log('所有JSON数据文件加载完成');
+    await Promise.allSettled(loadPromises);
+    console.log('[初始化] 所有JSON数据文件加载尝试完成（部分可能失败）');
 }
 
 // 加载单个JSON文件
@@ -599,6 +1474,12 @@ function getSupportSkillCompensation(skillName, level) {
 }
 
 function initializeSkillSystem() {
+    // 🔧 防止重复初始化
+    if (window.skillSystemInitialized) {
+        console.log('技能系统已初始化，跳过重复初始化');
+        return;
+    }
+    
     const currentLevelSelect = document.getElementById('current-level');
     const targetLevelSelect = document.getElementById('target-level');
     
@@ -622,56 +1503,89 @@ function initializeSkillSystem() {
                     targetLevelSelect.appendChild(option);
                 }
             }
+            // 触发计算更新
+            calculateSkillUpgrade();
         });
         
         // 初始化目标等级选项
         currentLevelSelect.dispatchEvent(new Event('change'));
     }
     
-    // 添加数量输入框的滚轮事件
-    ['t0-quantity', 't1-quantity', 't2-quantity'].forEach(id => {
-        const input = document.getElementById(id);
-        if (input) {
-            input.addEventListener('wheel', function(e) {
-                e.preventDefault();
-                const currentValue = parseInt(this.value) || 0;
-                const delta = e.deltaY > 0 ? -1 : 1;
-                const newValue = Math.max(0, currentValue + delta);
-                this.value = newValue;
-                
-                // 触发计算更新
-                calculateSkillUpgrade();
-            });
-        }
-    });
+    // 🔧 为所有数量输入框添加事件监听器
+    const allInputIds = [
+        'current-level', 'target-level',
+        't0-quantity', 't1-quantity', 't2-quantity'
+    ];
     
-    // 添加输入变化事件监听
-    ['current-level', 'target-level', 'inspiration-price', 't0-quantity', 't0-price', 't1-quantity', 't1-price', 't2-quantity', 't2-price'].forEach(id => {
+    console.log('技能系统 - 正在设置事件监听器:', allInputIds);
+    
+    allInputIds.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
-            element.addEventListener('change', calculateSkillUpgrade);
-            element.addEventListener('input', calculateSkillUpgrade);
+            console.log(`  ✓ 找到元素: ${id}`);
+            
+            // 添加change事件
+            element.addEventListener('change', function() {
+                console.log(`技能系统 - ${id} change事件触发`);
+                calculateSkillUpgrade();
+            });
+            
+            // 添加input事件
+            element.addEventListener('input', function() {
+                console.log(`技能系统 - ${id} input事件触发`);
+                calculateSkillUpgrade();
+            });
+            
+            // 🔧 如果是数量输入框，添加滚轮事件
+            if (id.includes('quantity')) {
+                element.addEventListener('wheel', function(e) {
+                    e.preventDefault();
+                    const currentValue = parseInt(this.value) || 0;
+                    const delta = e.deltaY > 0 ? -1 : 1;
+                    const newValue = Math.max(0, currentValue + delta);
+                    this.value = newValue;
+                    
+                    console.log(`技能系统 - ${id} 滚轮事件触发, 新值: ${newValue}`);
+                    calculateSkillUpgrade();
+                });
+            }
         } else {
-            console.log(`技能系统元素未找到: ${id}`);
+            console.log(`  ✗ 未找到元素: ${id}`);
         }
     });
     
+    // 🔧 标记为已初始化
+    window.skillSystemInitialized = true;
     console.log('技能系统初始化完成');
 }
 
 function calculateSkillUpgrade() {
+    console.log('========== 技能系统计算开始 ==========');
+    
     const currentLevel = parseInt(document.getElementById('current-level')?.value) || 1;
     const targetLevel = parseInt(document.getElementById('target-level')?.value) || 1;
-    const inspirationPrice = parseFloat(document.getElementById('inspiration-price')?.value) || 0;
+    
+    // 🔧 使用统一的材料价格管理器获取价格
+    const inspirationPrice = MaterialPriceManager.getPrice('inspirationPrice');
+    const t0Price = MaterialPriceManager.getPrice('t0Price');
+    const t1Price = MaterialPriceManager.getPrice('t1Price');
+    const t2Price = MaterialPriceManager.getPrice('t2Price');
     
     const t0Quantity = parseInt(document.getElementById('t0-quantity')?.value) || 0;
-    const t0Price = parseFloat(document.getElementById('t0-price')?.value) || 0;
     const t1Quantity = parseInt(document.getElementById('t1-quantity')?.value) || 0;
-    const t1Price = parseFloat(document.getElementById('t1-price')?.value) || 0;
     const t2Quantity = parseInt(document.getElementById('t2-quantity')?.value) || 0;
-    const t2Price = parseFloat(document.getElementById('t2-price')?.value) || 0;
+    
+    console.log('输入参数:', {
+        currentLevel,
+        targetLevel,
+        inspirationPrice,
+        t0Quantity, t0Price,
+        t1Quantity, t1Price,
+        t2Quantity, t2Price
+    });
     
     if (!targetLevel || targetLevel <= currentLevel) {
+        console.log('目标等级无效或小于等于当前等级，重置显示');
         // 重置显示
         const totalExpElement = document.getElementById('total-exp-needed');
         const currentExpElement = document.getElementById('current-exp-provided');
@@ -689,24 +1603,32 @@ function calculateSkillUpgrade() {
     let totalExpNeeded = 0;
     let totalInspirationNeeded = 0;
     
+    console.log('开始计算等级需求:');
     for (let level = currentLevel; level < targetLevel; level++) {
         const key = `${level}-${level + 1}`;
+        console.log(`  检查 ${key}...`);
         if (skillUpgradeData.requirements[key]) {
+            console.log(`    ✓ 找到配置: exp=${skillUpgradeData.requirements[key].exp}, inspiration=${skillUpgradeData.requirements[key].inspiration}`);
             totalExpNeeded += skillUpgradeData.requirements[key].exp;
             totalInspirationNeeded += skillUpgradeData.requirements[key].inspiration;
+        } else {
+            console.log(`    ✗ 未找到配置！`);
         }
     }
+    console.log('需求计算结果:', { totalExpNeeded, totalInspirationNeeded });
     
     // 计算当前材料提供的经验
     const currentExpProvided = 
         t0Quantity * skillUpgradeData.materialExp.t0 +
         t1Quantity * skillUpgradeData.materialExp.t1 +
         t2Quantity * skillUpgradeData.materialExp.t2;
+    console.log('材料提供经验:', currentExpProvided);
     
     // 计算总成本
     const materialCost = t0Quantity * t0Price + t1Quantity * t1Price + t2Quantity * t2Price;
     const inspirationCost = totalInspirationNeeded * inspirationPrice;
     const totalCost = materialCost + inspirationCost;
+    console.log('成本计算:', { materialCost, inspirationCost, totalCost });
     
     // 更新显示
     const totalExpElement = document.getElementById('total-exp-needed');
@@ -718,6 +1640,8 @@ function calculateSkillUpgrade() {
     if (currentExpElement) currentExpElement.textContent = currentExpProvided;
     if (inspirationElement) inspirationElement.textContent = totalInspirationNeeded;
     if (totalCostElement) totalCostElement.textContent = totalCost.toFixed(2) + ' 初火源质';
+    
+    console.log('========== 技能系统计算完成 ==========');
     
     // 如果经验不足，显示警告颜色
     if (currentExpElement) {
@@ -748,6 +1672,30 @@ function setupTabNavigation() {
             if (targetTab) {
                 targetTab.classList.add('active');
                 currentTab = tabId;
+            }
+            
+            // 🔧 如果切换到技能系统，重新初始化
+            if (tabId === 'skill') {
+                console.log('切换到技能系统标签页，正在初始化...');
+                setTimeout(() => {
+                    initializeSkillSystem();
+                }, 100);
+            }
+            
+            // 🔧 如果切换到封印系统，重新初始化
+            if (tabId === 'seal') {
+                console.log('切换到封印系统标签页，正在初始化...');
+                setTimeout(() => {
+                    initializeSealSystem();
+                }, 100);
+            }
+            
+            // 🔧 如果切换到侵蚀模拟，重新初始化
+            if (tabId === 'erosion-simulation') {
+                console.log('切换到侵蚀模拟标签页，正在初始化...');
+                setTimeout(() => {
+                    initializeErosionSimulation();
+                }, 100);
             }
             
             // 添加切换动画
@@ -869,15 +1817,8 @@ function calculateCraftingCost() {
             }
         }
         
-        // 获取材料价格
-        const materials = {
-            lingsha: parseFloat(document.getElementById('lingsha-price')?.value) || 0,
-            chuhuo: 1, // 初火源质恒定为1，不需要输入框
-            zhengui: parseFloat(document.getElementById('zhengui-price')?.value) || 0,
-            xishi: parseFloat(document.getElementById('xishi-price')?.value) || 0,
-            zhizhen: parseFloat(document.getElementById('zhizhen-price')?.value) || 0,
-            shensheng: parseFloat(document.getElementById('shensheng-price')?.value) || 0
-        };
+        // 获取材料价格 - 使用统一的材料价格管理器
+        const materials = MaterialPriceManager.getAllPrices();
         
         // 打造数据配置
         const craftingData = {
@@ -893,12 +1834,12 @@ function calculateCraftingCost() {
             },
             86: {
                 single: {
-                    basic: { materials: { chuhuo: 1, zhengui: 10 }, successRate: 0.0333 },
-                    advanced: { materials: { chuhuo: 3, xishi: 10 }, successRate: 0.0333 }
+                    basic: { materials: { chuhuo: 1, zhengui: 5 }, successRate: 0.0333 },
+                    advanced: { materials: { chuhuo: 3, xishi: 5 }, successRate: 0.0333 }
                 },
                 double: {
-                    basic: { materials: { chuhuo: 2, zhengui: 20 }, successRate: 0.0333 },
-                    advanced: { materials: { chuhuo: 6, xishi: 20 }, successRate: 0.0333 }
+                    basic: { materials: { chuhuo: 2, zhengui: 10 }, successRate: 0.0333 },
+                    advanced: { materials: { chuhuo: 6, xishi: 10 }, successRate: 0.0333 }
                 }
             },
             100: {
@@ -945,17 +1886,68 @@ function calculateCraftingCost() {
         // 辅助函数：计算某配置的期望成本
         const computeExpectedCost = (config) => {
             if (!config) return 0;
+            
+            // 防御性检查：成功率必须大于0
+            if (!config.successRate || config.successRate <= 0) {
+                console.warn('警告：成功率为0或未定义', config);
+                return 0;
+            }
+            
             let singleCost = 0;
             Object.keys(config.materials).forEach(materialKey => {
                 const materialCount = config.materials[materialKey];
-                const materialPrice = materials[materialKey];
+                const materialPrice = materials[materialKey] || 0;
                 singleCost += materialCount * materialPrice;
             });
-            return singleCost / config.successRate;
+            
+            // 检查单次成本是否有效
+            if (isNaN(singleCost) || singleCost < 0) {
+                console.warn('警告：材料成本计算异常', singleCost);
+                return 0;
+            }
+            
+            const expectedCost = singleCost / config.successRate;
+            
+            // 检查最终结果是否为有限数值
+            if (!isFinite(expectedCost)) {
+                console.warn('警告：期望成本计算结果为无穷大', { singleCost, successRate: config.successRate });
+                return 0;
+            }
+            
+            return expectedCost;
         };
 
+        // 定义各等级支持的词缀类型（用于验证）
+        const supportedAffixTypesByLevel = {
+            82: ['basic', 'advanced'],
+            86: ['basic', 'advanced'],
+            100: ['basic', 'advanced', 'perfect', 'basicUpgrade', 'advancedUpgrade', 'perfectUpgrade']
+        };
+        
+        const supportedTypes = supportedAffixTypesByLevel[equipmentLevel] || [];
+        let hasUnsupportedType = false;
+        
         affixTypes.forEach(affix => {
             if (affix.count > 0) {
+                // 检查词缀类型是否被当前等级支持
+                const isT0Type = affix.type.endsWith('T0');
+                const baseTypeForCheck = isT0Type ? affix.type.replace('T0', '') : affix.type;
+                const upgradeTypeForCheck = isT0Type ? `${baseTypeForCheck}Upgrade` : null;
+                
+                // 对于T0类型，需要检查基础类型和升级类型是否都支持
+                if (isT0Type) {
+                    if (!supportedTypes.includes(baseTypeForCheck) || 
+                        (upgradeTypeForCheck && !supportedTypes.includes(upgradeTypeForCheck))) {
+                        hasUnsupportedType = true;
+                        console.warn(`警告：${equipmentLevel}级装备不支持"${affix.type}"词缀类型`);
+                    }
+                } else {
+                    if (!supportedTypes.includes(affix.type)) {
+                        hasUnsupportedType = true;
+                        console.warn(`警告：${equipmentLevel}级装备不支持"${affix.type}"词缀类型`);
+                    }
+                }
+                
                 let expectedCostForType = 0;
 
                 // T0 成本 = 基础成本 + 对应升级成本
@@ -963,9 +1955,24 @@ function calculateCraftingCost() {
                     const baseType = affix.type.replace('T0', '');
                     const baseConfig = levelData[baseType];
                     const upgradeConfig = levelData[`${baseType}Upgrade`];
+                    
+                    // 如果配置不存在，记录警告
+                    if (!baseConfig && affix.count > 0) {
+                        console.warn(`警告：未找到${baseType}词缀的配置（${equipmentLevel}级）`);
+                    }
+                    if (!upgradeConfig && affix.count > 0) {
+                        console.warn(`警告：未找到${baseType}升级配置（${equipmentLevel}级，仅100级支持）`);
+                    }
+                    
                     expectedCostForType = computeExpectedCost(baseConfig) + computeExpectedCost(upgradeConfig);
                 } else {
                     const config = levelData[affix.type];
+                    
+                    // 如果配置不存在，记录警告
+                    if (!config && affix.count > 0) {
+                        console.warn(`警告：未找到${affix.type}词缀的配置（${equipmentLevel}级）`);
+                    }
+                    
                     expectedCostForType = computeExpectedCost(config);
                 }
 
@@ -1024,10 +2031,15 @@ function calculateCraftingCost() {
         }
         
         // 显示成功提示
+        if (hasUnsupportedType) {
+            if (equipmentLevel === 82 || equipmentLevel === 86) {
+                showNotification(`注意：${equipmentLevel}级装备仅支持基础词缀和进阶词缀，至臻/升级类词缀仅100级可用`, 'warning');
+            }
+        }
         showNotification('计算完成！', 'success');
         
-        // 保存材料价格到本地存储
-        saveMaterialPrices(materials);
+        // 保存材料价格到本地存储 - 使用统一管理器
+        MaterialPriceManager.saveAllPrices();
         
     } catch (error) {
         console.error('计算错误:', error);
@@ -1182,101 +2194,69 @@ function computeSequenceCost() {
     }
 }
 
-// 保存材料价格
-function saveMaterialPrices(materials) {
-    // 不保存初火源质价格，因为它是固定的
-    const pricesForSave = {
-        lingsha: materials.lingsha,
-        zhengui: materials.zhengui,
-        xishi: materials.xishi,
-        zhizhen: materials.zhizhen,
-        shensheng: materials.shensheng,
-        dreamWeapon: materials.dreamWeapon,
-        dreamAccessory: materials.dreamAccessory
-    };
-    localStorage.setItem('torchlight-material-prices', JSON.stringify(pricesForSave));
-}
+// ==========================================
+// 旧函数向后兼容包装（已弃用，使用MaterialPriceManager代替）
+// ==========================================
 
-// 加载材料价格
-function loadMaterialPrices() {
-    const saved = localStorage.getItem('torchlight-material-prices');
-    if (saved) {
-        try {
-            const materials = JSON.parse(saved);
-            const lingshaInput = document.getElementById('lingsha-price');
-            const zhenguiInput = document.getElementById('zhengui-price');
-            const xishiInput = document.getElementById('xishi-price');
-            const zhizhenInput = document.getElementById('zhizhen-price');
-            const shenshengInput = document.getElementById('shensheng-price');
-            
-            // 装备打造系统材料价格
-            if (lingshaInput) lingshaInput.value = materials.lingsha || '';
-            if (zhenguiInput) zhenguiInput.value = materials.zhengui || '';
-            if (xishiInput) xishiInput.value = materials.xishi || '';
-            if (zhizhenInput) zhizhenInput.value = materials.zhizhen || '';
-            if (shenshengInput) shenshengInput.value = materials.shensheng || '';
-            
-            // 解梦系统材料价格
-            const dreamWeaponInput = document.getElementById('dream-weapon-price');
-            const dreamAccessoryInput = document.getElementById('dream-accessory-price');
-            if (dreamWeaponInput && materials.dreamWeapon) dreamWeaponInput.value = materials.dreamWeapon;
-            if (dreamAccessoryInput && materials.dreamAccessory) dreamAccessoryInput.value = materials.dreamAccessory;
-            
-        } catch (e) {
-            console.error('加载材料价格失败:', e);
-        }
+/**
+ * 保存材料价格 - 旧函数包装
+ * @deprecated 请使用 MaterialPriceManager.saveAllPrices()
+ */
+function saveMaterialPrices(materials) {
+    console.warn('[DEPRECATED] saveMaterialPrices() 已弃用，请使用 MaterialPriceManager.saveAllPrices()');
+    
+    // 尝试使用新管理器
+    if (typeof MaterialPriceManager !== 'undefined') {
+        MaterialPriceManager.saveAllPrices();
+    } else {
+        // 回退到旧逻辑
+        const pricesForSave = {
+            lingsha: materials.lingsha,
+            zhengui: materials.zhengui,
+            xishi: materials.xishi,
+            zhizhen: materials.zhizhen,
+            shensheng: materials.shensheng,
+            dreamWeapon: materials.dreamWeapon,
+            dreamAccessory: materials.dreamAccessory
+        };
+        localStorage.setItem('torchlight-material-prices', JSON.stringify(pricesForSave));
     }
 }
 
-// 设置材料价格输入框的事件监听器
-function setupMaterialPriceListeners() {
-    console.log('设置材料价格输入框事件监听器');
+/**
+ * 加载材料价格 - 旧函数包装
+ * @deprecated 请使用 MaterialPriceManager.loadAllPrices()
+ */
+function loadMaterialPrices() {
+    console.warn('[DEPRECATED] loadMaterialPrices() 已弃用，请使用 MaterialPriceManager.loadAllPrices()');
     
-    const materialPriceInputs = [
-        'lingsha-price',
-        'zhengui-price', 
-        'xishi-price',
-        'zhizhen-price',
-        'shensheng-price',
-        'dream-weapon-price',
-        'dream-accessory-price'
-    ];
-    
-    materialPriceInputs.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            // 添加输入变化事件监听器
-            element.addEventListener('input', saveMaterialPricesFromInputs);
-            element.addEventListener('change', saveMaterialPricesFromInputs);
-            console.log(`为 ${id} 添加了事件监听器`);
-        } else {
-            console.warn(`未找到元素: ${id}`);
-        }
-    });
+    if (typeof MaterialPriceManager !== 'undefined') {
+        MaterialPriceManager.loadAllPrices();
+    }
 }
 
-// 从输入框保存材料价格
+/**
+ * 设置材料价格监听器 - 旧函数包装
+ * @deprecated 请使用 MaterialPriceManager.setupAllListeners()
+ */
+function setupMaterialPriceListeners() {
+    console.warn('[DEPRECATED] setupMaterialPriceListeners() 已弃用，请使用 MaterialPriceManager.setupAllListeners()');
+    
+    if (typeof MaterialPriceManager !== 'undefined') {
+        MaterialPriceManager.setupAllListeners();
+    }
+}
+
+/**
+ * 从输入框保存材料价格 - 旧函数包装
+ * @deprecated 请使用 MaterialPriceManager.saveAllPrices()
+ */
 function saveMaterialPricesFromInputs() {
-    const materials = {
-        lingsha: parseFloat(document.getElementById('lingsha-price')?.value) || 0,
-        zhengui: parseFloat(document.getElementById('zhengui-price')?.value) || 0,
-        xishi: parseFloat(document.getElementById('xishi-price')?.value) || 0,
-        zhizhen: parseFloat(document.getElementById('zhizhen-price')?.value) || 0,
-        shensheng: parseFloat(document.getElementById('shensheng-price')?.value) || 0,
-        dreamWeapon: parseFloat(document.getElementById('dream-weapon-price')?.value) || 0,
-        dreamAccessory: parseFloat(document.getElementById('dream-accessory-price')?.value) || 0
-    };
+    console.warn('[DEPRECATED] saveMaterialPricesFromInputs() 已弃用，请使用 MaterialPriceManager.saveAllPrices()');
     
-    // 只保存非零价格
-    const pricesForSave = {};
-    Object.keys(materials).forEach(key => {
-        if (materials[key] > 0) {
-            pricesForSave[key] = materials[key];
-        }
-    });
-    
-    localStorage.setItem('torchlight-material-prices', JSON.stringify(pricesForSave));
-    console.log('材料价格已自动保存:', pricesForSave);
+    if (typeof MaterialPriceManager !== 'undefined') {
+        MaterialPriceManager.saveAllPrices();
+    }
 }
 
 // 修复图片路径
@@ -1389,9 +2369,9 @@ function calculateMultiplyDamage() {
         const totalIncreasePercent = totalIncrease * 100;
         
         // 显示结果
-        const resultElement = document.getElementById('multiply-damage-result');
+        const resultElement = document.getElementById('multiply-result');
         if (resultElement) {
-            resultElement.innerHTML = `叠乘增伤：${totalIncreasePercent.toFixed(2)}%`;
+            resultElement.innerHTML = `总增伤：${totalIncreasePercent.toFixed(2)}%`;
             
             // 添加结果动画
             resultElement.style.transform = 'scale(1.1)';
@@ -1906,34 +2886,642 @@ const weaponAffixes = {
 };
 
 // 初始化梦境系统
-async function initializeDreamSystem() {
-    console.log('初始化解梦系统...');
+// S12赛季权重数据（硬编码，不依赖外部JSON）
+const s12WeightsData = [
+    // 饰品
+    {
+        "装备类型": "戒指",
+        "部位": "饰品",
+        "词缀列表": [
+            {"词缀": "+(54–74) 最大生命", "权重": 61},
+            {"词缀": "+(87–117) 最大护盾", "权重": 61},
+            {"词缀": "+(5–10)% 火焰抗性", "权重": 61},
+            {"词缀": "+(5–10)% 冰冷抗性", "权重": 61},
+            {"词缀": "+(5–10)% 闪电抗性", "权重": 61},
+            {"词缀": "+(5–10)% 腐蚀抗性", "权重": 61},
+            {"词缀": "+(15–20) 力量", "权重": 61},
+            {"词缀": "+(15–20) 敏捷", "权重": 61},
+            {"词缀": "+(15–20) 智慧", "权重": 61},
+            {"词缀": "+(6–8)% 攻击和施法速度", "权重": 61},
+            {"词缀": "+(11–15)% 移动速度", "权重": 13},
+            {"词缀": "使用轰炸技能时， +(50–66)% 几率 +1 轰炸技能总波次", "权重": 13},
+            {"词缀": "+(15–20)% 战意效果", "权重": 13},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3},
+            {"词缀": "造成伤害时，触发 20 级盲目诅咒，冷却时间为 0.2 秒", "权重": 3},
+            {"词缀": "造成伤害时，触发 20 级胆怯诅咒，冷却时间为 0.2 秒", "权重": 3},
+            {"词缀": "造成伤害时，触发 20 级苦痛纠缠诅咒，冷却时间为 0.2 秒", "权重": 3},
+            {"词缀": "附加 (18–20)% 物理伤害的火焰伤害", "权重": 13},
+            {"词缀": "附加 (18–20)% 物理伤害的冰冷伤害", "权重": 13},
+            {"词缀": "附加 (18–20)% 物理伤害的闪电伤害", "权重": 13},
+            {"词缀": "附加 (18–20)% 物理伤害的腐蚀伤害", "权重": 13}
+        ]
+    },
+    {
+        "装备类型": "项链",
+        "部位": "饰品",
+        "词缀列表": [
+            {"词缀": "+(54–74) 最大生命", "权重": 46},
+            {"词缀": "+(87–117) 最大护盾", "权重": 46},
+            {"词缀": "+(5–10)% 火焰抗性", "权重": 46},
+            {"词缀": "+(5–10)% 冰冷抗性", "权重": 46},
+            {"词缀": "+(5–10)% 闪电抗性", "权重": 46},
+            {"词缀": "+(5–10)% 腐蚀抗性", "权重": 46},
+            {"词缀": "+(3–4)% 元素抗性", "权重": 46},
+            {"词缀": "+(15–20) 力量", "权重": 46},
+            {"词缀": "+(15–20) 敏捷", "权重": 46},
+            {"词缀": "+(15–20) 智慧", "权重": 46},
+            {"词缀": "+(20–24)% 伤害 (20–24)% 召唤物伤害", "权重": 46},
+            {"词缀": "+(11–15)% 移动速度", "权重": 15},
+            {"词缀": "每拥有 1 层任意祝福， +(2–3)% 伤害", "权重": 15},
+            {"词缀": "每 27 点属性， +1% 伤害", "权重": 15},
+            {"词缀": "附加 10 异常基础伤害", "权重": 15},
+            {"词缀": "+(6–8)% 魔力封印补偿", "权重": 15},
+            {"词缀": "造成伤害时，触发 20 级易伤诅咒，冷却时间为 0.2 秒", "权重": 3},
+            {"词缀": "造成伤害时，触发 20 级炽热诅咒，冷却时间为 0.2 秒", "权重": 3},
+            {"词缀": "造成伤害时，触发 20 级蚀骨之寒诅咒，冷却时间为 0.2 秒", "权重": 3},
+            {"词缀": "造成伤害时，触发 20 级感电诅咒，冷却时间为 0.2 秒", "权重": 3},
+            {"词缀": "造成伤害时，触发 20 级邪恶侵蚀诅咒，冷却时间为 0.2 秒", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "腰带",
+        "部位": "饰品",
+        "词缀列表": [
+            {"词缀": "+(54–74) 最大生命", "权重": 4},
+            {"词缀": "+(40–60) 最大魔力", "权重": 4},
+            {"词缀": "+(87–117) 最大护盾", "权重": 4},
+            {"词缀": "+(5–10)% 火焰抗性", "权重": 4},
+            {"词缀": "+(5–10)% 冰冷抗性", "权重": 4},
+            {"词缀": "+(5–10)% 闪电抗性", "权重": 4},
+            {"词缀": "+(5–10)% 腐蚀抗性", "权重": 4},
+            {"词缀": "+(15–20) 力量", "权重": 4},
+            {"词缀": "+(15–20) 敏捷", "权重": 4},
+            {"词缀": "+(15–20) 智慧", "权重": 4},
+            {"词缀": "+(11–15)% 移动速度", "权重": 3},
+            {"词缀": "使用轰炸技能时， +(50–66)% 几率 +1 轰炸技能总波次", "权重": 3},
+            {"词缀": "+(8–10)% 冷却回复速度", "权重": 3},
+            {"词缀": "+(8–10)% 技能效果持续时间", "权重": 3},
+            {"词缀": "+(6–8)% 魔力封印补偿", "权重": 3},
+            {"词缀": "+(7–8)% 光环效果", "权重": 3}
+        ]
+    },
+    // 武器
+    {
+        "装备类型": "火炮",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–13) - (14–19) 点物理伤害", "权重": 50},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 50},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 50},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 50},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 50},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 50},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 50},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 50},
+            {"词缀": "+(20–24)% 远程伤害", "权重": 50},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 50},
+            {"词缀": "+1 投射物数量", "权重": 12},
+            {"词缀": "+1 抛射投射物分裂数量", "权重": 12},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 12},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 12},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3},
+            {"词缀": "+(24–32)% 该装备物理伤害", "权重": 12},
+            {"词缀": "该装备附加 (32–34) - (40–42) 点物理伤害", "权重": 12},
+            {"词缀": "暴击幸运 +(60–75) 暴击值", "权重": 3},
+            {"词缀": "攻击或法术击败敌人时（20-25）%几率爆炸，对半径5米内的敌人造成被击败的敌人最大生命（15-25）%的间接物理伤害", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "弓",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–13) - (14–19) 点物理伤害", "权重": 50},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 50},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 50},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 50},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 50},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 50},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 50},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 50},
+            {"词缀": "+(20–24)% 远程伤害", "权重": 50},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 50},
+            {"词缀": "+1 投射物数量", "权重": 12},
+            {"词缀": "+1 直射投射物穿透次数", "权重": 12},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 12},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 12},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3},
+            {"词缀": "+(24–32)% 该装备物理伤害", "权重": 12},
+            {"词缀": "该装备附加 (32–34) - (40–42) 点物理伤害", "权重": 12},
+            {"词缀": "暴击幸运 +(60–75) 暴击值", "权重": 3},
+            {"词缀": "攻击或法术击败敌人时（20-25）%几率爆炸，对半径5米内的敌人造成被击败的敌人最大生命（15-25）%的间接物理伤害", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "火枪",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–13) - (14–19) 点物理伤害", "权重": 42},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 42},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 42},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 42},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 42},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 42},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 42},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 42},
+            {"词缀": "+(20–24)% 远程伤害", "权重": 42},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 42},
+            {"词缀": "+1 投射物数量", "权重": 10},
+            {"词缀": "+1 直射投射物穿透次数", "权重": 10},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 10},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 10},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3},
+            {"词缀": "+(24–32)% 该装备物理伤害", "权重": 10},
+            {"词缀": "该装备附加 (32–34) - (40–42) 点物理伤害", "权重": 10},
+            {"词缀": "暴击幸运 +(60–75) 暴击值", "权重": 3},
+            {"词缀": "攻击或法术击败敌人时（20-25）%几率爆炸，对半径5米内的敌人造成被击败的敌人最大生命（15-25）%的间接物理伤害", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "弩",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–15) - (14–19) 点物理伤害", "权重": 42},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 42},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 42},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 42},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 42},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 42},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 42},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 42},
+            {"词缀": "+(20–24)% 远程伤害", "权重": 42},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 42},
+            {"词缀": "+1 投射物数量", "权重": 10},
+            {"词缀": "+1 直射投射物穿透次数", "权重": 10},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 10},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 10},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3},
+            {"词缀": "+(24–32)% 该装备物理伤害", "权重": 10},
+            {"词缀": "该装备附加 (32–34) - (40–42) 点物理伤害", "权重": 10},
+            {"词缀": "暴击幸运 +(60–75) 暴击值", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "武杖",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–15) - (14–19) 点物理伤害", "权重": 42},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 42},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 42},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 42},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 42},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 42},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 42},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 42},
+            {"词缀": "+(20–24)% 近战伤害", "权重": 42},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 42},
+            {"词缀": "额外 +(6–8)% 攻击伤害", "权重": 10},
+            {"词缀": "引导时， 额外 +(6–8)% 伤害", "权重": 10},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 10},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 10},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3},
+            {"词缀": "+(24–32)% 该装备物理伤害", "权重": 10},
+            {"词缀": "该装备附加 (32–34) - (40–42) 点物理伤害", "权重": 10},
+            {"词缀": "暴击幸运 +(60–75) 暴击值", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "锡杖",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "法术附加 (10–15) - (14–19) 点物理伤害", "权重": 50},
+            {"词缀": "法术附加 (9–14) - (15–20) 点火焰伤害", "权重": 50},
+            {"词缀": "法术附加 (10–15) - (14–19) 点冰冷伤害", "权重": 50},
+            {"词缀": "法术附加 (1–2) - (28–32) 点闪电伤害", "权重": 50},
+            {"词缀": "法术附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 50},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 50},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 50},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 50},
+            {"词缀": "+(20–24)% 法术伤害", "权重": 50},
+            {"词缀": "+(6–8)% 施法速度", "权重": 50},
+            {"词缀": "额外 +(6–8)% 法术伤害", "权重": 12},
+            {"词缀": "引导时， 额外 +(6–8)% 伤害", "权重": 12},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 12},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 12},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3},
+            {"词缀": "+(24–32)% 该装备物理伤害", "权重": 12},
+            {"词缀": "该装备附加 (32–34) - (40–42) 点物理伤害", "权重": 12},
+            {"词缀": "暴击幸运 +(60–75) 暴击值", "权重": 3},
+            {"词缀": "攻击或法术击败敌人时（20-25）%几率爆炸，对半径5米内的敌人造成被击败的敌人最大生命（15-25）%的间接物理伤害", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "双手斧",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–15) - (14–19) 点物理伤害", "权重": 42},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 42},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 42},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 42},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 42},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 42},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 42},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 42},
+            {"词缀": "+(20–24)% 近战伤害", "权重": 42},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 42},
+            {"词缀": "对创伤状态下的敌人，额外 +(6–8)% 伤害", "权重": 10},
+            {"词缀": "额外 +(6–8)% 斩击伤害", "权重": 10},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 10},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 10},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3},
+            {"词缀": "+(24–32)% 该装备物理伤害", "权重": 10},
+            {"词缀": "该装备附加 (32–34) - (40–42) 点物理伤害", "权重": 10},
+            {"词缀": "暴击幸运 +(60–75) 暴击值", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "双手锤",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–15) - (14–19) 点物理伤害", "权重": 50},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 50},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 50},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 50},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 50},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 50},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 50},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 50},
+            {"词缀": "+(20–24)% 近战伤害", "权重": 50},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 50},
+            {"词缀": "消耗破击蓄能时，该次技能额外 +(14–16)% 伤害", "权重": 12},
+            {"词缀": "造成伤害时，淘汰生命值低于 (5–7)% 的敌人", "权重": 12},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 12},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 12},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3},
+            {"词缀": "+(24–32)% 该装备物理伤害", "权重": 12},
+            {"词缀": "该装备附加 (32–34) - (40–42) 点物理伤害", "权重": 12},
+            {"词缀": "暴击幸运 +(60–75) 暴击值", "权重": 3},
+            {"词缀": "攻击或法术击败敌人时（20-25）%几率爆炸，对半径5米内的敌人造成被击败的敌人最大生命（15-25）%的间接物理伤害", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "双手剑",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–15) - (14–19) 点物理伤害", "权重": 42},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 42},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 42},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 42},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 42},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 42},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 42},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 42},
+            {"词缀": "+(20–24)% 近战伤害", "权重": 42},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 42},
+            {"词缀": "+(30–32)% 连续攻击几率", "权重": 10},
+            {"词缀": "连续攻击伤害递增 (14–16)%", "权重": 10},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 10},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 10},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3},
+            {"词缀": "+(24–32)% 该装备物理伤害", "权重": 10},
+            {"词缀": "该装备附加 (32–34) - (40–42) 点物理伤害", "权重": 10},
+            {"词缀": "暴击幸运 +(60–75) 暴击值", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "手枪",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–15) - (14–19) 点物理伤害", "权重": 42},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 42},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 42},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 42},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 42},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 42},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 42},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 42},
+            {"词缀": "+(20–24)% 远程伤害", "权重": 42},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 42},
+            {"词缀": "+1 投射物数量", "权重": 10},
+            {"词缀": "+1 抛射投射物分裂数量", "权重": 10},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 10},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 10},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3},
+            {"词缀": "+(24–32)% 该装备物理伤害", "权重": 10},
+            {"词缀": "该装备附加 (32–34) - (40–42) 点物理伤害", "权重": 10},
+            {"词缀": "暴击幸运 +(60–75) 暴击值", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "手杖",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–15) - (14–19) 点物理伤害", "权重": 30},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 30},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 30},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 30},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 30},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 30},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 远程伤害", "权重": 30},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 30},
+            {"词缀": "+1 投射物数量", "权重": 11},
+            {"词缀": "额外 +(6–8)% 投射物伤害", "权重": 11},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 11},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 11},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "魔杖",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "+(15–20) 力量", "权重": 30},
+            {"词缀": "+(15–20) 敏捷", "权重": 30},
+            {"词缀": "+(15–20) 智慧", "权重": 30},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 30},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 30},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 法术伤害", "权重": 30},
+            {"词缀": "+(10–14)% 加剧效果", "权重": 30},
+            {"词缀": "+(8–10)% 收割时间", "权重": 30},
+            {"词缀": "+(15–20)% 收割冷却回复速度", "权重": 11},
+            {"词缀": "额外 +(6–8)% 持续伤害", "权重": 11},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 11},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+(6–8)% 迷踪效果", "权重": 11},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "灵杖",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "召唤物附加 (10–15) - (14–19) 点物理伤害", "权重": 10},
+            {"词缀": "召唤物附加 (9–14) - (15–20) 点火焰伤害", "权重": 10},
+            {"词缀": "召唤物附加 (10–15) - (14–19) 点冰冷伤害", "权重": 10},
+            {"词缀": "召唤物附加 (1–2) - (28–32) 点闪电伤害", "权重": 10},
+            {"词缀": "召唤物附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 10},
+            {"词缀": "+(15–20) 力量", "权重": 10},
+            {"词缀": "+(15–20) 敏捷", "权重": 10},
+            {"词缀": "+(15–20) 智慧", "权重": 10},
+            {"词缀": "+(20–24)% 召唤物伤害", "权重": 10},
+            {"词缀": "+(6–8)% 召唤物攻击与施法速度", "权重": 10},
+            {"词缀": "释放召唤技能时，+100% 几率获得 1 层坚韧祝福，间隔 1 秒", "权重": 3},
+            {"词缀": "释放召唤技能时，+100% 几率获得 1 层聚能祝福，间隔 1 秒", "权重": 3},
+            {"词缀": "额外 +(6–8)% 召唤物伤害", "权重": 3},
+            {"词缀": "召唤物伤害穿透 (6–8)% 元素抗性", "权重": 3},
+            {"词缀": "召唤物 +(5–7)% 护甲减伤穿透", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "法杖",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "法术附加 (10–15) - (14–19) 点物理伤害", "权重": 30},
+            {"词缀": "法术附加 (9–14) - (15–20) 点火焰伤害", "权重": 30},
+            {"词缀": "法术附加 (10–15) - (14–19) 点冰冷伤害", "权重": 30},
+            {"词缀": "法术附加 (1–2) - (28–32) 点闪电伤害", "权重": 30},
+            {"词缀": "法术附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 30},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 30},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 法术伤害", "权重": 30},
+            {"词缀": "+(6–8)% 施法速度", "权重": 30},
+            {"词缀": "+1 投射物数量", "权重": 11},
+            {"词缀": "+1 抛射投射物分裂数量", "权重": 11},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 11},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 11},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "单手斧",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–15) - (14–19) 点物理伤害", "权重": 30},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 30},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 30},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 30},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 30},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 30},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 近战伤害", "权重": 30},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 30},
+            {"词缀": "对创伤状态下的敌人，额外 +(6–8)% 伤害", "权重": 11},
+            {"词缀": "额外 +(6–9)% 斩击伤害", "权重": 11},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 11},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 11},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "单手锤",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–15) - (14–19) 点物理伤害", "权重": 30},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 30},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 30},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 30},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 30},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 30},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 近战伤害", "权重": 30},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 30},
+            {"词缀": "消耗破击蓄能时，该次技能额外 +(12–16)% 伤害", "权重": 11},
+            {"词缀": "造成伤害时，淘汰生命值低于 (5–7)% 的敌人", "权重": 11},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 11},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 11},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "单手剑",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–15) - (14–19) 点物理伤害", "权重": 30},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 30},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 30},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 30},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 30},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 30},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 近战伤害", "权重": 30},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 30},
+            {"词缀": "+(26–32)% 连续攻击几率", "权重": 11},
+            {"词缀": "连续攻击伤害递增 (10–16)%", "权重": 11},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 11},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 11},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "匕首",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–15) - (14–19) 点物理伤害", "权重": 30},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 30},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 30},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 30},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 30},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 30},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 近战伤害", "权重": 30},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 30},
+            {"词缀": "+1 幻影数量", "权重": 11},
+            {"词缀": "额外 +(6–8)% 攻击伤害", "权重": 11},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 11},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 11},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3}
+        ]
+    },
+    {
+        "装备类型": "爪",
+        "部位": "武器",
+        "词缀列表": [
+            {"词缀": "攻击附加 (10–15) - (14–19) 点物理伤害", "权重": 30},
+            {"词缀": "攻击附加 (9–14) - (15–20) 点火焰伤害", "权重": 30},
+            {"词缀": "攻击附加 (10–15) - (14–19) 点冰冷伤害", "权重": 30},
+            {"词缀": "攻击附加 (1–2) - (28–32) 点闪电伤害", "权重": 30},
+            {"词缀": "攻击附加 (11–16) - (13–18) 点腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 物理伤害", "权重": 30},
+            {"词缀": "+(20–24)% 元素伤害", "权重": 30},
+            {"词缀": "+(20–24)% 腐蚀伤害", "权重": 30},
+            {"词缀": "+(20–24)% 近战伤害", "权重": 30},
+            {"词缀": "+(6–8)% 攻击速度", "权重": 30},
+            {"词缀": "+1 幻影数量", "权重": 11},
+            {"词缀": "额外 +(6–8)% 攻击伤害", "权重": 11},
+            {"词缀": "+(6–8)% 元素和腐蚀抗性穿透", "权重": 11},
+            {"词缀": "+(5–7)% 护甲减伤穿透", "权重": 11},
+            {"词缀": "+1 坚韧祝福层数上限", "权重": 3},
+            {"词缀": "+1 灵动祝福层数上限", "权重": 3},
+            {"词缀": "+1 聚能祝福层数上限", "权重": 3}
+        ]
+    }
+];
+
+// 直接从硬编码数据加载词缀
+function loadWeightsFromHardcode() {
+    console.log('[解梦系统] 从硬编码加载S12权重数据...');
     
-    try {
-        // 等待权重数据加载完成
-        if (!gameData.weights) {
-            console.log('等待权重数据加载...');
-            await new Promise(resolve => {
-                const checkData = () => {
-                    if (gameData.weights) {
-                        resolve();
-                    } else {
-                        setTimeout(checkData, 100);
-                    }
-                };
-                checkData();
-            });
+    const equipmentMapping = {
+        // 饰品
+        '戒指': 'ring',
+        '项链': 'necklace', 
+        '腰带': 'belt',
+        // 武器
+        '爪': 'claw',
+        '匕首': 'dagger',
+        '单手剑': 'one_hand_sword',
+        '单手锤': 'one_hand_hammer',
+        '单手斧': 'one_hand_axe',
+        '法杖': 'staff',
+        '灵杖': 'spirit_staff',
+        '魔杖': 'magic_wand',
+        '手杖': 'hand_staff',
+        '手枪': 'pistol',
+        '双手剑': 'two_hand_sword',
+        '双手锤': 'two_hand_hammer',
+        '双手斧': 'two_hand_axe',
+        '锡杖': 'tin_staff',
+        '武杖': 'war_staff',
+        '弓': 'bow',
+        '弩': 'crossbow',
+        '火枪': 'rifle',
+        '火炮': 'cannon'
+    };
+    
+    // 清空现有数据
+    Object.keys(weaponAffixes).forEach(key => {
+        weaponAffixes[key] = [];
+    });
+    Object.keys(accessoryAffixes).forEach(key => {
+        accessoryAffixes[key] = [];
+    });
+    
+    // 遍历硬编码权重数据
+    s12WeightsData.forEach(item => {
+        const equipmentType = item['装备类型'];
+        const position = item['部位'];
+        const affixList = item['词缀列表'];
+        
+        const mappedKey = equipmentMapping[equipmentType];
+        if (!mappedKey) {
+            console.warn(`[解梦系统] 未找到装备类型映射: ${equipmentType}`);
+            return;
         }
         
-        // 从quanzhong.JSON加载真实词缀数据
-        loadRealAffixData();
+        // 转换词缀格式
+        const convertedAffixes = affixList.map(affix => ({
+            name: affix['词缀'],
+            weight: affix['权重']
+        }));
         
-        // 加载词缀数据
-        await loadAffixData();
-        console.log('解梦系统词缀数据加载完成');
-    } catch (error) {
-        console.error('解梦系统词缀数据加载失败:', error);
-    }
+        // 根据部位分配到对应的对象
+        if (position === '饰品') {
+            accessoryAffixes[mappedKey] = convertedAffixes;
+        } else if (position === '武器') {
+            weaponAffixes[mappedKey] = convertedAffixes;
+        }
+        
+        console.log(`[解梦系统] 已加载 ${equipmentType}: ${convertedAffixes.length} 个词缀`);
+    });
+    
+    console.log('[解梦系统] 权重数据加载完成！');
+}
+
+async function initializeDreamSystem() {
+    console.log('[解梦系统] ========== 开始初始化解梦系统 ==========');
+    
+    // 直接从硬编码加载数据，不依赖外部JSON文件
+    loadWeightsFromHardcode();
+    
+    // 调试信息：检查数据结构
+    console.log('dreamData:', dreamData);
+    console.log('weaponAffixes keys:', Object.keys(weaponAffixes));
+    console.log('accessoryAffixes keys:', Object.keys(accessoryAffixes));
+    console.log('weaponAffixes sample:', weaponAffixes.one_hand_sword);
+    console.log('accessoryAffixes sample:', accessoryAffixes.ring);
     
     // 调试信息：检查数据结构
     console.log('dreamData:', dreamData);
@@ -2243,17 +3831,8 @@ function calculateDreamCost() {
         
         showNotification('解梦成本计算完成！', 'success');
         
-        // 保存材料价格
-        const materials = {
-            lingsha: parseFloat(document.getElementById('lingsha-price')?.value) || 0,
-            zhengui: parseFloat(document.getElementById('zhengui-price')?.value) || 0,
-            xishi: parseFloat(document.getElementById('xishi-price')?.value) || 0,
-            zhizhen: parseFloat(document.getElementById('zhizhen-price')?.value) || 0,
-            shensheng: parseFloat(document.getElementById('shensheng-price')?.value) || 0,
-            dreamWeapon: parseFloat(document.getElementById('dream-weapon-price')?.value) || 0,
-            dreamAccessory: parseFloat(document.getElementById('dream-accessory-price')?.value) || 0
-        };
-        saveMaterialPrices(materials);
+        // 保存材料价格 - 使用统一管理器
+        MaterialPriceManager.saveAllPrices();
         
     } catch (error) {
         console.error('解梦成本计算错误:', error);
@@ -2264,6 +3843,14 @@ function calculateDreamCost() {
 // 初始化封印系统
 function initializeSealSystem() {
     try {
+        console.log('========== 初始化封印系统 ==========');
+        
+        // 🔧 防止重复初始化
+        if (window.sealSystemInitialized) {
+            console.log('封印系统已初始化，跳过重复初始化');
+            return;
+        }
+        
         // 检查封印系统的关键DOM元素是否存在
         const sealSystemContainer = document.getElementById('seal');
         if (!sealSystemContainer) {
@@ -2283,7 +3870,11 @@ function initializeSealSystem() {
         // 设置输入事件监听器
         setupSealInputListeners();
         
+        // 🔧 标记为已初始化
+        window.sealSystemInitialized = true;
+        
         console.log('封印系统初始化完成');
+        console.log('========== 初始化封印系统完成 ==========');
     } catch (error) {
         console.error('封印系统初始化失败:', error);
     }
@@ -2367,23 +3958,19 @@ function setupSealInputListeners() {
 
 // 填充技能选择器
 function populateSealSkills() {
-    // 检查gameData.supportGems是否已加载
-    if (!gameData.supportGems) {
-        console.error('辅助宝石数据未加载');
-        return;
-    }
+    console.log('========== 填充封印技能选择器 ==========');
     
-    // 从gameData.supportGems获取真实的技能数据
     let availableSkills = [];
     let sealConversionSkills = [];
     
-    try {
-        const supportGemsData = gameData.supportGems;
+    // 🔧 优先使用硬编码的 supportSkillsData
+    if (supportSkillsData) {
+        console.log('使用硬编码的 supportSkillsData');
         
-        // 处理fixed_skills
-        if (supportGemsData.fixed_skills) {
-            for (const skillName in supportGemsData.fixed_skills) {
-                const skillData = supportGemsData.fixed_skills[skillName];
+        // 处理fixedSkills
+        if (supportSkillsData.fixedSkills) {
+            for (const skillName in supportSkillsData.fixedSkills) {
+                const skillData = supportSkillsData.fixedSkills[skillName];
                 const skill = {
                     id: skillName,
                     name: skillName,
@@ -2400,35 +3987,84 @@ function populateSealSkills() {
             }
         }
         
-        // 处理leveled_skills
-        if (supportGemsData.leveled_skills) {
-            for (const skillName in supportGemsData.leveled_skills) {
-                const skillData = supportGemsData.leveled_skills[skillName];
+        // 处理leveledSkills（如果有）
+        if (supportSkillsData.leveledSkills) {
+            for (const skillName in supportSkillsData.leveledSkills) {
+                const skillData = supportSkillsData.leveledSkills[skillName];
                 const skill = {
                     id: skillName,
                     name: skillName,
                     type: '等级技能',
                     multiplier: skillData.multiplier || 100,
                     hasLevels: true,
-                    compensationByLevel: skillData.compensation_by_level || {}
+                    compensationByLevel: skillData.compensationByLevel || {}
                 };
                 availableSkills.push(skill);
                 
-                // 如果是封印转化相关技能，也添加到封印转化技能列表
                 if (skillName.includes('封印转化')) {
                     sealConversionSkills.push(skill);
                 }
             }
         }
+    } 
+    // 🔧 如果没有硬编码数据，尝试从gameData
+    else if (gameData.supportGems) {
+        console.log('使用 gameData.supportGems');
         
-        console.log('可用技能数量:', availableSkills.length);
-        console.log('封印转化技能数量:', sealConversionSkills.length);
-        
-    } catch (error) {
-        console.error('处理技能数据时出错:', error);
-        availableSkills = [];
-        sealConversionSkills = [];
+        try {
+            const supportGemsData = gameData.supportGems;
+            
+            // 处理fixed_skills
+            if (supportGemsData.fixed_skills) {
+                for (const skillName in supportGemsData.fixed_skills) {
+                    const skillData = supportGemsData.fixed_skills[skillName];
+                    const skill = {
+                        id: skillName,
+                        name: skillName,
+                        type: '固定技能',
+                        compensation: skillData.compensation || 0,
+                        multiplier: skillData.multiplier || 100
+                    };
+                    availableSkills.push(skill);
+                    
+                    if (skillName.includes('封印转化')) {
+                        sealConversionSkills.push(skill);
+                    }
+                }
+            }
+            
+            // 处理leveled_skills
+            if (supportGemsData.leveled_skills) {
+                for (const skillName in supportGemsData.leveled_skills) {
+                    const skillData = supportGemsData.leveled_skills[skillName];
+                    const skill = {
+                        id: skillName,
+                        name: skillName,
+                        type: '等级技能',
+                        multiplier: skillData.multiplier || 100,
+                        hasLevels: true,
+                        compensationByLevel: skillData.compensation_by_level || {}
+                    };
+                    availableSkills.push(skill);
+                    
+                    if (skillName.includes('封印转化')) {
+                        sealConversionSkills.push(skill);
+                    }
+                }
+            }
+            
+        } catch (error) {
+            console.error('处理技能数据时出错:', error);
+            availableSkills = [];
+            sealConversionSkills = [];
+        }
+    } else {
+        console.error('没有可用的技能数据！supportSkillsData 和 gameData.supportGems 都不存在');
+        return;
     }
+    
+    console.log('可用技能数量:', availableSkills.length);
+    console.log('封印转化技能数量:', sealConversionSkills.length);
     
     if (availableSkills.length === 0) {
         console.warn('没有找到可用的技能数据');
@@ -2436,26 +4072,35 @@ function populateSealSkills() {
     }
     
     // 填充所有辅助技能选择器 (support-skill-X-Y)
+    console.log('开始填充辅助技能选择器...');
     for (let halo = 1; halo <= 4; halo++) {
         for (let skill = 1; skill <= 4; skill++) {
             const selectId = `support-skill-${halo}-${skill}`;
             const skillSelect = document.getElementById(selectId);
             if (skillSelect) {
+                console.log(`  填充 ${selectId}`);
                 populateSkillSelect(skillSelect, availableSkills);
+            } else {
+                console.log(`  未找到 ${selectId}`);
             }
         }
     }
     
     // 填充所有封印转化技能选择器 (seal-conversion-X)
+    console.log('开始填充封印转化技能选择器...');
     for (let halo = 1; halo <= 4; halo++) {
-        const selectId = `seal-conversion-${halo}`;
+        const selectId = `conversion-skill-${halo}`;
         const conversionSelect = document.getElementById(selectId);
         if (conversionSelect) {
+            console.log(`  填充 ${selectId}`);
             populateSkillSelect(conversionSelect, sealConversionSkills);
+        } else {
+            console.log(`  未找到 ${selectId}`);
         }
     }
     
     console.log('所有技能选择器填充完成');
+    console.log('========== 填充封印技能选择器完成 ==========');
 }
 
 // 辅助函数：填充单个技能选择器
@@ -2504,12 +4149,17 @@ function populateSkillSelect(selectElement, skills) {
 
 // 设置封印光环标签页
 function setupSealHaloTabs() {
+    console.log('设置封印光环标签页...');
     const tabs = document.querySelectorAll('.seal-halo-tab');
     const panels = document.querySelectorAll('.seal-halo-panel');
+    
+    console.log('找到光环标签数量:', tabs.length);
+    console.log('找到光环面板数量:', panels.length);
     
     tabs.forEach(tab => {
         tab.addEventListener('click', function() {
             const haloNumber = this.dataset.halo;
+            console.log('点击光环标签:', haloNumber);
             
             // 移除所有活动状态
             tabs.forEach(t => t.classList.remove('active'));
@@ -2520,27 +4170,47 @@ function setupSealHaloTabs() {
             const targetPanel = document.getElementById(`seal-halo-${haloNumber}`);
             if (targetPanel) {
                 targetPanel.classList.add('active');
+                console.log('显示光环面板:', `seal-halo-${haloNumber}`);
+            } else {
+                console.error('未找到光环面板:', `seal-halo-${haloNumber}`);
             }
         });
     });
+    
+    console.log('封印光环标签页设置完成');
 }
 
 // 获取辅助技能的魔力封印补偿
 function getSupportSkillCompensation(skillName, level) {
-    if (!gameData.supportGems) {
-        return 0;
+    // 🔧 优先使用硬编码的 supportSkillsData
+    if (supportSkillsData) {
+        // 检查固定技能
+        if (supportSkillsData.fixedSkills && supportSkillsData.fixedSkills[skillName]) {
+            return supportSkillsData.fixedSkills[skillName].compensation || 0;
+        }
+        
+        // 检查等级相关技能
+        if (supportSkillsData.leveledSkills && supportSkillsData.leveledSkills[skillName]) {
+            const skillData = supportSkillsData.leveledSkills[skillName];
+            if (skillData.compensationByLevel && skillData.compensationByLevel[level]) {
+                return skillData.compensationByLevel[level];
+            }
+        }
     }
     
-    // 检查固定技能
-    if (gameData.supportGems.fixed_skills && gameData.supportGems.fixed_skills[skillName]) {
-        return gameData.supportGems.fixed_skills[skillName].compensation || 0;
-    }
-    
-    // 检查等级相关技能
-    if (gameData.supportGems.leveled_skills && gameData.supportGems.leveled_skills[skillName]) {
-        const skillData = gameData.supportGems.leveled_skills[skillName];
-        if (skillData.compensation_by_level && skillData.compensation_by_level[level]) {
-            return skillData.compensation_by_level[level];
+    // 🔧 回退到 gameData
+    if (gameData.supportGems) {
+        // 检查固定技能
+        if (gameData.supportGems.fixed_skills && gameData.supportGems.fixed_skills[skillName]) {
+            return gameData.supportGems.fixed_skills[skillName].compensation || 0;
+        }
+        
+        // 检查等级相关技能
+        if (gameData.supportGems.leveled_skills && gameData.supportGems.leveled_skills[skillName]) {
+            const skillData = gameData.supportGems.leveled_skills[skillName];
+            if (skillData.compensation_by_level && skillData.compensation_by_level[level]) {
+                return skillData.compensation_by_level[level];
+            }
         }
     }
     
@@ -2557,8 +4227,8 @@ function calculateSingleHaloSeal(haloNumber) {
         const pathSlots = parseInt(document.getElementById(`path-slots-${haloNumber}`)?.value) || 0;
         
         // 获取全局补偿
-        const equipmentCompensation = parseFloat(document.getElementById('equipment-compensation')?.value) || 0;
-        const otherCompensation = parseFloat(document.getElementById('other-compensation')?.value) || 0;
+        const equipmentCompensation = parseFloat(document.getElementById('equipment-seal-compensation')?.value) || 0;
+        const otherCompensation = parseFloat(document.getElementById('other-seal-compensation')?.value) || 0;
         
         // 计算辅助技能补偿
         let supportSkillsCompensation = 0;
@@ -2686,29 +4356,33 @@ const towerSystemData = {
         '高级': { basePrice: 500 }
     },
     patterns: {
-        '简单': {
-            'no_repeat': 1.0,
-            'one_double': 0.5,
-            'one_triple': 0.33
-        },
+        // 基础研发（3位数字）
         '普通': {
-            'no_repeat': 2.0,
-            'one_double': 1.0,
-            'two_double': 3.0,
-            'one_triple': 1.5
+            'no_repeat': 10.69,      // 无重复数字
+            'one_double': 6.22,     // 1个数字重复2次
+            'one_triple': 2.33,      // 1个数字重复3次
+            'two_double': 0,         // 2个数字重复2次（3位数字不可能）
+            'one_quadruple': 0       // 1个数字重复4次（3位数字不可能）
+        },
+        // 深度研发（4位数字）
+        '深度': {
+            'no_repeat': 10.38,      // 无重复数字
+            'one_double': 7.42,      // 1个数字重复2次
+            'two_double': 4.44,      // 2个数字重复2次
+            'one_triple': 3.33,      // 1个数字重复3次
+            'one_quadruple': 1.00     // 1个数字重复4次
+        },
+        // 向后兼容
+        '简单': {
+            'no_repeat': 10.69,
+            'one_double': 6.22,
+            'one_triple': 2.33
         },
         '复杂': {
-            'no_repeat': 3.5,
-            'one_double': 1.5,
-            'two_double': 4.5,
-            'one_triple': 2.0,
-            'one_quadruple': 0.25
-        },
-        '深度': {
             'no_repeat': 10.38,
-            'one_double': 3.6,
-            'two_double': 12.0,
-            'one_triple': 4.0,
+            'one_double': 7.42,
+            'two_double': 4.44,
+            'one_triple': 3.33,
             'one_quadruple': 1.00
         }
     }
@@ -2716,11 +4390,13 @@ const towerSystemData = {
 
 // 初始化高塔系统
 function initializeTowerSystem() {
+    console.log('[高塔系统] ========== 开始初始化高塔系统 ==========');
     setupTowerEventListeners();
     updateTowerMaterialsDisplay();
     populateTowerWeaponTypes();
     // 初始化时根据研发类型调整序列输入规则
     updateSequenceInputValidation();
+    console.log('[高塔系统] ========== 高塔系统初始化完成 ==========');
 }
 
 // 填充武器类型选择器
@@ -2797,20 +4473,36 @@ function setupTowerEventListeners() {
             calculateTowerResearch();
         });
     }
+    
+    // 计算按钮点击监听
+    const calculateBtn = document.getElementById('tower-calculate');
+    if (calculateBtn) {
+        calculateBtn.addEventListener('click', function() {
+            console.log('[高塔系统] 点击计算按钮');
+            calculateTowerResearch();
+        });
+    }
 }
 
 // 更新高塔材料显示
 function updateTowerMaterialsDisplay() {
+    console.log('[高塔系统] updateTowerMaterialsDisplay() 被调用');
     const materialsDisplay = document.getElementById('materials-display');
-    if (!materialsDisplay) return;
+    if (!materialsDisplay) {
+        console.error('[高塔系统] 找不到 materials-display 元素');
+        return;
+    }
     
     const weaponType = document.getElementById('weapon-type')?.value;
     const weaponLevel = document.getElementById('weapon-level')?.value;
     const weaponCategory = document.getElementById('weapon-category')?.value;
     const researchType = document.getElementById('research-type')?.value;
     
+    console.log('[高塔系统] 选择参数:', { weaponType, weaponLevel, weaponCategory, researchType });
+    
     // 如果没有选择完整的武器信息或研发类型，显示提示信息
     if (!weaponType || !weaponLevel || !weaponCategory || !researchType) {
+        console.log('[高塔系统] 缺少必要参数，显示提示信息');
         materialsDisplay.innerHTML = `
             <div class="materials-placeholder">
                 <i class="fas fa-info-circle"></i>
@@ -2835,6 +4527,7 @@ function updateTowerMaterialsDisplay() {
         
         // 获取材料需求
         const materials = calculateRequiredMaterials(weaponType, weaponLevel, weaponCategory, researchType, towerData);
+        console.log('[高塔系统] 计算得到的材料需求:', materials);
         
         // 计算基于当前序列的期望尝试次数（用于总消耗）
         const sequence = document.getElementById('target-sequence')?.value?.trim() || '';
@@ -2897,7 +4590,8 @@ function calculateRequiredMaterials(weaponType, weaponLevel, weaponCategory, res
 
         // 组件类型与数量按新规则计算
         const isLevel100 = String(weaponLevel) === '100';
-        const isSingleHand = String(weaponCategory) === '单手';
+        const isSingleHand = String(weaponCategory) === '单手武器' || String(weaponCategory) === '单手';
+        console.log('材料计算参数:', { weaponLevel, weaponCategory, isLevel100, isSingleHand });
 
         // 映射拓展元件类型
         let componentType = '基础元件';
@@ -2946,7 +4640,10 @@ function calculateRequiredMaterials(weaponType, weaponLevel, weaponCategory, res
 }
 
 function displayMaterialRequirements(materials, container, expectedAttempts = null) {
+    console.log('[高塔系统] displayMaterialRequirements() 被调用');
+    console.log('[高塔系统] 显示材料参数:', { materials, expectedAttempts });
     if (!materials || Object.keys(materials).length === 0) {
+        console.warn('[高塔系统] 材料数据为空，显示占位符');
         container.innerHTML = `
             <div class="materials-placeholder">
                 <i class="fas fa-info-circle"></i>
@@ -2999,7 +4696,10 @@ function displayMaterialRequirements(materials, container, expectedAttempts = nu
     }
     html += '</div>';
 
+    console.log('[高塔系统] 准备设置 container.innerHTML，container 是:', container);
+    console.log('[高塔系统] 准备写入的 HTML 长度:', html.length);
     container.innerHTML = html;
+    console.log('[高塔系统] container.innerHTML 设置完成，当前内容长度:', container.innerHTML.length);
 }
 
 // 更新序列输入验证（根据研发类型动态设定规则）
@@ -3067,10 +4767,13 @@ function analyzeSequencePattern(sequence) {
 
 // 高塔研究计算
 function calculateTowerResearch() {
+    console.log('========== 计算高塔研发成本 ==========');
     try {
         const sequence = document.getElementById('target-sequence')?.value.trim() || '';
+        console.log('输入序列:', sequence);
 
         if (!/^[1-7]{3,4}$/.test(sequence)) {
+            console.log('序列格式不正确，跳过计算');
             updateTowerResults(0, 0, 0);
             return;
         }
@@ -3080,40 +4783,56 @@ function calculateTowerResearch() {
         const weaponLevel = document.getElementById('weapon-level')?.value;
         const weaponCategory = document.getElementById('weapon-category')?.value;
         const researchType = document.getElementById('research-type')?.value;
+        console.log('参数:', { weaponType, weaponLevel, weaponCategory, researchType });
 
         // 材料需求与价格
         const materials = calculateRequiredMaterials(weaponType, weaponLevel, weaponCategory, researchType, gameData.towerSequence || getDefaultTowerData());
-        const prices = getTowerComponentPrices();
-
+        console.log('材料需求:', materials);
+        
+        // 🔧 使用统一的材料价格管理器获取价格
+        const basicPrice = MaterialPriceManager.getPrice('basicComponentPrice') || 0;
+        const casterPrice = MaterialPriceManager.getPrice('casterComponentPrice') || 0;
+        const guardPrice = MaterialPriceManager.getPrice('guardComponentPrice') || 0;
+        const sniperPrice = MaterialPriceManager.getPrice('sniperComponentPrice') || 0;
+        const defensePrice = MaterialPriceManager.getPrice('defenseComponentPrice') || 0;
+        console.log('材料价格:', { basicPrice, casterPrice, guardPrice, sniperPrice, defensePrice });
+        
         // 计算单次成本：组件数量×对应单价（不含初火源质）
         let singleCost = 0;
 
-        const componentMap = {
-            '基础元件': 'basic',
-            '拓展元件-术士': 'caster',
-            '拓展元件-近卫': 'guard',
-            '拓展元件-狙击': 'sniper',
-            '拓展元件-重装': 'defense'
+        const priceMap = {
+            '基础元件': basicPrice,
+            '拓展元件-术士': casterPrice,
+            '拓展元件-近卫': guardPrice,
+            '拓展元件-狙击': sniperPrice,
+            '拓展元件-重装': defensePrice
         };
         for (const [name, count] of Object.entries(materials)) {
-            const key = componentMap[name];
-            const unitPrice = key ? (prices[key] || 0) : 0;
-            singleCost += (count || 0) * unitPrice;
+            const unitPrice = priceMap[name] || 0;
+            const costPart = (count || 0) * unitPrice;
+            singleCost += costPart;
+            console.log(`  ${name}: ${count} × ${unitPrice} = ${costPart}`);
         }
+        console.log('单次研发成本:', singleCost);
 
         // 分析序列模式并选择复杂度（3位→普通；4位→深度）
         const pattern = analyzeSequencePattern(sequence);
         const complexity = sequence.length === 4 ? '深度' : '普通';
+        console.log('序列分析:', { pattern, complexity });
+        
         const patternData = towerSystemData.patterns[complexity] || {};
         const successProbability = patternData[pattern] || 1.0;
+        console.log('成功率:', successProbability + '%');
 
         // 计算期望成本
-        const expectedCost = singleCost / (successProbability / 100);
+        const expectedAttempts = 100 / successProbability;
+        const expectedCost = singleCost * expectedAttempts;
+        console.log('期望尝试次数:', expectedAttempts);
+        console.log('期望总成本:', expectedCost);
 
         updateTowerResults(successProbability, expectedCost, singleCost);
-
-        // 保存组件价格
-        saveTowerComponentPrices();
+        
+        console.log('========== 计算完成 ==========');
         
     } catch (error) {
         console.error('高塔研究计算错误:', error);
@@ -3538,11 +5257,16 @@ function setupThemeToggle() {
         }
     };
 
-    // 读取持久化主题
+    // 读取持久化主题，如果没有则默认为深色模式
     const saved = localStorage.getItem('theme');
     if (saved) {
         applyTheme(saved);
         checkbox.checked = saved === 'dark';
+    } else {
+        // 🔧 默认使用深色模式
+        applyTheme('dark');
+        checkbox.checked = true;
+        localStorage.setItem('theme', 'dark');
     }
 
     // 监听切换
@@ -3661,6 +5385,8 @@ function removeDamageReductionRow(button) {
 
 // 模块切换函数
 function showCraftingModule(moduleType) {
+    console.log('切换到打造子模块:', moduleType);
+    
     // 隐藏所有打造子模块
     const craftingModules = document.querySelectorAll('.crafting-module');
     craftingModules.forEach(module => {
@@ -3681,6 +5407,40 @@ function showCraftingModule(moduleType) {
     const activeButton = document.querySelector(`[onclick="showCraftingModule('${moduleType}')"]`);
     if (activeButton) {
         activeButton.classList.add('active');
+    }
+    
+    // 🔧 如果切换到追忆打造模块，检查词缀选择器是否已填充
+    if (moduleType === 'memory-crafting') {
+        // 稍等一下，确保追忆打造模块可见
+        setTimeout(() => {
+            const targetAffix1 = document.getElementById('target-affix-1');
+            const targetAffix2 = document.getElementById('target-affix-2');
+            
+            if (targetAffix1 && targetAffix2) {
+                const opt1Count = targetAffix1.querySelectorAll('option').length;
+                const opt2Count = targetAffix2.querySelectorAll('option').length;
+                
+                console.log('追忆打造模块切换检查:');
+                console.log('   词缀1选项数:', opt1Count);
+                console.log('   词缀2选项数:', opt2Count);
+                
+                // 如果词缀选择器为空，重新填充
+                if (opt1Count <= 1 || opt2Count <= 1) {
+                    console.warn('   ⚠ 词缀选择器选项太少，重新初始化追忆打造系统');
+                    initializeMemoryCrafting();
+                } else {
+                    console.log('   ✓ 词缀选择器已正常填充');
+                }
+            }
+        }, 100);
+    }
+    
+    // 🔧 如果切换到侵蚀模拟模块，初始化侵蚀模拟
+    if (moduleType === 'erosion-simulation') {
+        console.log('切换到侵蚀模拟模块');
+        setTimeout(() => {
+            initializeErosionSimulation();
+        }, 100);
     }
 }
 
@@ -3939,21 +5699,40 @@ function updateWeaponDamageResults(results) {
 
 // 初始化侵蚀模拟系统
 function initializeErosionSimulation() {
-    console.log('初始化侵蚀模拟系统');
+    console.log('========== 初始化侵蚀模拟系统 ==========');
     console.log('当前 gameData 状态:', gameData);
     
-    // 检查传奇装备数据是否已加载
-    if (!gameData || !gameData.legendaryEquipment) {
-        console.error('传奇装备数据未加载！');
-        alert('传奇装备数据未加载，请检查数据文件！');
+    // 🔧 防止重复初始化
+    if (window.erosionSystemInitialized) {
+        console.log('侵蚀模拟系统已初始化，跳过重复初始化');
         return;
     }
     
-    // 初始化装备列表
-    populateEquipmentList();
+    // 🔧 检查传奇装备数据是否已加载，如果没有则使用后备数据
+    let equipmentData = gameData.legendaryEquipment;
+    if (!equipmentData) {
+        console.warn('传奇装备数据未从JSON加载，使用硬编码后备数据');
+        equipmentData = fallbackLegendaryEquipment;
+        // 同时更新gameData，让其他函数也能使用
+        gameData.legendaryEquipment = equipmentData;
+    }
     
     // 初始化侵蚀模拟相关的事件监听器
     setupErosionEventListeners();
+    
+    // 🔧 初始化装备列表 - 先获取装备类型，然后选择第一个类型
+    const equipmentTypeSelect = document.getElementById('equipment-type');
+    if (equipmentTypeSelect && equipmentTypeSelect.options.length > 1) {
+        const firstType = equipmentTypeSelect.options[1].value;
+        equipmentTypeSelect.value = firstType;
+        populateEquipmentList(firstType);
+        console.log('已自动选择第一个装备类型:', firstType);
+    }
+    
+    // 🔧 标记为已初始化
+    window.erosionSystemInitialized = true;
+    
+    console.log('========== 初始化侵蚀模拟系统完成 ==========');
 }
 
 // 填充装备列表
@@ -4117,6 +5896,8 @@ function updateEquipmentDisplay(equipmentName) {
         if (baseAffixesElement) baseAffixesElement.innerHTML = '<p class="no-affixes">请选择装备</p>';
         if (normalAffixesElement) normalAffixesElement.innerHTML = '<p class="no-affixes">请选择装备</p>';
         if (erosionAffixesSection) erosionAffixesSection.style.display = 'none';
+        // 清空原始词缀缓存
+        window.currentEquipmentData = null;
         return;
     }
     
@@ -4161,6 +5942,12 @@ function updateEquipmentDisplay(equipmentName) {
             return;
         }
         
+        // 保存原始装备数据（用于侵蚀后恢复）
+        window.currentEquipmentData = {
+            baseAffix: selectedEquipment.基础词缀 || null,
+            normalAffixes: selectedEquipment.普通词缀 ? [...selectedEquipment.普通词缀] : []
+        };
+        
         // 更新装备基本信息
         const equipmentDisplayName = selectedEquipment.名称 || selectedEquipment.装备名称 || '未知装备';
         if (displayNameElement) displayNameElement.textContent = equipmentDisplayName;
@@ -4195,7 +5982,7 @@ function updateEquipmentDisplay(equipmentName) {
         // 更新基础词缀
         if (baseAffixesElement) {
             if (selectedEquipment.基础词缀) {
-                baseAffixesElement.innerHTML = `<p class="affix-item">${selectedEquipment.基础词缀}</p>`;
+                baseAffixesElement.innerHTML = `<p class="affix-item" data-index="0">${selectedEquipment.基础词缀}</p>`;
             } else {
                 baseAffixesElement.innerHTML = '<p class="no-affixes">无基础词缀</p>';
             }
@@ -4205,23 +5992,16 @@ function updateEquipmentDisplay(equipmentName) {
         if (normalAffixesElement) {
             if (selectedEquipment.普通词缀 && selectedEquipment.普通词缀.length > 0) {
                 normalAffixesElement.innerHTML = selectedEquipment.普通词缀
-                    .map(affix => `<p class="affix-item">${affix}</p>`)
+                    .map((affix, index) => `<p class="affix-item" data-index="${index}">${affix}</p>`)
                     .join('');
             } else {
                 normalAffixesElement.innerHTML = '<p class="no-affixes">无普通词缀</p>';
             }
         }
         
-        // 更新已侵蚀词缀
-        if (erosionAffixesElement && erosionAffixesSection) {
-            if (selectedEquipment.已侵蚀词缀 && selectedEquipment.已侵蚀词缀.length > 0) {
-                erosionAffixesElement.innerHTML = selectedEquipment.已侵蚀词缀
-                    .map(affix => `<p class="affix-item eroded">${affix}</p>`)
-                    .join('');
-                erosionAffixesSection.style.display = 'block';
-            } else {
-                erosionAffixesSection.style.display = 'none';
-            }
+        // 隐藏已侵蚀词缀区域（侵蚀时直接修改现有词缀）
+        if (erosionAffixesSection) {
+            erosionAffixesSection.style.display = 'none';
         }
         
     } catch (error) {
@@ -4295,84 +6075,538 @@ function resetErosionSimulation() {
 }
 
 // 计算侵蚀成本
-function calculateErosionCost() {
-    console.log('计算侵蚀成本');
+// ==================== 侵蚀模拟系统 ====================
+
+// 侵蚀结果概率配置
+const EROSION_RESULTS = {
+    dark: [
+        { name: '异化', probability: 0.10, description: '将基础词缀替换为随机灾烬基础词缀' },
+        { name: '混沌', probability: 0.30, description: '重新随机所有词缀的随机数值' },
+        { name: '傲慢', probability: 0.30, description: '将1条前/后缀提升1~2阶' },
+        { name: '虚无', probability: 0.30, description: '将装备变为已侵蚀状态' }
+    ],
+    deepest: [
+        { name: '异化', probability: 0.10, description: '将基础词缀替换为随机灾烬基础词缀' },
+        { name: '混沌', probability: 0.30, description: '重新随机所有词缀的随机数值' },
+        { name: '亵渎', probability: 0.15, description: '将2条前/后缀提升1~2阶' },
+        { name: '傲慢', probability: 0.15, description: '将1条前/后缀提升1~2阶' },
+        { name: '虚无', probability: 0.30, description: '将装备变为已侵蚀状态' }
+    ]
+};
+
+// 侵蚀材料消耗配置
+function getErosionMaterialCost(equipmentLevel, isLegendary, erosionType) {
+    let darkCores = 0;
+    let demonCores = 0;
     
-    const targetUpgradeCount = parseInt(document.getElementById('target-upgrade-count')?.value) || 1;
-    const equipmentAffixCount = parseInt(document.getElementById('equipment-affix-count')?.value) || 4;
-    const erosionType = document.querySelector('.erosion-type-btn.active')?.id === 'cost-dark-btn' ? 'dark' : 'deepest';
-    
-    // 基础成本计算
-    let baseCost = erosionType === 'dark' ? 50 : 100; // 暗黑侵蚀50，深渊侵蚀100
-    let successRate = erosionType === 'dark' ? 0.1 : 0.05; // 暗黑10%，深渊5%
-    
-    // 根据词条数调整成功率
-    successRate = successRate / equipmentAffixCount;
-    
-    // 计算期望次数
-    const expectedAttempts = Math.ceil(targetUpgradeCount / successRate);
-    const totalCost = expectedAttempts * baseCost;
-    
-    // 显示结果
-    const resultElement = document.getElementById('erosion-cost-result');
-    if (resultElement) {
-        resultElement.style.display = 'block';
-        resultElement.innerHTML = `
-            <h4>侵蚀成本计算结果</h4>
-            <p><strong>侵蚀类型:</strong> ${erosionType === 'dark' ? '暗黑侵蚀' : '深渊侵蚀'}</p>
-            <p><strong>目标升级次数:</strong> ${targetUpgradeCount}</p>
-            <p><strong>装备词条数:</strong> ${equipmentAffixCount}</p>
-            <p><strong>单次成功率:</strong> ${(successRate * 100).toFixed(2)}%</p>
-            <p><strong>期望尝试次数:</strong> <span id="expected-erosion-count">${expectedAttempts}</span></p>
-            <p><strong>预计总成本:</strong> ${totalCost} 初火源质</p>
-        `;
+    if (isLegendary) {
+        if (equipmentLevel >= 82) {
+            if (erosionType === 'dark') {
+                darkCores = 7;
+            } else {
+                demonCores = 1;
+            }
+        } else {
+            if (erosionType === 'dark') {
+                darkCores = 4;
+            } else {
+                demonCores = 1;
+            }
+        }
+    } else {
+        // 非传奇装备：6条词缀的装备才能侵蚀
+        if (erosionType === 'dark') {
+            darkCores = 4;
+        } else {
+            demonCores = 1;
+        }
     }
     
-    showNotification('侵蚀成本计算完成！', 'success');
+    return { darkCores, demonCores };
+}
+
+// 执行单次侵蚀模拟
+function performErosion(erosionType) {
+    console.log(`执行${erosionType === 'dark' ? '黑暗' : '至暗'}侵蚀`);
     
-    // 保存追忆打造材料价格
-    const memoryMaterials = {
-        fragmentPrice: fragmentPrice,
-        threadPrice: threadPrice
+    const equipmentLevel = parseInt(document.getElementById('equipment-level-erosion')?.value) || 82;
+    const equipmentPrice = parseFloat(document.getElementById('equipment-price')?.value) || 0;
+    const equipmentName = document.getElementById('equipment-name')?.value;
+    const isLegendary = equipmentName && equipmentName !== '';
+    
+    // 获取材料价格
+    const darkCorePrice = MaterialPriceManager.getPrice('darkCorePrice') || 0;
+    const demonCorePrice = MaterialPriceManager.getPrice('demonCorePrice') || 0;
+    
+    // 计算材料消耗
+    const { darkCores, demonCores } = getErosionMaterialCost(equipmentLevel, isLegendary, erosionType);
+    
+    // 计算单次成本
+    const singleCost = (darkCores * darkCorePrice) + (demonCores * demonCorePrice) + equipmentPrice;
+    
+    // 更新计数
+    updateErosionStats(darkCores, demonCores, singleCost);
+    
+    // 随机生成侵蚀结果
+    const result = getRandomErosionResult(erosionType);
+    
+    // 显示侵蚀结果
+    displayErosionResult(erosionType, result);
+    
+    // 更新装备展示（模拟词缀变化）
+    updateEquipmentDisplayWithErosion(result);
+    
+    showNotification(`侵蚀结果：${result.name}！`, result.name === '异化' ? 'warning' : 'success');
+}
+
+// 获取随机侵蚀结果
+function getRandomErosionResult(erosionType) {
+    const results = EROSION_RESULTS[erosionType];
+    const random = Math.random();
+    let cumulative = 0;
+    
+    for (const result of results) {
+        cumulative += result.probability;
+        if (random < cumulative) {
+            return result;
+        }
+    }
+    
+    return results[results.length - 1];
+}
+
+// 更新侵蚀统计
+function updateErosionStats(darkCores, demonCores, singleCost) {
+    const erosionCountEl = document.getElementById('erosion-count');
+    const darkCoreUsedEl = document.getElementById('dark-core-used');
+    const demonCoreUsedEl = document.getElementById('demon-core-used');
+    const totalCostEl = document.getElementById('total-erosion-cost');
+    
+    if (erosionCountEl) {
+        let currentCount = parseInt(erosionCountEl.textContent) || 0;
+        erosionCountEl.textContent = currentCount + 1;
+    }
+    
+    if (darkCoreUsedEl) {
+        let currentDark = parseInt(darkCoreUsedEl.textContent) || 0;
+        darkCoreUsedEl.textContent = currentDark + darkCores;
+    }
+    
+    if (demonCoreUsedEl) {
+        let currentDemon = parseInt(demonCoreUsedEl.textContent) || 0;
+        demonCoreUsedEl.textContent = currentDemon + demonCores;
+    }
+    
+    if (totalCostEl) {
+        const currentText = totalCostEl.textContent.replace(/[^\d.]/g, '');
+        let currentCost = parseFloat(currentText) || 0;
+        const newCost = currentCost + singleCost;
+        totalCostEl.textContent = `${newCost.toFixed(2)} 初火源质`;
+    }
+}
+
+// 显示侵蚀结果
+function displayErosionResult(erosionType, result) {
+    const resultArea = document.getElementById('erosion-result-area');
+    const resultContent = document.getElementById('erosion-result-content');
+    
+    if (resultArea && resultContent) {
+        resultArea.style.display = 'block';
+        
+        const resultNameClass = result.name === '异化' ? 'result-chaos' : 
+                               result.name === '亵渎' ? 'result-profane' : 
+                               result.name === '傲慢' ? 'result-pride' : 
+                               result.name === '虚无' ? 'result-void' : 'result-chaos';
+        
+        resultContent.innerHTML = `
+            <div class="result-item ${resultNameClass}">
+                <h4>${erosionType === 'dark' ? '黑暗' : '至暗'}侵蚀结果</h4>
+                <div class="result-name">${result.name}</div>
+                <div class="result-desc">${result.description}</div>
+                <div class="result-prob">概率: ${(result.probability * 100).toFixed(0)}%</div>
+            </div>
+        `;
+        
+        // 更新结果统计
+        updateResultStats(result.name);
+    }
+}
+
+// 更新侵蚀结果统计
+function updateResultStats(resultName) {
+    const statsMap = {
+        '异化': 'mutation-count',
+        '混沌': 'chaos-count',
+        '亵渎': 'profane-count',
+        '傲慢': 'pride-count',
+        '虚无': 'void-count'
     };
     
-    // 保存到localStorage
-    localStorage.setItem('memory-material-prices', JSON.stringify(memoryMaterials));
+    const elId = statsMap[resultName];
+    if (elId) {
+        const el = document.getElementById(elId);
+        if (el) {
+            let count = parseInt(el.textContent) || 0;
+            el.textContent = count + 1;
+        }
+    }
 }
 
 // 重置侵蚀计数
 function resetErosionCount() {
     console.log('重置侵蚀计数');
     
-    // 重置输入字段
-    const targetUpgradeCount = document.getElementById('target-upgrade-count');
-    const equipmentAffixCount = document.getElementById('equipment-affix-count');
-    
-    if (targetUpgradeCount) targetUpgradeCount.value = '1';
-    if (equipmentAffixCount) equipmentAffixCount.value = '4';
-    
-    // 重置侵蚀类型选择
-    const darkBtn = document.getElementById('cost-dark-btn');
-    const deepestBtn = document.getElementById('cost-deepest-btn');
-    
-    if (darkBtn) darkBtn.classList.add('active');
-    if (deepestBtn) deepestBtn.classList.remove('active');
-    
-    // 清空结果显示
-    const resultElement = document.getElementById('erosion-cost-result');
-    if (resultElement) {
-        resultElement.style.display = 'none';
-        resultElement.innerHTML = '';
-    }
-    
-    // 重置统计数据
+    // 重置统计显示
     const erosionCount = document.getElementById('erosion-count');
+    const darkCoreUsed = document.getElementById('dark-core-used');
+    const demonCoreUsed = document.getElementById('demon-core-used');
     const totalErosionCost = document.getElementById('total-erosion-cost');
     
     if (erosionCount) erosionCount.textContent = '0';
+    if (darkCoreUsed) darkCoreUsed.textContent = '0';
+    if (demonCoreUsed) demonCoreUsed.textContent = '0';
     if (totalErosionCost) totalErosionCost.textContent = '0 初火源质';
     
-    showNotification('侵蚀数据已重置', 'info');
+    // 重置结果统计
+    ['mutation-count', 'chaos-count', 'profane-count', 'pride-count', 'void-count'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '0';
+    });
+    
+    // 隐藏结果区域
+    const resultArea = document.getElementById('erosion-result-area');
+    const resultContent = document.getElementById('erosion-result-content');
+    if (resultArea) resultArea.style.display = 'none';
+    if (resultContent) resultContent.innerHTML = '';
+    
+    // 隐藏成本结果
+    const costResult = document.getElementById('erosion-cost-result');
+    if (costResult) costResult.style.display = 'none';
+    
+    // 重置装备显示（恢复原始词缀）
+    const baseAffixesEl = document.getElementById('base-affixes');
+    const normalAffixesEl = document.getElementById('normal-affixes');
+    if (window.currentEquipmentData) {
+        if (window.currentEquipmentData.baseAffix && baseAffixesEl) {
+            baseAffixesEl.innerHTML = `<p class="affix-item" data-index="0">${window.currentEquipmentData.baseAffix}</p>`;
+        }
+        if (window.currentEquipmentData.normalAffixes && normalAffixesEl) {
+            normalAffixesEl.innerHTML = window.currentEquipmentData.normalAffixes
+                .map((affix, index) => `<p class="affix-item" data-index="${index}">${affix}</p>`)
+                .join('');
+        }
+    }
+    
+    showNotification('侵蚀计数已重置！', 'info');
+}
+
+// 更新装备展示（模拟侵蚀效果）
+function updateEquipmentDisplayWithErosion(result) {
+    const baseAffixesEl = document.getElementById('base-affixes');
+    const normalAffixesEl = document.getElementById('normal-affixes');
+    
+    if (!baseAffixesEl || !normalAffixesEl) return;
+    
+    // 首先恢复所有词缀到原始状态
+    if (window.currentEquipmentData) {
+        // 恢复基础词缀
+        if (window.currentEquipmentData.baseAffix) {
+            baseAffixesEl.innerHTML = `<p class="affix-item" data-index="0">${window.currentEquipmentData.baseAffix}</p>`;
+        }
+        // 恢复普通词缀
+        if (window.currentEquipmentData.normalAffixes && window.currentEquipmentData.normalAffixes.length > 0) {
+            normalAffixesEl.innerHTML = window.currentEquipmentData.normalAffixes
+                .map((affix, index) => `<p class="affix-item" data-index="${index}">${affix}</p>`)
+                .join('');
+        }
+    }
+    
+    // 根据侵蚀结果修改词缀样式
+    if (result.name === '异化') {
+        // 异化：基础词缀替换为灾烬词缀（炫彩紫色）
+        const baseAffixItem = baseAffixesEl.querySelector('.affix-item');
+        if (baseAffixItem) {
+            baseAffixItem.textContent = `【灾烬】${baseAffixItem.textContent}`;
+            baseAffixItem.classList.add('erosion-purple');
+        }
+    } else if (result.name === '混沌') {
+        // 混沌：所有普通词缀变为金色，有数值区间的变为橙色
+        const affixItems = normalAffixesEl.querySelectorAll('.affix-item');
+        affixItems.forEach(affix => {
+            const text = affix.textContent;
+            // 检测是否有数值区间（如(20–30)或(10–12)等）
+            const hasRange = /\(\d+[–-]\d+\)/.test(text);
+            if (hasRange) {
+                affix.classList.add('erosion-orange');
+            } else {
+                affix.classList.add('erosion-gold');
+            }
+        });
+    } else if (result.name === '亵渎') {
+        // 亵渎：随机2条词缀提升为紫色
+        const affixItems = Array.from(normalAffixesEl.querySelectorAll('.affix-item'));
+        // 随机打乱数组
+        for (let i = affixItems.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [affixItems[i], affixItems[j]] = [affixItems[j], affixItems[i]];
+        }
+        // 取前2个
+        for (let i = 0; i < Math.min(2, affixItems.length); i++) {
+            affixItems[i].classList.add('erosion-purple');
+        }
+    } else if (result.name === '傲慢') {
+        // 傲慢：随机1条词缀提升为紫色
+        const affixItems = normalAffixesEl.querySelectorAll('.affix-item');
+        if (affixItems.length > 0) {
+            const randomIndex = Math.floor(Math.random() * affixItems.length);
+            affixItems[randomIndex].classList.add('erosion-purple');
+        }
+    } else {
+        // 虚无：不修改词缀
+    }
+}
+
+// 侵蚀成本计算
+function calculateErosionCost() {
+    console.log('计算侵蚀成本');
+    
+    const targetUpgradeCount = parseInt(document.getElementById('target-upgrade-count')?.value) || 1;
+    const equipmentAffixCount = parseInt(document.getElementById('equipment-affix-count')?.value) || 4;
+    const equipmentLevel = parseInt(document.getElementById('equipment-level-erosion')?.value) || 82;
+    const equipmentPrice = parseFloat(document.getElementById('equipment-price')?.value) || 0;
+    const erosionType = document.querySelector('.erosion-type-btn.active')?.id === 'cost-dark-btn' ? 'dark' : 'deepest';
+    const equipmentName = document.getElementById('equipment-name')?.value;
+    const isLegendary = equipmentName && equipmentName !== '';
+    
+    // 获取材料价格
+    const darkCorePrice = MaterialPriceManager.getPrice('darkCorePrice') || 0;
+    const demonCorePrice = MaterialPriceManager.getPrice('demonCorePrice') || 0;
+    
+    // 计算单次材料消耗
+    const { darkCores, demonCores } = getErosionMaterialCost(equipmentLevel, isLegendary, erosionType);
+    
+    // 计算单次侵蚀成本
+    const singleCost = (darkCores * darkCorePrice) + (demonCores * demonCorePrice) + equipmentPrice;
+    
+    // 获取侵蚀结果概率配置
+    const results = EROSION_RESULTS[erosionType];
+    
+    // 计算傲慢和亵渎的概率
+    let prideProbability = 0;
+    let profaneProbability = 0;
+    
+    for (const result of results) {
+        if (result.name === '傲慢') {
+            prideProbability = result.probability;
+        } else if (result.name === '亵渎') {
+            profaneProbability = result.probability;
+        }
+    }
+    
+    // 计算单次侵蚀获得目标提升的概率
+    let successRatePerAttempt = 0;
+    
+    if (targetUpgradeCount === 1) {
+        // 目标提升1个词缀：
+        // 傲慢概率 + (亵渎概率 × 至少提升1个词缀的概率)
+        // 亵渎提升2个词缀，所以至少提升1个的概率是100%
+        const atLeastOneFromProfane = profaneProbability * 1;
+        
+        // 傲慢提升1个词缀，但需要是目标词缀
+        // 在equipmentAffixCount个词缀中，随机选中目标词缀的概率是1/equipmentAffixCount
+        const hitTargetFromPride = prideProbability * (1 / equipmentAffixCount);
+        
+        successRatePerAttempt = hitTargetFromPride + atLeastOneFromProfane;
+    } else {
+        // 目标提升2个词缀：
+        // 只有亵渎能提升2个词缀
+        // 需要在equipmentAffixCount个词缀中，随机选中2个都是目标词缀
+        // 组合数：C(equipmentAffixCount, 2)
+        const combinations = equipmentAffixCount * (equipmentAffixCount - 1) / 2;
+        const hitTwoTargetsFromProfane = profaneProbability * (1 / combinations);
+        
+        successRatePerAttempt = hitTwoTargetsFromProfane;
+    }
+    
+    // 确保成功率不低于0.1%
+    successRatePerAttempt = Math.max(successRatePerAttempt, 0.001);
+    
+    // 计算期望次数（期望次数 = 目标成功数 / 单次成功率）
+    const expectedAttempts = successRatePerAttempt > 0 ? Math.ceil(targetUpgradeCount / successRatePerAttempt) : 0;
+    
+    // 计算预期材料消耗
+    const expectedDarkCores = expectedAttempts * darkCores;
+    const expectedDemonCores = expectedAttempts * demonCores;
+    
+    // 计算预期总成本
+    const expectedTotalCost = expectedAttempts * singleCost;
+    
+    // 显示结果
+    const resultElement = document.getElementById('erosion-cost-result');
+    if (resultElement) {
+        resultElement.style.display = 'block';
+        resultElement.innerHTML = `
+            <div class="cost-result-header">
+                <h5><i class="fas fa-coins"></i> 预期成本</h5>
+            </div>
+            <div class="cost-result-content">
+                <div class="cost-item">
+                    <label>侵蚀类型：</label>
+                    <span>${erosionType === 'dark' ? '黑暗侵蚀' : '至暗侵蚀'}</span>
+                </div>
+                <div class="cost-item">
+                    <label>装备等级：</label>
+                    <span>${equipmentLevel}级</span>
+                </div>
+                <div class="cost-item">
+                    <label>装备类型：</label>
+                    <span>${isLegendary ? '传奇装备' : '非传奇装备'}</span>
+                </div>
+                <div class="cost-item">
+                    <label>单次侵蚀消耗：</label>
+                    <span>${darkCores} 异魔之核 + ${demonCores} 使魔之核</span>
+                </div>
+                <div class="cost-item">
+                    <label>傲慢概率：</label>
+                    <span>${(prideProbability * 100).toFixed(0)}%</span>
+                </div>
+                <div class="cost-item">
+                    <label>亵渎概率：</label>
+                    <span>${(profaneProbability * 100).toFixed(0)}%</span>
+                </div>
+                <div class="cost-item">
+                    <label>单次成功率：</label>
+                    <span>${(successRatePerAttempt * 100).toFixed(4)}%</span>
+                </div>
+                <div class="cost-item">
+                    <label>预期侵蚀次数：</label>
+                    <span id="expected-erosion-count">${expectedAttempts}</span>
+                </div>
+                <div class="cost-item">
+                    <label>预期材料消耗：</label>
+                    <span id="expected-material-cost">${expectedDarkCores} 异魔之核 + ${expectedDemonCores} 使魔之核</span>
+                </div>
+                <div class="cost-item">
+                    <label>预期装备消耗：</label>
+                    <span id="expected-equipment-cost">${expectedAttempts} 个装备</span>
+                </div>
+                <div class="cost-item total-expected-cost">
+                    <label>预期总成本：</label>
+                    <span id="expected-total-cost">${expectedTotalCost.toFixed(2)} 初火源质</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    showNotification('侵蚀成本计算完成！', 'success');
+}
+
+// 重置侵蚀计数
+function resetErosionCount() {
+    console.log('重置侵蚀计数');
+    
+    // 重置统计显示
+    const erosionCount = document.getElementById('erosion-count');
+    const darkCoreUsed = document.getElementById('dark-core-used');
+    const demonCoreUsed = document.getElementById('demon-core-used');
+    const totalErosionCost = document.getElementById('total-erosion-cost');
+    
+    if (erosionCount) erosionCount.textContent = '0';
+    if (darkCoreUsed) darkCoreUsed.textContent = '0';
+    if (demonCoreUsed) demonCoreUsed.textContent = '0';
+    if (totalErosionCost) totalErosionCost.textContent = '0 初火源质';
+    
+    // 重置结果统计
+    ['mutation-count', 'chaos-count', 'profane-count', 'pride-count', 'void-count'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '0';
+    });
+    
+    // 隐藏结果区域
+    const resultArea = document.getElementById('erosion-result-area');
+    const resultContent = document.getElementById('erosion-result-content');
+    if (resultArea) resultArea.style.display = 'none';
+    if (resultContent) resultContent.innerHTML = '';
+    
+    // 隐藏成本结果
+    const costResult = document.getElementById('erosion-cost-result');
+    if (costResult) costResult.style.display = 'none';
+    
+    // 重置装备显示
+    const erosionAffixesSection = document.getElementById('erosion-affixes-section');
+    if (erosionAffixesSection) erosionAffixesSection.style.display = 'none';
+    
+    showNotification('侵蚀计数已重置！', 'info');
+}
+
+// 执行多次侵蚀模拟
+function performMultipleErosion(erosionType) {
+    console.log(`执行多次${erosionType === 'dark' ? '黑暗' : '至暗'}侵蚀模拟`);
+    
+    const simulationCount = parseInt(document.getElementById('simulation-count')?.value) || 100;
+    const targetUpgradeCount = parseInt(document.getElementById('target-upgrade-count')?.value) || 1;
+    
+    let mutationCount = 0;
+    let chaosCount = 0;
+    let profaneCount = 0;
+    let prideCount = 0;
+    let voidCount = 0;
+    let totalUpgradeCount = 0;
+    
+    // 模拟多次侵蚀
+    for (let i = 0; i < simulationCount; i++) {
+        const result = getRandomErosionResult(erosionType);
+        
+        if (result.name === '异化') {
+            mutationCount++;
+            totalUpgradeCount += 1;
+        } else if (result.name === '混沌') {
+            chaosCount++;
+            totalUpgradeCount += 1;
+        } else if (result.name === '亵渎') {
+            profaneCount++;
+            totalUpgradeCount += 2;
+        } else if (result.name === '傲慢') {
+            prideCount++;
+            totalUpgradeCount += 1;
+        } else if (result.name === '虚无') {
+            voidCount++;
+        }
+    }
+    
+    // 更新显示
+    document.getElementById('mutation-count').textContent = mutationCount;
+    document.getElementById('chaos-count').textContent = chaosCount;
+    document.getElementById('profane-count').textContent = profaneCount;
+    document.getElementById('pride-count').textContent = prideCount;
+    document.getElementById('void-count').textContent = voidCount;
+    document.getElementById('erosion-count').textContent = simulationCount;
+    
+    // 显示统计结果
+    const resultArea = document.getElementById('erosion-result-area');
+    const resultContent = document.getElementById('erosion-result-content');
+    
+    if (resultArea && resultContent) {
+        resultArea.style.display = 'block';
+        resultContent.innerHTML = `
+            <div class="result-item">
+                <h4>${simulationCount}次${erosionType === 'dark' ? '黑暗' : '至暗'}侵蚀模拟结果</h4>
+                <div class="result-stats">
+                    <p>异化: ${mutationCount}次 (${((mutationCount / simulationCount) * 100).toFixed(1)}%)</p>
+                    <p>混沌: ${chaosCount}次 (${((chaosCount / simulationCount) * 100).toFixed(1)}%)</p>
+                    <p>亵渎: ${profaneCount}次 (${((profaneCount / simulationCount) * 100).toFixed(1)}%)</p>
+                    <p>傲慢: ${prideCount}次 (${((prideCount / simulationCount) * 100).toFixed(1)}%)</p>
+                    <p>虚无: ${voidCount}次 (${((voidCount / simulationCount) * 100).toFixed(1)}%)</p>
+                </div>
+                <div class="total-upgrades">
+                    <p><strong>总提升次数：${totalUpgradeCount}</strong></p>
+                    <p><strong>平均每次侵蚀提升：${(totalUpgradeCount / simulationCount).toFixed(2)}次</strong></p>
+                </div>
+            </div>
+        `;
+    }
+    
+    showNotification(`${simulationCount}次侵蚀模拟完成！`, 'success');
 }
 
 // 选择侵蚀类型
@@ -4546,22 +6780,167 @@ function resetCraftingInputs() {
 // 追忆打造系统相关函数
 let affixData = null;
 
+// 🔧 硬编码的追忆词缀数据（作为CORS失败时的后备方案）
+const HARDCODED_MEMORY_AFFIXES = [
+  {"词缀":"+39% 技能范围","T级":0,"等级":86,"权重":1000},
+  {"词缀":"+30% 技能范围","T级":1,"等级":86,"权重":2000},
+  {"词缀":"+23% 技能范围","T级":2,"等级":82,"权重":3000},
+  {"词缀":"+15% 技能范围","T级":3,"等级":1,"权重":4000},
+  {"词缀":"+52% 投射物速度","T级":0,"等级":86,"权重":1000},
+  {"词缀":"+40% 投射物速度","T级":1,"等级":86,"权重":2000},
+  {"词缀":"+30% 投射物速度","T级":2,"等级":82,"权重":3000},
+  {"词缀":"+20% 投射物速度","T级":3,"等级":1,"权重":4000},
+  {"词缀":"+(26–40)% 加剧效果","T级":0,"等级":86,"权重":1000},
+  {"词缀":"+(20–30)% 加剧效果","T级":1,"等级":86,"权重":2000},
+  {"词缀":"+(14–18)% 加剧效果","T级":2,"等级":82,"权重":3000},
+  {"词缀":"+(10–12)% 加剧效果","T级":3,"等级":1,"权重":4000},
+  {"词缀":"+(26–40)% 收割冷却回复速度","T级":0,"等级":86,"权重":1000},
+  {"词缀":"+(20–30)% 收割冷却回复速度","T级":1,"等级":86,"权重":2000},
+  {"词缀":"+(14–18)% 收割冷却回复速度","T级":2,"等级":82,"权重":3000},
+  {"词缀":"+(10–12)% 收割冷却回复速度","T级":3,"等级":1,"权重":4000},
+  {"词缀":"+(14–20)% 最大生命","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(10–16)% 最大生命","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(6–8)% 最大生命","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(4–6)% 最大生命","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(14–20)% 最大护盾","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(10–16)% 最大护盾","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(6–8)% 最大护盾","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(4–6)% 最大护盾","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(40–46)% 护甲值","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(30–36)% 护甲值","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(20–28)% 护甲值","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(12–18)% 护甲值","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(40–46)% 闪避值","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(30–36)% 闪避值","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(20–28)% 闪避值","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(12–18)% 闪避值","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(46–58)% 攻击暴击伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(36–44)% 攻击暴击伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(26–34)% 攻击暴击伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(16–24)% 攻击暴击伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(46–58)% 法术暴击伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(36–44)% 法术暴击伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(26–34)% 法术暴击伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(16–24)% 法术暴击伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(55–70)% 物理技能暴击伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(43–53)% 物理技能暴击伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(31–41)% 物理技能暴击伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(19–29)% 物理技能暴击伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(55–70)% 火焰技能暴击伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(43–53)% 火焰技能暴击伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(31–41)% 火焰技能暴击伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(19–29)% 火焰技能暴击伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(55–70)% 冰冷技能暴击伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(43–53)% 冰冷技能暴击伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(31–41)% 冰冷技能暴击伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(19–29)% 冰冷技能暴击伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(55–70)% 闪电技能暴击伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(43–53)% 闪电技能暴击伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(31–41)% 闪电技能暴击伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(19–29)% 闪电技能暴击伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(55–70)% 腐蚀技能暴击伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(43–53)% 腐蚀技能暴击伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(31–41)% 腐蚀技能暴击伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(19–29)% 腐蚀技能暴击伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(55–70)% 召唤物暴击伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(43–53)% 召唤物暴击伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(31–41)% 召唤物暴击伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(19–29)% 召唤物暴击伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+104% 攻击暴击值","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+80% 攻击暴击值","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+60% 攻击暴击值","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+40% 攻击暴击值","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+104% 法术暴击值","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+80% 法术暴击值","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+60% 法术暴击值","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+40% 法术暴击值","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+104% 召唤物暴击值","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+80% 召唤物暴击值","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+60% 召唤物暴击值","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+40% 召唤物暴击值","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+18% 攻击与施法速度\n+18% 召唤物攻击与施法速度","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+14% 攻击与施法速度\n+14% 召唤物攻击与施法速度","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+10% 攻击与施法速度\n+10% 召唤物攻击与施法速度","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+6% 攻击与施法速度\n+6% 召唤物攻击与施法速度","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(58–68)% 攻击伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(44–52)% 攻击伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(30–42)% 攻击伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(20–28)% 攻击伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(58–68)% 法术伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(44–52)% 法术伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(30–42)% 法术伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(20–28)% 法术伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(58–68)% 物理伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(44–52)% 物理伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(30–42)% 物理伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(20–28)% 物理伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(58–68)% 冰冷伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(44–52)% 冰冷伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(30–42)% 冰冷伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(20–28)% 冰冷伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(58–68)% 火焰伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(44–52)% 火焰伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(30–42)% 火焰伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(20–28)% 火焰伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(58–68)% 闪电伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(44–52)% 闪电伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(30–42)% 闪电伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(20–28)% 闪电伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(58–68)% 腐蚀伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(44–52)% 腐蚀伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(30–42)% 腐蚀伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(20–28)% 腐蚀伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(58–68)% 持续伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(44–52)% 持续伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(30–42)% 持续伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(20–28)% 持续伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(58–68)% 召唤物伤害","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(44–52)% 召唤物伤害","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(30–42)% 召唤物伤害","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(20–28)% 召唤物伤害","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(21–31)% 攻击格挡率","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(16–24)% 攻击格挡率","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(11–16)% 攻击格挡率","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(7–11)% 攻击格挡率","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(21–31)% 法术格挡率","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(16–24)% 法术格挡率","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(11–16)% 法术格挡率","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(7–11)% 法术格挡率","T级":3,"等级":1,"权重":8667},
+  {"词缀":"+(18–23)% 魔灵之源效果","T级":0,"等级":86,"权重":1000},
+  {"词缀":"+(14–18)% 魔灵之源效果","T级":1,"等级":86,"权重":2000},
+  {"词缀":"+(9–12)% 魔灵之源效果","T级":2,"等级":82,"权重":3000},
+  {"词缀":"+(6–8)% 魔灵之源效果","T级":3,"等级":1,"权重":4000},
+  {"词缀":"+(25–32)% 贯注速度","T级":0,"等级":86,"权重":1000},
+  {"词缀":"+(18–24)% 贯注速度","T级":1,"等级":86,"权重":2000},
+  {"词缀":"+(12–17)% 贯注速度","T级":2,"等级":82,"权重":3000},
+  {"词缀":"+(6–11)% 贯注速度","T级":3,"等级":1,"权重":4000},
+  {"词缀":"+(22–27)% 最大魔力","T级":0,"等级":86,"权重":2167},
+  {"词缀":"+(16–21)% 最大魔力","T级":1,"等级":86,"权重":4333},
+  {"词缀":"+(12–15)% 最大魔力","T级":2,"等级":82,"权重":6500},
+  {"词缀":"+(9–11)% 最大魔力","T级":3,"等级":1,"权重":8667}
+];
+
 // 加载词缀数据
 async function loadAffixData() {
     if (affixData) return affixData;
     
     try {
+        console.log('🔧 尝试从 memory_affixes.json 加载词缀数据...');
         const response = await fetch('memory_affixes.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         affixData = await response.json();
-        console.log('追忆词缀数据加载成功，共', affixData.length, '条词缀');
+        console.log('✓ 追忆词缀数据加载成功（从文件），共', affixData.length, '条词缀');
         return affixData;
     } catch (error) {
-        console.error('加载追忆词缀数据失败:', error);
-        showNotification('加载追忆词缀数据失败', 'error');
-        return null;
+        console.warn('⚠ 加载 memory_affixes.json 失败（CORS或文件不存在）:', error);
+        console.log('🔧 使用硬编码的词缀数据作为后备方案');
+        
+        // 🔧 使用硬编码数据
+        affixData = HARDCODED_MEMORY_AFFIXES;
+        console.log('✓ 追忆词缀数据加载成功（硬编码），共', affixData.length, '条词缀');
+        return affixData;
     }
 }
 
@@ -4616,27 +6995,46 @@ function searchAffixes(keyword) {
 
 // 填充词缀选择器
 function populateAffixSelect(selectId, affixes) {
+    console.log(`populateAffixSelect(${selectId}): 开始填充，词缀数: ${affixes.length}`);
+    
     const selectElement = document.getElementById(selectId);
-    if (!selectElement) return;
+    if (!selectElement) {
+        console.error(`populateAffixSelect: 未找到元素 ${selectId}`);
+        return;
+    }
     
     // 清空现有选项
     selectElement.innerHTML = '<option value="">请选择词缀</option>';
+    console.log(`populateAffixSelect(${selectId}): 已清空选择器`);
     
     // 添加词缀选项
+    let addedCount = 0;
     affixes.forEach(affix => {
         const option = document.createElement('option');
         option.value = affix.name;
         option.textContent = affix.name;
         selectElement.appendChild(option);
+        addedCount++;
     });
+    
+    console.log(`populateAffixSelect(${selectId}): 已添加 ${addedCount} 个选项`);
+    console.log(`populateAffixSelect(${selectId}): 当前选项总数: ${selectElement.querySelectorAll('option').length}`);
 }
 
 // 设置词缀搜索功能
 function setupAffixSearch() {
+    console.log('========== 词缀搜索功能诊断 ==========');
+    
     const affix1Search = document.getElementById('affix1-search');
     const affix2Search = document.getElementById('affix2-search');
     const targetAffix1 = document.getElementById('target-affix-1');
     const targetAffix2 = document.getElementById('target-affix-2');
+    
+    console.log('DOM元素检查:');
+    console.log('   affix1-search:', !!affix1Search);
+    console.log('   affix2-search:', !!affix2Search);
+    console.log('   target-affix-1:', !!targetAffix1);
+    console.log('   target-affix-2:', !!targetAffix2);
     
     if (!affix1Search || !affix2Search || !targetAffix1 || !targetAffix2) {
         console.warn('词缀搜索DOM元素未找到');
@@ -4644,16 +7042,35 @@ function setupAffixSearch() {
     }
     
     // 初始化时填充所有可用的词缀
+    console.log('\n开始获取词缀列表...');
     const allAffixes = getAllAffixes();
+    console.log('可用词缀数量:', allAffixes.length);
     console.log('初始化词缀选择器，可用词缀数量:', allAffixes.length);
+    
+    if (allAffixes.length === 0) {
+        console.error('⚠ 词缀列表为空！');
+        return;
+    }
+    
+    console.log('开始填充词缀选择器1...');
     populateAffixSelect('target-affix-1', allAffixes);
+    console.log('开始填充词缀选择器2...');
     populateAffixSelect('target-affix-2', allAffixes);
+    
+    // 验证填充结果
+    const opt1Count = targetAffix1.querySelectorAll('option').length;
+    const opt2Count = targetAffix2.querySelectorAll('option').length;
+    console.log('填充后验证:');
+    console.log('   词缀1选项数:', opt1Count);
+    console.log('   词缀2选项数:', opt2Count);
     
     if (affix1Search && targetAffix1) {
         affix1Search.addEventListener('input', function() {
             const keyword = this.value.trim();
+            console.log('词缀1搜索:', keyword);
             if (keyword.length >= 1) {
                 const matchedAffixes = searchAffixes(keyword);
+                console.log('匹配词缀数:', matchedAffixes.length);
                 populateAffixSelect('target-affix-1', matchedAffixes);
             } else {
                 // 如果搜索框为空，显示所有词缀
@@ -4665,8 +7082,10 @@ function setupAffixSearch() {
     if (affix2Search && targetAffix2) {
         affix2Search.addEventListener('input', function() {
             const keyword = this.value.trim();
+            console.log('词缀2搜索:', keyword);
             if (keyword.length >= 1) {
                 const matchedAffixes = searchAffixes(keyword);
+                console.log('匹配词缀数:', matchedAffixes.length);
                 populateAffixSelect('target-affix-2', matchedAffixes);
             } else {
                 // 如果搜索框为空，显示所有词缀
@@ -4675,7 +7094,7 @@ function setupAffixSearch() {
         });
     }
     
-    console.log('词缀搜索功能设置完成');
+    console.log('========== 词缀搜索功能设置完成 ==========');
 }
 
 // 计算追忆打造成本
@@ -4685,8 +7104,10 @@ function calculateMemoryCost() {
     // 获取输入值
     const memoryQuality = document.querySelector('input[name="memory-quality"]:checked')?.value || 'excellent';
     const currentLevel = parseInt(document.getElementById('current-level')?.value) || 1;
-    const fragmentPrice = parseFloat(document.getElementById('fragment-price')?.value) || 0;
-    const threadPrice = parseFloat(document.getElementById('thread-price')?.value) || 0;
+    
+    // 🔧 使用统一的材料价格管理器获取价格
+    const fragmentPrice = MaterialPriceManager.getPrice('fragmentPrice');
+    const threadPrice = MaterialPriceManager.getPrice('threadPrice');
     const targetAffix1Value = document.getElementById('target-affix-1')?.value || '';
     const targetAffix2Value = document.getElementById('target-affix-2')?.value || '';
     
@@ -4804,17 +7225,8 @@ function calculateMemoryCost() {
     const levelInfo = targetLevel > currentLevel ? `升级到${targetLevel}级` : '无需升级';
     showNotification(`追忆打造成本计算完成！${levelInfo}`, 'success');
     
-    // 保存材料价格
-    const materials = {
-        lingsha: parseFloat(document.getElementById('lingsha-price')?.value) || 0,
-        zhengui: parseFloat(document.getElementById('zhengui-price')?.value) || 0,
-        xishi: parseFloat(document.getElementById('xishi-price')?.value) || 0,
-        zhizhen: parseFloat(document.getElementById('zhizhen-price')?.value) || 0,
-        shensheng: parseFloat(document.getElementById('shensheng-price')?.value) || 0,
-        dreamWeapon: parseFloat(document.getElementById('dream-weapon-price')?.value) || 0,
-        dreamAccessory: parseFloat(document.getElementById('dream-accessory-price')?.value) || 0
-    };
-    saveMaterialPrices(materials);
+    // 保存材料价格 - 使用统一管理器
+    MaterialPriceManager.saveAllPrices();
     
     // 保存数据
     saveMemoryData();
@@ -4995,16 +7407,10 @@ function updateMemoryResults(results) {
     const fragmentPrice = results.fragmentPrice || 0;
     const threadPrice = results.threadPrice || 0;
     
-    // 计算强化成本（材料数量 * 单价）
-    const enhancementFragmentCost = (results.enhancementFragmentCost || 0) * fragmentPrice;
-    const enhancementThreadCost = (results.enhancementThreadCost || 0) * threadPrice;
-    const enhancementTotal = enhancementFragmentCost + enhancementThreadCost;
-    
-    // 重构成本已经在calculateReconstructionCost中计算了价格
-    const reconstructionTotal = (results.reconstructionTotalCost || 0);
-    
-    // 总成本
-    const grandTotal = enhancementTotal + reconstructionTotal;
+    // 🔧 修复：直接使用 calculateMemoryCost 中计算好的结果
+    const enhancementTotal = results.enhancementTotalCost || 0;
+    const reconstructionTotal = results.reconstructionTotalCost || 0;
+    const grandTotal = results.grandTotalCost || 0;
     
     // 更新升级成本显示（显示材料数量）
     if (elements.enhancementFragmentCost) {
@@ -5037,13 +7443,9 @@ function updateMemoryResults(results) {
     console.log('结果显示更新:', {
         enhancementFragmentCount: results.enhancementFragmentCost,
         enhancementThreadCount: results.enhancementThreadCost,
-        enhancementFragmentCost: enhancementFragmentCost,
-        enhancementThreadCost: enhancementThreadCost,
         enhancementTotal: enhancementTotal,
         reconstructionFragmentCount: results.reconstructionFragmentCost,
         reconstructionThreadCount: results.reconstructionThreadCost,
-        reconstructionFragmentCostPrice: results.reconstructionFragmentCostPrice,
-        reconstructionThreadCostPrice: results.reconstructionThreadCostPrice,
         reconstructionTotal: reconstructionTotal,
         grandTotal: grandTotal,
         fragmentPrice: fragmentPrice,
@@ -5128,46 +7530,87 @@ function loadMemoryData() {
 
 // 初始化追忆打造系统
 async function initializeMemoryCrafting() {
-    console.log('初始化追忆打造系统');
+    console.log('========== 追忆打造系统诊断 ==========');
+    console.log('开始初始化追忆打造系统');
     
     try {
-        // 加载词缀数据
+        // 1. 检查DOM元素是否存在
+        console.log('1. 检查DOM元素:');
+        const testElements = {
+            'affix1-search': document.getElementById('affix1-search'),
+            'affix2-search': document.getElementById('affix2-search'),
+            'target-affix-1': document.getElementById('target-affix-1'),
+            'target-affix-2': document.getElementById('target-affix-2'),
+            'fragment-price': document.getElementById('fragment-price'),
+            'thread-price': document.getElementById('thread-price'),
+            'memory-crafting': document.getElementById('memory-crafting')
+        };
+        
+        Object.keys(testElements).forEach(key => {
+            console.log(`   ${key}: ${testElements[key] ? '✓ 已找到' : '✗ 未找到'}`);
+        });
+        
+        // 2. 检查memory_affixes.json文件是否存在
+        console.log('\n2. 尝试加载词缀数据:');
         await loadAffixData();
         
         // 检查词缀数据是否加载成功
         if (affixData) {
-            console.log('词缀数据加载成功，数据长度:', affixData.length);
-            console.log('词缀数据示例:', affixData[0]);
+            console.log('   ✓ 词缀数据加载成功，数据长度:', affixData.length);
+            console.log('   词缀数据示例:', affixData[0]);
         } else {
-            console.error('词缀数据加载失败');
+            console.error('   ✗ 词缀数据加载失败');
         }
         
-        // 确保DOM元素存在后再设置功能
+        // 3. 确保DOM元素存在后再设置功能
+        console.log('\n3. 验证关键DOM元素:');
         const affix1Search = document.getElementById('affix1-search');
         const affix2Search = document.getElementById('affix2-search');
         const targetAffix1 = document.getElementById('target-affix-1');
         const targetAffix2 = document.getElementById('target-affix-2');
         
-        if (!affix1Search || !affix2Search || !targetAffix1 || !targetAffix2) {
-            console.warn('追忆打造系统DOM元素未找到，延迟初始化');
+        const allElementsExist = affix1Search && affix2Search && targetAffix1 && targetAffix2;
+        console.log(`   所有关键元素存在: ${allElementsExist ? '✓ 是' : '✗ 否'}`);
+        
+        if (!allElementsExist) {
+            console.warn('   追忆打造系统DOM元素未找到，延迟初始化');
             setTimeout(() => initializeMemoryCrafting(), 500);
             return;
         }
         
-        // 设置词缀搜索功能
+        // 4. 设置词缀搜索功能
+        console.log('\n4. 设置词缀搜索功能...');
         setupAffixSearch();
+        console.log('   ✓ 词缀搜索功能已设置');
         
-        // 加载保存的数据
+        // 5. 验证词缀选择器是否被填充
+        console.log('\n5. 验证词缀选择器:');
+        const targetAffix1Options = targetAffix1.querySelectorAll('option');
+        const targetAffix2Options = targetAffix2.querySelectorAll('option');
+        console.log(`   目标词缀1选项数: ${targetAffix1Options.length}`);
+        console.log(`   目标词缀2选项数: ${targetAffix2Options.length}`);
+        
+        if (targetAffix1Options.length <= 1) {
+            console.warn('   ⚠ 目标词缀1选项太少，可能填充失败');
+        }
+        
+        // 6. 加载保存的数据
+        console.log('\n6. 加载保存的数据...');
         loadMemoryData();
+        console.log('   ✓ 保存的数据已加载');
         
-        // 设置自动保存
+        // 7. 设置自动保存
+        console.log('\n7. 设置自动保存...');
         const memoryInputs = document.querySelectorAll('#memory-crafting input, #memory-crafting select');
+        console.log(`   找到 ${memoryInputs.length} 个输入元素`);
         memoryInputs.forEach(input => {
             input.addEventListener('change', saveMemoryData);
         });
+        console.log('   ✓ 自动保存已设置');
         
-        console.log('追忆打造系统初始化完成');
+        console.log('\n========== 追忆打造系统初始化完成 ==========');
     } catch (error) {
-        console.error('追忆打造系统初始化失败:', error);
+        console.error('========== 追忆打造系统初始化失败 ==========');
+        console.error('错误:', error);
     }
 }

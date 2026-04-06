@@ -1,4 +1,8 @@
-/* 全局样式 - 优化布局 */
+/* ==========================================
+   火炬计算器 - 统一样式规范
+   ========================================== */
+
+/* ========== 全局样式 ========== */
 * {
     margin: 0;
     padding: 0;
@@ -9,12 +13,6 @@
 .app-container {
     min-width: 320px;
     overflow-x: hidden;
-}
-
-/* 统一所有选择框和输入框的基础样式 */
-select, input[type="text"], input[type="number"] {
-    box-sizing: border-box;
-    max-width: 100%;
 }
 
 /* 防止内容溢出 */
@@ -29,6 +27,174 @@ body {
     color: #333;
     overflow-x: hidden;
 }
+
+/* ========== 统一颜色变量 ========== */
+:root {
+    --primary-gradient: linear-gradient(135deg, #ff6b6b, #ffa500);
+    --accent-gradient: linear-gradient(135deg, #667eea, #764ba2);
+    --card-border-gradient: linear-gradient(90deg, #ff6b6b, #ffa500, #4ecdc4, #45b7d1);
+    
+    --text-primary: white;
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    --text-tertiary: rgba(255, 255, 255, 0.7);
+    --text-placeholder: rgba(255, 255, 255, 0.5);
+    
+    --input-bg: rgba(255, 255, 255, 0.1);
+    --input-bg-focus: rgba(255, 255, 255, 0.15);
+    --input-border: rgba(255, 255, 255, 0.2);
+    --input-border-focus: #ff6b6b;
+    
+    --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+    --result-bg: rgba(255, 255, 255, 0.05);
+    
+    --shadow-small: 0 4px 15px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --shadow-large: 0 12px 40px rgba(0, 0, 0, 0.15);
+    
+    --border-radius-sm: 6px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-radius-xl: 16px;
+    
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========== 统一选择框样式 ========== */
+select, input[type="text"], input[type="number"] {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+/* 统一选择框基础样式 - 所有模块通用 */
+.base-select {
+    padding: 0.6rem 0.8rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--border-radius-md);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: all var(--transition-normal);
+}
+
+.base-select:focus {
+    outline: none;
+    border-color: var(--input-border-focus);
+    background: var(--input-bg-focus);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+}
+
+.base-select option {
+    background: #2a2a2a;
+    color: var(--text-primary);
+}
+
+/* 统一选择框样式 - 所有选择框使用相同的基础样式 */
+.affix-select,
+.dream-select,
+.focus-select,
+select {
+    padding: 0.6rem 0.8rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--border-radius-md);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: all var(--transition-normal);
+}
+
+.affix-select:focus,
+.dream-select:focus,
+.focus-select:focus,
+select:focus {
+    outline: none;
+    border-color: var(--input-border-focus);
+    background: var(--input-bg-focus);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+}
+
+.affix-select option,
+.dream-select option,
+.focus-select option,
+select option {
+    background: #2a2a2a;
+    color: var(--text-primary);
+}
+
+/* ========== 统一输入框样式 ========== */
+/* 所有输入框使用相同的基础样式 */
+.material-input,
+.number-input,
+.number-input-small,
+input[type="text"],
+input[type="number"] {
+    padding: 0.6rem 0.8rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--border-radius-md);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: all var(--transition-normal);
+    text-align: center;
+}
+
+.material-input:focus,
+.number-input:focus,
+.number-input-small:focus,
+input[type="text"]:focus,
+input[type="number"]:focus {
+    outline: none;
+    border-color: var(--input-border-focus);
+    background: var(--input-bg-focus);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+    transform: translateY(-2px);
+}
+
+.material-input::placeholder,
+.number-input::placeholder,
+.number-input-small::placeholder,
+input[type="text"]::placeholder,
+input[type="number"]::placeholder {
+    color: var(--text-placeholder);
+}
+
+/* 输入框尺寸变体 */
+.material-input { width: 120px; }
+.number-input { width: 140px; }
+.number-input-small { 
+    width: 100%; 
+    padding: 6px 8px;
+    font-size: 13px;
+}
+
+
+/* ========== 统一结果显示样式 ========== */
+.result-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.result-item span {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+}
+
+/* ========== 统一模块卡片样式 ========== */
+.module-card {
+    min-height: 280px;
+}
+
+/* ========== 统一按钮样式 ========== */
+/* 基础按钮样式已存在，保持原样 */
 
 .app-container {
     display: flex;
@@ -155,6 +321,8 @@ body {
     padding: 0 1rem;
     flex: 1;
     margin-bottom: 1rem;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .nav-item {
@@ -524,25 +692,6 @@ body {
 
 .affix-select {
     width: 140px;
-    padding: 0.6rem 0.8rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    color: white;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
-
-.affix-select:focus {
-    outline: none;
-    border-color: #ff6b6b;
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
-}
-
-.affix-select option {
-    background: #2a2a2a;
-    color: white;
 }
 
 /* 材料网格 */
@@ -570,40 +719,12 @@ body {
 
 .material-input {
     width: 120px;
-    padding: 0.6rem 0.8rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    color: white;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    text-align: center;
     justify-self: end;
-}
-
-.material-input:focus {
-    outline: none;
-    border-color: #ff6b6b;
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
-    transform: translateY(-2px);
-}
-
-.material-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
 }
 
 /* 统一数字输入框样式 */
 .number-input {
     width: 140px;
-    padding: 0.6rem 0.8rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    color: white;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    text-align: center;
 }
 
 /* 封印系统中辅助技能等级输入框特殊样式 */
@@ -629,18 +750,6 @@ body {
 .seal-support-skills .form-group .dream-select {
     flex: 1;
     min-width: 120px;
-}
-
-.number-input:focus {
-    outline: none;
-    border-color: #ff6b6b;
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
-    transform: translateY(-2px);
-}
-
-.number-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
 }
 
 /* 计算按钮 */
@@ -943,29 +1052,7 @@ body {
     text-align: center;
 }
 
-.number-input-small {
-    width: 100%;
-    padding: 6px 8px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    font-size: 13px;
-    text-align: center;
-    transition: all 0.3s ease;
-}
 
-.number-input-small:focus {
-    outline: none;
-    border-color: #ff6b6b;
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
-}
-
-.number-input-small::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 12px;
-}
 
 .elemental-damage-grid .form-group:last-child {
     grid-column: 1 / -1;
@@ -1017,15 +1104,7 @@ body {
     margin-bottom: 0.8rem;
 }
 
-.result-value {
-    font-size: 1.3rem;
-    font-weight: 700;
-    background: linear-gradient(45deg, #ff6b6b, #ffa500);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
+
 
 .dr-detail {
     font-size: 1.1rem;
@@ -1275,10 +1354,7 @@ body {
     font-size: 0.9rem;
 }
 
-.result-item span {
-    color: #4CAF50;
-    font-weight: 600;
-}
+
 
 .dr-number {
     text-align: center;
@@ -3219,6 +3295,61 @@ select.select-input option {
     color: var(--text-color);
 }
 
+/* 侵蚀词缀样式 - 炫彩烫金紫色 */
+.affix-item.erosion-purple {
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
+    border: 1px solid #a855f7;
+    color: #e879f9;
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(168, 85, 247, 0.5), 0 0 20px rgba(168, 85, 247, 0.3);
+    animation: erosion-glow 2s ease-in-out infinite;
+}
+
+.affix-item.erosion-gold {
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(234, 88, 12, 0.15) 100%);
+    border: 1px solid #eab308;
+    color: #facc15;
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(234, 179, 8, 0.5), 0 0 20px rgba(234, 179, 8, 0.3);
+    animation: gold-glow 2s ease-in-out infinite;
+}
+
+.affix-item.erosion-orange {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(239, 68, 68, 0.15) 100%);
+    border: 1px solid #f97316;
+    color: #fb923c;
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(249, 115, 22, 0.5), 0 0 20px rgba(249, 115, 22, 0.3);
+    animation: orange-glow 2s ease-in-out infinite;
+}
+
+@keyframes erosion-glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(168, 85, 247, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.6), 0 0 25px rgba(168, 85, 247, 0.4);
+    }
+}
+
+@keyframes gold-glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(234, 179, 8, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 15px rgba(234, 179, 8, 0.6), 0 0 25px rgba(234, 179, 8, 0.4);
+    }
+}
+
+@keyframes orange-glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(249, 115, 22, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 15px rgba(249, 115, 22, 0.6), 0 0 25px rgba(249, 115, 22, 0.4);
+    }
+}
+
 
 
 /* 功能说明 */
@@ -4516,4 +4647,41 @@ select.select-input option {
     line-height: 1.2;
     display: block;
 }
+
+/* ============================================
+   材料价格管理器 - 输入验证样式
+   ============================================ */
+
+/* 输入框错误状态样式 */
+.input-error {
+    border: 2px solid #ff4757 !important;
+    background-color: rgba(255, 71, 87, 0.05) !important;
+    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.15) !important;
+    animation: inputErrorShake 0.4s ease-in-out;
+}
+
+@keyframes inputErrorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* 深色主题下的错误状态 */
+.dark-theme .input-error {
+    border-color: #ff6b6b !important;
+    background-color: rgba(255, 107, 107, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2) !important;
+}
+
+/* 输入框成功状态（可选） */
+.input-success {
+    border: 2px solid #2ed573 !important;
+    background-color: rgba(46, 213, 115, 0.05) !important;
+    box-shadow: 0 0 0 3px rgba(46, 213, 115, 0.15) !important;
+}
+
+.dark-theme .input-success {
+    border-color: #00d869 !important;
+    background-color: rgba(0, 216, 105, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(0, 216, 105, 0.2) !important;
 }
