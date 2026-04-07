@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>火炬之光无限 - 计算辅助工具</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=10">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -412,11 +412,11 @@
                                         <h3><i class="fas fa-magic"></i> 侵蚀模拟</h3>
                                         <div class="erosion-controls">
                                             <div class="erosion-buttons">
-                                                <button class="erosion-btn dark-erosion" onclick="performErosion('dark')">
+                                                <button class="erosion-btn dark-erosion" id="dark-erosion-btn">
                                                     <i class="fas fa-moon"></i>
                                                     黑暗侵蚀
                                                 </button>
-                                                <button class="erosion-btn deepest-erosion" onclick="performErosion('deepest')">
+                                                <button class="erosion-btn deepest-erosion" id="extreme-erosion-btn">
                                                     <i class="fas fa-skull"></i>
                                                     至暗侵蚀
                                                 </button>
@@ -439,11 +439,11 @@
                                                     </div>
                                                 </div>
                                                 <div class="simulation-buttons">
-                                                    <button class="simulation-btn dark-simulation" onclick="performMultipleErosion('dark')">
+                                                    <button class="simulation-btn dark-simulation" id="batch-dark-btn">
                                                         <i class="fas fa-moon"></i>
                                                         模拟黑暗侵蚀
                                                     </button>
-                                                    <button class="simulation-btn deepest-simulation" onclick="performMultipleErosion('deepest')">
+                                                    <button class="simulation-btn deepest-simulation" id="batch-extreme-btn">
                                                         <i class="fas fa-skull"></i>
                                                         模拟至暗侵蚀
                                                     </button>
@@ -514,11 +514,11 @@
                                 <div class="erosion-type-selection">
                                     <label>侵蚀类型</label>
                                     <div class="erosion-type-buttons">
-                                        <button class="erosion-type-btn active" id="cost-dark-btn" onclick="selectErosionType('dark')">
+                                        <button class="erosion-type-btn active" id="cost-dark-btn" >
                                             <i class="fas fa-moon"></i>
                                             黑暗侵蚀
                                         </button>
-                                        <button class="erosion-type-btn" id="cost-deepest-btn" onclick="selectErosionType('deepest')">
+                                        <button class="erosion-type-btn" id="cost-deepest-btn" >
                                             <i class="fas fa-skull"></i>
                                             至暗侵蚀
                                         </button>
@@ -529,7 +529,7 @@
                                  <div class="target-affixes-selection">
                                      <div class="target-affix-group">
                                           <label>需要提升的词缀数量</label>
-                                          <select id="target-upgrade-count" class="equipment-select" onchange="calculateErosionCost()">
+                                          <select id="target-upgrade-count" class="equipment-select" >
                                               <option value="">请选择提升数量</option>
                                               <option value="1">提升1个词缀</option>
                                               <option value="2">提升2个词缀</option>
@@ -537,12 +537,12 @@
                                       </div>
                                       <div class="target-affix-group">
                                           <label>装备词条数量</label>
-                                          <input type="number" id="equipment-affix-count" class="equipment-select" placeholder="装备总词条数" min="1" max="10" value="4" onchange="calculateErosionCost()">
+                                          <input type="number" id="equipment-affix-count" class="equipment-select" placeholder="装备总词条数" min="1" max="10" value="4" >
                                       </div>
                                  </div>
                                 
                                 <!-- 计算按钮 -->
-                                <button class="calculate-erosion-btn" onclick="calculateErosionCost()">
+                                <button class="calculate-erosion-btn" >
                                     <i class="fas fa-calculator"></i>
                                     计算侵蚀成本
                                 </button>
@@ -573,7 +573,7 @@
                                 </div>
                             </div>
                             
-                            <button class="reset-btn" onclick="resetErosionCount()">
+                            <button class="reset-btn" >
                                 <i class="fas fa-undo"></i>
                                 重置计数
                             </button>
@@ -2183,6 +2183,8 @@
         </main>
     </div>
 
-    <script src="script.js?v=5"></script>
+    <script src="legendary_equipment_new_data.js"></script>
+    <script src="erosion_system_new.js"></script>
+    <script src="script.js?v=13"></script>
 </body>
 </html>

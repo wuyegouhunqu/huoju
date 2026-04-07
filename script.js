@@ -880,6 +880,56 @@ window.debugTower = function() {
     console.log('========== 调试结束 ==========');
 };
 
+// ========== 侵蚀系统诊断函数 ==========
+window.debugErosion = function() {
+    console.log('========== 侵蚀系统诊断 ==========');
+    
+    // 1. 检查DOM元素
+    console.log('1. 检查DOM元素:');
+    const elements = {
+        'equipment-type': document.getElementById('equipment-type'),
+        'equipment-name': document.getElementById('equipment-name'),
+        'display-equipment-name': document.getElementById('display-equipment-name'),
+        'base-affixes': document.getElementById('base-affixes'),
+        'normal-affixes': document.getElementById('normal-affixes')
+    };
+    
+    for (const [id, el] of Object.entries(elements)) {
+        console.log(`   ${id}: ${el ? '✓ 存在' : '✗ 不存在'}`);
+    }
+    
+    // 2. 检查装备数据
+    console.log('2. 检查装备数据:');
+    console.log('   gameData.legendaryEquipment:', gameData.legendaryEquipment);
+    console.log('   gameData.legendaryEquipment.装备数据:', gameData.legendaryEquipment?.装备数据);
+    
+    if (gameData.legendaryEquipment?.装备数据) {
+        console.log('   可用装备类型:', Object.keys(gameData.legendaryEquipment.装备数据));
+    }
+    
+    // 3. 检查当前选择
+    console.log('3. 检查当前选择:');
+    const equipmentType = document.getElementById('equipment-type')?.value;
+    const equipmentName = document.getElementById('equipment-name')?.value;
+    console.log('   equipment-type:', equipmentType);
+    console.log('   equipment-name:', equipmentName);
+    
+    // 4. 如果有装备选择，手动调用updateEquipmentDisplay
+    if (equipmentName) {
+        console.log('4. 手动调用 updateEquipmentDisplay...');
+        try {
+            updateEquipmentDisplay(equipmentName);
+            console.log('5. updateEquipmentDisplay 调用成功！');
+        } catch (e) {
+            console.error('5. updateEquipmentDisplay 调用失败:', e);
+        }
+    } else {
+        console.log('4. 未选择装备，请先选择装备后再调用 debugErosion()');
+    }
+    
+    console.log('========== 诊断结束 ==========');
+};
+
 // DOM加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
@@ -888,6 +938,25 @@ document.addEventListener('DOMContentLoaded', function() {
 // 初始化应用
 function initializeApp() {
     console.log('[初始化] ========== 开始初始化应用 ==========');
+    
+    // 🔧 优先使用新数据结构
+    console.log('[初始化] 立即设置传奇装备数据（新数据结构）...');
+    if (typeof newLegendaryEquipment !== 'undefined') {
+        gameData.legendaryEquipment = newLegendaryEquipment;
+        console.log('[初始化] ✓ 传奇装备数据已设置（来自newLegendaryEquipment）');
+        console.log('[初始化]   装备类型keys:', Object.keys(newLegendaryEquipment.装备类型 || {}));
+        console.log('[初始化]   装备数据keys:', Object.keys(newLegendaryEquipment.装备数据 || {}));
+    } else if (typeof completeLegendaryEquipment !== 'undefined') {
+        gameData.legendaryEquipment = completeLegendaryEquipment;
+        console.log('[初始化] ✓ 传奇装备数据已设置（来自completeLegendaryEquipment）');
+        console.log('[初始化]   装备类型keys:', Object.keys(completeLegendaryEquipment.装备类型 || {}));
+        console.log('[初始化]   装备数据keys:', Object.keys(completeLegendaryEquipment.装备数据 || {}));
+    } else {
+        console.warn('[初始化] 新数据未找到，使用fallbackLegendaryEquipment');
+        gameData.legendaryEquipment = fallbackLegendaryEquipment;
+        console.log('[初始化]   装备类型keys:', Object.keys(fallbackLegendaryEquipment.装备类型 || {}));
+        console.log('[初始化]   装备数据keys:', Object.keys(fallbackLegendaryEquipment.装备数据 || {}));
+    }
     
     // 首先初始化UI相关功能（确保DOM已加载）
     setupThemeToggle();
@@ -920,7 +989,7 @@ function initializeApp() {
             initializeSkillSystem();
             initializeSealSystem();
             initializeHarvestTierSystem();
-            initializeErosionSimulation();
+            initializeErosionSimulationNew();
             await initializeMemoryCrafting();
             setupCraftingEventListeners();
             console.log('[初始化] 所有其他系统初始化完成');
@@ -939,7 +1008,7 @@ function initializeApp() {
             initializeSkillSystem();
             initializeSealSystem();
             initializeHarvestTierSystem();
-            initializeErosionSimulation();
+            initializeErosionSimulationNew();
             await initializeMemoryCrafting();
             setupCraftingEventListeners();
         }, 100);
@@ -1088,7 +1157,7 @@ function parseSupportSkillsText(text) {
     return data;
 }
 
-// 填充武器子类型
+// 填充武器子类型（根据传奇装备.json的实际数据）
 function populateWeaponSubtypes(weaponType) {
     const weaponSubtypeSelect = document.getElementById('weapon-subtype');
     if (!weaponSubtypeSelect) return;
@@ -1096,14 +1165,19 @@ function populateWeaponSubtypes(weaponType) {
     // 清空现有选项
     weaponSubtypeSelect.innerHTML = '<option value="">请选择武器类型</option>';
     
-    // 根据武器类型添加子类型选项
-    const subtypes = {
-        '单手': ['剑', '斧', '锤', '匕首', '法杖', '弓'],
-        '双手': ['双手剑', '双手斧', '双手锤', '长杖', '弩']
-    };
+    // 根据传奇装备.json中的装备类型数据
+    const equipmentData = gameData.legendaryEquipment;
+    if (!equipmentData || !equipmentData.装备类型) {
+        console.warn('装备类型数据未加载');
+        return;
+    }
     
-    if (subtypes[weaponType]) {
-        subtypes[weaponType].forEach(subtype => {
+    // 获取对应武器类型的子类型列表
+    const subtypes = equipmentData.装备类型[weaponType] || [];
+    console.log(`武器类型 ${weaponType} 的子类型:`, subtypes);
+    
+    if (Array.isArray(subtypes)) {
+        subtypes.forEach(subtype => {
             const option = document.createElement('option');
             option.value = subtype;
             option.textContent = subtype;
@@ -1694,7 +1768,7 @@ function setupTabNavigation() {
             if (tabId === 'erosion-simulation') {
                 console.log('切换到侵蚀模拟标签页，正在初始化...');
                 setTimeout(() => {
-                    initializeErosionSimulation();
+                    initializeErosionSimulationNew();
                 }, 100);
             }
             
@@ -5253,7 +5327,7 @@ function setupThemeToggle() {
         if (theme === 'dark') {
             root.setAttribute('data-theme', 'dark');
         } else {
-            root.removeAttribute('data-theme');
+            root.setAttribute('data-theme', 'light');
         }
     };
 
@@ -5439,7 +5513,7 @@ function showCraftingModule(moduleType) {
     if (moduleType === 'erosion-simulation') {
         console.log('切换到侵蚀模拟模块');
         setTimeout(() => {
-            initializeErosionSimulation();
+            initializeErosionSimulationNew();
         }, 100);
     }
 }
@@ -5698,7 +5772,7 @@ function updateWeaponDamageResults(results) {
 }
 
 // 初始化侵蚀模拟系统
-function initializeErosionSimulation() {
+async function initializeErosionSimulation() {
     console.log('========== 初始化侵蚀模拟系统 ==========');
     console.log('当前 gameData 状态:', gameData);
     
@@ -5708,13 +5782,24 @@ function initializeErosionSimulation() {
         return;
     }
     
-    // 🔧 检查传奇装备数据是否已加载，如果没有则使用后备数据
+    // 🔧 检查传奇装备数据是否已加载，如果没有则直接读取传奇装备.json
     let equipmentData = gameData.legendaryEquipment;
     if (!equipmentData) {
-        console.warn('传奇装备数据未从JSON加载，使用硬编码后备数据');
-        equipmentData = fallbackLegendaryEquipment;
-        // 同时更新gameData，让其他函数也能使用
-        gameData.legendaryEquipment = equipmentData;
+        console.warn('传奇装备数据未从JSON加载，尝试直接读取文件');
+        try {
+            const response = await fetch('传奇装备.json');
+            if (response.ok) {
+                equipmentData = await response.json();
+                gameData.legendaryEquipment = equipmentData;
+                console.log('✓ 成功从传奇装备.json加载完整数据');
+            } else {
+                throw new Error('HTTP error');
+            }
+        } catch (e) {
+            console.error('直接读取传奇装备.json失败，使用硬编码后备数据:', e);
+            equipmentData = fallbackLegendaryEquipment;
+            gameData.legendaryEquipment = equipmentData;
+        }
     }
     
     // 初始化侵蚀模拟相关的事件监听器
@@ -5840,10 +5925,14 @@ function setupErosionEventListeners() {
     if (equipmentTypeSelect) {
         equipmentTypeSelect.addEventListener('change', function() {
             const selectedType = this.value;
-            populateEquipmentList(selectedType);
+            console.log('选择装备类型:', selectedType);
             
-            // 清空装备显示
+            // 清空装备显示和装备名称列表
             updateEquipmentDisplay('');
+            const equipmentSelect = document.getElementById('equipment-name');
+            if (equipmentSelect) {
+                equipmentSelect.innerHTML = '<option value="">请先选择装备类型</option>';
+            }
             
             // 显示/隐藏武器子类型选择
             const weaponSubtypeGroup = document.getElementById('weapon-subtype-group');
@@ -5851,9 +5940,35 @@ function setupErosionEventListeners() {
                 if (selectedType === '单手' || selectedType === '双手') {
                     weaponSubtypeGroup.style.display = 'block';
                     populateWeaponSubtypes(selectedType);
+                    // 清空武器子类型选择
+                    const weaponSubtypeSelect = document.getElementById('weapon-subtype');
+                    if (weaponSubtypeSelect) {
+                        weaponSubtypeSelect.value = '';
+                    }
                 } else {
                     weaponSubtypeGroup.style.display = 'none';
+                    // 如果不是武器，直接填充装备列表
+                    if (selectedType) {
+                        populateEquipmentList(selectedType);
+                    }
                 }
+            }
+        });
+    }
+    
+    // 武器子类型选择变化事件
+    const weaponSubtypeSelect = document.getElementById('weapon-subtype');
+    if (weaponSubtypeSelect) {
+        weaponSubtypeSelect.addEventListener('change', function() {
+            const selectedSubtype = this.value;
+            console.log('选择武器子类型:', selectedSubtype);
+            
+            // 清空装备显示
+            updateEquipmentDisplay('');
+            
+            // 填充装备列表
+            if (selectedSubtype) {
+                populateEquipmentList(selectedSubtype);
             }
         });
     }
@@ -5881,6 +5996,8 @@ function setupErosionEventListeners() {
 
 // 更新装备显示信息
 function updateEquipmentDisplay(equipmentName) {
+    console.log('[侵蚀系统] updateEquipmentDisplay 被调用，装备名:', equipmentName);
+    
     // 更新装备名称显示
     const displayNameElement = document.getElementById('display-equipment-name');
     const displayLevelElement = document.getElementById('display-equipment-level');
@@ -5889,8 +6006,16 @@ function updateEquipmentDisplay(equipmentName) {
     const erosionAffixesElement = document.getElementById('erosion-affixes');
     const erosionAffixesSection = document.getElementById('erosion-affixes-section');
     
+    console.log('[侵蚀系统] DOM元素检查:', {
+        displayNameElement: !!displayNameElement,
+        displayLevelElement: !!displayLevelElement,
+        baseAffixesElement: !!baseAffixesElement,
+        normalAffixesElement: !!normalAffixesElement
+    });
+    
     // 如果没有选择装备，显示默认状态
     if (!equipmentName) {
+        console.log('[侵蚀系统] 未选择装备，显示默认状态');
         if (displayNameElement) displayNameElement.textContent = '请选择装备';
         if (displayLevelElement) displayLevelElement.textContent = '等级: --';
         if (baseAffixesElement) baseAffixesElement.innerHTML = '<p class="no-affixes">请选择装备</p>';
@@ -5902,7 +6027,9 @@ function updateEquipmentDisplay(equipmentName) {
     }
     
     // 检查传奇装备数据是否加载
+    console.log('[侵蚀系统] gameData.legendaryEquipment:', gameData.legendaryEquipment);
     if (!gameData.legendaryEquipment) {
+        console.warn('[侵蚀系统] 传奇装备数据未加载');
         if (displayNameElement) displayNameElement.textContent = '数据加载失败';
         if (displayLevelElement) displayLevelElement.textContent = '等级: --';
         if (baseAffixesElement) baseAffixesElement.innerHTML = '<p class="no-affixes">传奇装备数据未加载</p>';
@@ -5915,6 +6042,8 @@ function updateEquipmentDisplay(equipmentName) {
         let selectedEquipment = null;
         const equipmentData = gameData.legendaryEquipment.装备数据;
         
+        console.log('[侵蚀系统] equipmentData:', equipmentData);
+        
         if (!equipmentData) {
             throw new Error('装备数据格式错误');
         }
@@ -5922,11 +6051,16 @@ function updateEquipmentDisplay(equipmentName) {
         // 遍历所有装备类型查找目标装备
         for (const equipmentTypeKey in equipmentData) {
             const equipmentArray = equipmentData[equipmentTypeKey];
+            console.log(`[侵蚀系统] 检查装备类型: ${equipmentTypeKey}, 数量: ${Array.isArray(equipmentArray) ? equipmentArray.length : '非数组'}`);
+            
             if (Array.isArray(equipmentArray)) {
                 for (const equipment of equipmentArray) {
                     const equipmentName_check = equipment.名称 || equipment.装备名称;
+                    console.log(`[侵蚀系统]   比对: ${equipmentName_check} vs ${equipmentName}`);
+                    
                     if (equipmentName_check === equipmentName) {
                         selectedEquipment = equipment;
+                        console.log('[侵蚀系统] ✓ 找到装备:', selectedEquipment);
                         break;
                     }
                 }
@@ -5935,6 +6069,7 @@ function updateEquipmentDisplay(equipmentName) {
         }
         
         if (!selectedEquipment) {
+            console.warn('[侵蚀系统] 未找到装备:', equipmentName);
             if (displayNameElement) displayNameElement.textContent = '装备未找到';
             if (displayLevelElement) displayLevelElement.textContent = '等级: --';
             if (baseAffixesElement) baseAffixesElement.innerHTML = '<p class="no-affixes">未找到装备信息</p>';
@@ -5942,11 +6077,16 @@ function updateEquipmentDisplay(equipmentName) {
             return;
         }
         
+        console.log('[侵蚀系统] 装备基础词缀:', selectedEquipment.基础词缀);
+        console.log('[侵蚀系统] 装备普通词缀:', selectedEquipment.普通词缀);
+        
         // 保存原始装备数据（用于侵蚀后恢复）
         window.currentEquipmentData = {
             baseAffix: selectedEquipment.基础词缀 || null,
             normalAffixes: selectedEquipment.普通词缀 ? [...selectedEquipment.普通词缀] : []
         };
+        
+        console.log('[侵蚀系统] window.currentEquipmentData:', window.currentEquipmentData);
         
         // 更新装备基本信息
         const equipmentDisplayName = selectedEquipment.名称 || selectedEquipment.装备名称 || '未知装备';
@@ -5980,23 +6120,31 @@ function updateEquipmentDisplay(equipmentName) {
         }
         
         // 更新基础词缀
+        console.log('[侵蚀系统] 准备更新基础词缀，baseAffixesElement:', baseAffixesElement);
         if (baseAffixesElement) {
             if (selectedEquipment.基础词缀) {
+                console.log('[侵蚀系统] 设置基础词缀:', selectedEquipment.基础词缀);
                 baseAffixesElement.innerHTML = `<p class="affix-item" data-index="0">${selectedEquipment.基础词缀}</p>`;
             } else {
+                console.log('[侵蚀系统] 无基础词缀');
                 baseAffixesElement.innerHTML = '<p class="no-affixes">无基础词缀</p>';
             }
+            console.log('[侵蚀系统] baseAffixesElement.innerHTML:', baseAffixesElement.innerHTML);
         }
         
         // 更新普通词缀
+        console.log('[侵蚀系统] 准备更新普通词缀，normalAffixesElement:', normalAffixesElement);
         if (normalAffixesElement) {
             if (selectedEquipment.普通词缀 && selectedEquipment.普通词缀.length > 0) {
+                console.log('[侵蚀系统] 设置普通词缀:', selectedEquipment.普通词缀);
                 normalAffixesElement.innerHTML = selectedEquipment.普通词缀
                     .map((affix, index) => `<p class="affix-item" data-index="${index}">${affix}</p>`)
                     .join('');
             } else {
+                console.log('[侵蚀系统] 无普通词缀');
                 normalAffixesElement.innerHTML = '<p class="no-affixes">无普通词缀</p>';
             }
+            console.log('[侵蚀系统] normalAffixesElement.innerHTML:', normalAffixesElement.innerHTML);
         }
         
         // 隐藏已侵蚀词缀区域（侵蚀时直接修改现有词缀）
@@ -6304,8 +6452,9 @@ function resetErosionCount() {
 function updateEquipmentDisplayWithErosion(result) {
     const baseAffixesEl = document.getElementById('base-affixes');
     const normalAffixesEl = document.getElementById('normal-affixes');
+    const equipmentStatusEl = document.getElementById('equipment-status');
     
-    if (!baseAffixesEl || !normalAffixesEl) return;
+    if (!baseAffixesEl || !normalAffixesEl || !equipmentStatusEl) return;
     
     // 首先恢复所有词缀到原始状态
     if (window.currentEquipmentData) {
@@ -6319,47 +6468,72 @@ function updateEquipmentDisplayWithErosion(result) {
                 .map((affix, index) => `<p class="affix-item" data-index="${index}">${affix}</p>`)
                 .join('');
         }
+        // 清除装备状态
+        equipmentStatusEl.style.display = 'none';
+        equipmentStatusEl.innerHTML = '';
     }
     
-    // 根据侵蚀结果修改词缀样式
+    // 根据侵蚀结果修改词缀
     if (result.name === '异化') {
-        // 异化：基础词缀替换为灾烬词缀（炫彩紫色）
+        // 异化：将基础词缀替换为随机一条灾烬基础词缀，并给装备加上【已侵蚀】词条
         const baseAffixItem = baseAffixesEl.querySelector('.affix-item');
         if (baseAffixItem) {
-            baseAffixItem.textContent = `【灾烬】${baseAffixItem.textContent}`;
+            const randomCalamityAffix = CALAMITY_BASE_AFFIXES[Math.floor(Math.random() * CALAMITY_BASE_AFFIXES.length)];
+            baseAffixItem.textContent = randomCalamityAffix;
             baseAffixItem.classList.add('erosion-purple');
         }
+        // 添加【已侵蚀】词条
+        equipmentStatusEl.style.display = 'block';
+        equipmentStatusEl.innerHTML = '<p class="affix-item erosion-purple">【已侵蚀】</p>';
     } else if (result.name === '混沌') {
-        // 混沌：所有普通词缀变为金色，有数值区间的变为橙色
+        // 混沌：重新随机所有有范围区间的词缀的随机数值，并给装备加上【已绑定】词条
         const affixItems = normalAffixesEl.querySelectorAll('.affix-item');
         affixItems.forEach(affix => {
             const text = affix.textContent;
             // 检测是否有数值区间（如(20–30)或(10–12)等）
-            const hasRange = /\(\d+[–-]\d+\)/.test(text);
-            if (hasRange) {
-                affix.classList.add('erosion-orange');
-            } else {
+            const rangeMatch = text.match(/\((\d+)[–-](\d+)\)/);
+            if (rangeMatch) {
+                const min = parseInt(rangeMatch[1]);
+                const max = parseInt(rangeMatch[2]);
+                const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
+                // 替换区间为随机值
+                const newText = text.replace(/\(\d+[–-]\d+\)/, `(${randomValue})`);
+                affix.textContent = newText;
                 affix.classList.add('erosion-gold');
             }
         });
+        // 添加【已绑定】词条
+        equipmentStatusEl.style.display = 'block';
+        equipmentStatusEl.innerHTML = '<p class="affix-item erosion-gold">【已绑定】</p>';
     } else if (result.name === '亵渎') {
-        // 亵渎：随机2条词缀提升为紫色
+        // 亵渎：随机选择装备的1-2条词缀变为侵蚀词缀（紫色鎏金）
         const affixItems = Array.from(normalAffixesEl.querySelectorAll('.affix-item'));
-        // 随机打乱数组
-        for (let i = affixItems.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [affixItems[i], affixItems[j]] = [affixItems[j], affixItems[i]];
-        }
-        // 取前2个
-        for (let i = 0; i < Math.min(2, affixItems.length); i++) {
-            affixItems[i].classList.add('erosion-purple');
+        if (affixItems.length > 0) {
+            const count = Math.floor(Math.random() * 2) + 1; // 1或2条
+            // 随机打乱数组
+            for (let i = affixItems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [affixItems[i], affixItems[j]] = [affixItems[j], affixItems[i]];
+            }
+            // 取前count个
+            for (let i = 0; i < Math.min(count, affixItems.length); i++) {
+                affixItems[i].classList.add('erosion-purple');
+            }
         }
     } else if (result.name === '傲慢') {
-        // 傲慢：随机1条词缀提升为紫色
-        const affixItems = normalAffixesEl.querySelectorAll('.affix-item');
+        // 傲慢：随机选择装备的1-2条词缀变为侵蚀词缀（紫色鎏金）
+        const affixItems = Array.from(normalAffixesEl.querySelectorAll('.affix-item'));
         if (affixItems.length > 0) {
-            const randomIndex = Math.floor(Math.random() * affixItems.length);
-            affixItems[randomIndex].classList.add('erosion-purple');
+            const count = Math.floor(Math.random() * 2) + 1; // 1或2条
+            // 随机打乱数组
+            for (let i = affixItems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [affixItems[i], affixItems[j]] = [affixItems[j], affixItems[i]];
+            }
+            // 取前count个
+            for (let i = 0; i < Math.min(count, affixItems.length); i++) {
+                affixItems[i].classList.add('erosion-purple');
+            }
         }
     } else {
         // 虚无：不修改词缀
@@ -6455,40 +6629,12 @@ function calculateErosionCost() {
                     <span>${erosionType === 'dark' ? '黑暗侵蚀' : '至暗侵蚀'}</span>
                 </div>
                 <div class="cost-item">
-                    <label>装备等级：</label>
-                    <span>${equipmentLevel}级</span>
-                </div>
-                <div class="cost-item">
-                    <label>装备类型：</label>
-                    <span>${isLegendary ? '传奇装备' : '非传奇装备'}</span>
-                </div>
-                <div class="cost-item">
-                    <label>单次侵蚀消耗：</label>
-                    <span>${darkCores} 异魔之核 + ${demonCores} 使魔之核</span>
-                </div>
-                <div class="cost-item">
-                    <label>傲慢概率：</label>
-                    <span>${(prideProbability * 100).toFixed(0)}%</span>
-                </div>
-                <div class="cost-item">
-                    <label>亵渎概率：</label>
-                    <span>${(profaneProbability * 100).toFixed(0)}%</span>
-                </div>
-                <div class="cost-item">
-                    <label>单次成功率：</label>
-                    <span>${(successRatePerAttempt * 100).toFixed(4)}%</span>
-                </div>
-                <div class="cost-item">
-                    <label>预期侵蚀次数：</label>
-                    <span id="expected-erosion-count">${expectedAttempts}</span>
-                </div>
-                <div class="cost-item">
                     <label>预期材料消耗：</label>
                     <span id="expected-material-cost">${expectedDarkCores} 异魔之核 + ${expectedDemonCores} 使魔之核</span>
                 </div>
                 <div class="cost-item">
-                    <label>预期装备消耗：</label>
-                    <span id="expected-equipment-cost">${expectedAttempts} 个装备</span>
+                    <label>成功率：</label>
+                    <span>${(successRatePerAttempt * 100).toFixed(4)}%</span>
                 </div>
                 <div class="cost-item total-expected-cost">
                     <label>预期总成本：</label>
@@ -6544,19 +6690,49 @@ function performMultipleErosion(erosionType) {
     console.log(`执行多次${erosionType === 'dark' ? '黑暗' : '至暗'}侵蚀模拟`);
     
     const simulationCount = parseInt(document.getElementById('simulation-count')?.value) || 100;
-    const targetUpgradeCount = parseInt(document.getElementById('target-upgrade-count')?.value) || 1;
+    const equipmentLevel = parseInt(document.getElementById('equipment-level-erosion')?.value) || 82;
+    const equipmentPrice = parseFloat(document.getElementById('equipment-price')?.value) || 0;
+    const equipmentName = document.getElementById('equipment-name')?.value;
+    const isLegendary = equipmentName && equipmentName !== '';
     
+    // 获取材料价格
+    const darkCorePrice = MaterialPriceManager.getPrice('darkCorePrice') || 0;
+    const demonCorePrice = MaterialPriceManager.getPrice('demonCorePrice') || 0;
+    
+    // 计算单次材料消耗
+    const { darkCores, demonCores } = getErosionMaterialCost(equipmentLevel, isLegendary, erosionType);
+    const singleCost = (darkCores * darkCorePrice) + (demonCores * demonCorePrice) + equipmentPrice;
+    
+    // 统计变量
     let mutationCount = 0;
     let chaosCount = 0;
     let profaneCount = 0;
     let prideCount = 0;
     let voidCount = 0;
     let totalUpgradeCount = 0;
+    let totalDarkCoresUsed = 0;
+    let totalDemonCoresUsed = 0;
+    let totalCostUsed = 0;
+    
+    // 获取当前统计（用于累加）
+    const currentErosionCount = parseInt(document.getElementById('erosion-count')?.textContent) || 0;
+    const currentDarkCoreUsed = parseInt(document.getElementById('dark-core-used')?.textContent) || 0;
+    const currentDemonCoreUsed = parseInt(document.getElementById('demon-core-used')?.textContent) || 0;
+    const currentTotalCostText = document.getElementById('total-erosion-cost')?.textContent || '0';
+    const currentTotalCost = parseFloat(currentTotalCostText.replace(/[^\d.]/g, '')) || 0;
+    
+    // 获取当前结果统计（用于累加）
+    const currentMutationCount = parseInt(document.getElementById('mutation-count')?.textContent) || 0;
+    const currentChaosCount = parseInt(document.getElementById('chaos-count')?.textContent) || 0;
+    const currentProfaneCount = parseInt(document.getElementById('profane-count')?.textContent) || 0;
+    const currentPrideCount = parseInt(document.getElementById('pride-count')?.textContent) || 0;
+    const currentVoidCount = parseInt(document.getElementById('void-count')?.textContent) || 0;
     
     // 模拟多次侵蚀
     for (let i = 0; i < simulationCount; i++) {
         const result = getRandomErosionResult(erosionType);
         
+        // 统计结果
         if (result.name === '异化') {
             mutationCount++;
             totalUpgradeCount += 1;
@@ -6572,15 +6748,23 @@ function performMultipleErosion(erosionType) {
         } else if (result.name === '虚无') {
             voidCount++;
         }
+        
+        // 累加材料和成本
+        totalDarkCoresUsed += darkCores;
+        totalDemonCoresUsed += demonCores;
+        totalCostUsed += singleCost;
     }
     
-    // 更新显示
-    document.getElementById('mutation-count').textContent = mutationCount;
-    document.getElementById('chaos-count').textContent = chaosCount;
-    document.getElementById('profane-count').textContent = profaneCount;
-    document.getElementById('pride-count').textContent = prideCount;
-    document.getElementById('void-count').textContent = voidCount;
-    document.getElementById('erosion-count').textContent = simulationCount;
+    // 更新显示（累加）
+    document.getElementById('mutation-count').textContent = currentMutationCount + mutationCount;
+    document.getElementById('chaos-count').textContent = currentChaosCount + chaosCount;
+    document.getElementById('profane-count').textContent = currentProfaneCount + profaneCount;
+    document.getElementById('pride-count').textContent = currentPrideCount + prideCount;
+    document.getElementById('void-count').textContent = currentVoidCount + voidCount;
+    document.getElementById('erosion-count').textContent = currentErosionCount + simulationCount;
+    document.getElementById('dark-core-used').textContent = currentDarkCoreUsed + totalDarkCoresUsed;
+    document.getElementById('demon-core-used').textContent = currentDemonCoreUsed + totalDemonCoresUsed;
+    document.getElementById('total-erosion-cost').textContent = `${(currentTotalCost + totalCostUsed).toFixed(2)} 初火源质`;
     
     // 显示统计结果
     const resultArea = document.getElementById('erosion-result-area');
@@ -6601,6 +6785,8 @@ function performMultipleErosion(erosionType) {
                 <div class="total-upgrades">
                     <p><strong>总提升次数：${totalUpgradeCount}</strong></p>
                     <p><strong>平均每次侵蚀提升：${(totalUpgradeCount / simulationCount).toFixed(2)}次</strong></p>
+                    <p><strong>本次模拟消耗：${totalDarkCoresUsed} 异魔之核 + ${totalDemonCoresUsed} 使魔之核</strong></p>
+                    <p><strong>本次模拟成本：${totalCostUsed.toFixed(2)} 初火源质</strong></p>
                 </div>
             </div>
         `;
@@ -6626,89 +6812,54 @@ function selectErosionType(type) {
     calculateErosionCost();
 }
 
-// 执行单次侵蚀
-function performErosion(type) {
-    console.log(`执行${type === 'dark' ? '暗黑' : '深渊'}侵蚀`);
+// ========== 批量模拟辅助函数 ==========
+function adjustSimulationCount(amount) {
+    const input = document.getElementById('simulation-count');
+    if (!input) return;
     
-    const erosionCount = document.getElementById('erosion-count');
-    const totalErosionCost = document.getElementById('total-erosion-cost');
+    let currentValue = parseInt(input.value) || 100;
+    let newValue = currentValue + amount;
     
-    if (!erosionCount || !totalErosionCost) return;
+    // 确保最小值为100
+    if (newValue < 100) newValue = 100;
     
-    // 获取当前计数
-    let currentCount = parseInt(erosionCount.textContent) || 0;
-    let currentCost = parseInt(totalErosionCost.textContent.replace(/[^\d]/g, '')) || 0;
-    
-    // 计算单次成本
-    const singleCost = type === 'dark' ? 50 : 100;
-    
-    // 更新计数和成本
-    currentCount += 1;
-    currentCost += singleCost;
-    
-    erosionCount.textContent = currentCount;
-    totalErosionCost.textContent = `${currentCost} 初火源质`;
-    
-    // 模拟成功率
-    const successRate = type === 'dark' ? 0.1 : 0.05;
-    const isSuccess = Math.random() < successRate;
-    
-    showNotification(
-        `${type === 'dark' ? '暗黑' : '深渊'}侵蚀${isSuccess ? '成功' : '失败'}！`, 
-        isSuccess ? 'success' : 'warning'
-    );
+    input.value = newValue;
+    validateSimulationCount();
 }
 
-// 执行多次侵蚀模拟
-function performMultipleErosion(type) {
-    console.log(`执行多次${type === 'dark' ? '暗黑' : '深渊'}侵蚀模拟`);
+function validateSimulationCount() {
+    const input = document.getElementById('simulation-count');
+    if (!input) return;
     
-    const targetUpgradeCount = parseInt(document.getElementById('target-upgrade-count')?.value) || 1;
-    const equipmentAffixCount = parseInt(document.getElementById('equipment-affix-count')?.value) || 4;
+    let value = parseInt(input.value) || 100;
     
-    // 基础成功率
-    let successRate = type === 'dark' ? 0.1 : 0.05;
-    successRate = successRate / equipmentAffixCount;
+    // 确保是100的倍数
+    value = Math.round(value / 100) * 100;
     
-    const singleCost = type === 'dark' ? 50 : 100;
-    let totalAttempts = 0;
-    let successCount = 0;
+    // 确保最小值
+    if (value < 100) value = 100;
     
-    // 模拟直到达到目标成功次数
-    while (successCount < targetUpgradeCount && totalAttempts < 10000) { // 防止无限循环
-        totalAttempts++;
-        if (Math.random() < successRate) {
-            successCount++;
-        }
-    }
-    
-    const totalCost = totalAttempts * singleCost;
-    
-    // 更新显示
-    const erosionCount = document.getElementById('erosion-count');
-    const totalErosionCost = document.getElementById('total-erosion-cost');
-    
-    if (erosionCount) erosionCount.textContent = totalAttempts;
-    if (totalErosionCost) totalErosionCost.textContent = `${totalCost} 初火源质`;
-    
-    // 显示结果
-    const resultArea = document.getElementById('erosion-result-area');
-    const resultContent = document.getElementById('erosion-result-content');
-    
-    if (resultArea && resultContent) {
-        resultArea.style.display = 'block';
-        resultContent.innerHTML = `
-            <h4>侵蚀模拟结果</h4>
-            <p><strong>侵蚀类型:</strong> ${type === 'dark' ? '暗黑侵蚀' : '深渊侵蚀'}</p>
-            <p><strong>目标成功次数:</strong> ${targetUpgradeCount}</p>
-            <p><strong>实际尝试次数:</strong> ${totalAttempts}</p>
-            <p><strong>总成本:</strong> ${totalCost} 初火源质</p>
-            <p><strong>平均每次成功成本:</strong> ${Math.round(totalCost / targetUpgradeCount)} 初火源质</p>
-        `;
-    }
-    
-    showNotification(`${type === 'dark' ? '暗黑' : '深渊'}侵蚀模拟完成！`, 'success');
+    input.value = value;
 }
+
+function handleSimulationWheel(event) {
+    event.preventDefault();
+    const delta = event.deltaY > 0 ? -100 : 100;
+    adjustSimulationCount(delta);
+}
+
+// ========== 灾烬词缀数据（用于异化结果） ==========
+const CALAMITY_BASE_AFFIXES = [
+    "+(81–111) 最大生命",
+    "+(130–176) 最大护盾",
+    "+(21–30)% 火焰抗性",
+    "+(21–30)% 冰冷抗性",
+    "+(21–30)% 闪电抗性",
+    "+(21–30)% 腐蚀抗性",
+    "+(30–40) 力量",
+    "+(30–40) 敏捷",
+    "+(30–40) 智慧"
+];
 
 // 设置打造事件监听器
 function setupCraftingEventListeners() {
