@@ -38,6 +38,23 @@ class ErosionCostCalculator {
             equipmentAffixCountAdvanced.addEventListener('change', () => this.updateAffixOptions());
         }
 
+        const saveConfigBtn = document.getElementById('save-config-btn');
+        if (saveConfigBtn) {
+            saveConfigBtn.addEventListener('click', () => this.saveConfig());
+        }
+
+        const loadConfigSelect = document.getElementById('load-config-select');
+        if (loadConfigSelect) {
+            loadConfigSelect.addEventListener('change', (e) => this.loadConfig(e.target.value));
+        }
+
+        const deleteConfigBtn = document.getElementById('delete-config-btn');
+        if (deleteConfigBtn) {
+            deleteConfigBtn.addEventListener('click', () => this.deleteConfig());
+        }
+
+        this.loadConfigsList();
+
         const inputIds = [
             'equipment-level-erosion', 'equipment-price', 'dark-core-price', 'demon-core-price', 'equipment-affix-count',
             'equipment-level-erosion-advanced', 'equipment-price-advanced', 'dark-core-price-advanced', 
@@ -569,6 +586,9 @@ class ErosionCostCalculator {
         let expectedRevenue = 0;
         const C2 = N * (N - 1) / 2;
 
+        const singleTargets = this.targets.filter(t => t.type === 'single');
+        const doubleTargets = this.targets.filter(t => t.type === 'double');
+
         if (isDark) {
             const mutationProb = 0.10;
             const chaosProb = 0.30;
@@ -578,12 +598,10 @@ class ErosionCostCalculator {
             expectedRevenue += mutationPrice * feeMultiplier * mutationProb;
 
             let targetHitTotal = 0;
-            this.targets.forEach(target => {
-                if (target.type === 'single') {
-                    const hitProb = 1 / N;
-                    targetHitTotal += hitProb;
-                    expectedRevenue += target.price * feeMultiplier * prideProb * hitProb;
-                }
+            singleTargets.forEach(target => {
+                const hitProb = 1 / N;
+                targetHitTotal += hitProb;
+                expectedRevenue += target.price * feeMultiplier * prideProb * hitProb;
             });
 
             const nonTargetProb = 1 - targetHitTotal;
@@ -598,26 +616,69 @@ class ErosionCostCalculator {
 
             expectedRevenue += mutationPrice * feeMultiplier * mutationProb;
 
-            let targetHitTotal = 0;
-
-            this.targets.forEach(target => {
-                const price = target.price * feeMultiplier;
-                
-                if (target.type === 'single') {
-                    const hitProb = 1 / N;
-                    targetHitTotal += hitProb;
-                    expectedRevenue += price * profaneProb * hitProb;
-                    expectedRevenue += price * prideProb * hitProb;
-                } else {
-                    const hitProb = 1 / C2;
-                    targetHitTotal += hitProb;
-                    expectedRevenue += price * profaneProb * hitProb;
-                }
+            let exactDoubleHitProb = 0;
+            let exactDoubleRevenue = 0;
+            doubleTargets.forEach(target => {
+                const hitProb = 1 / C2;
+                exactDoubleHitProb += hitProb;
+                exactDoubleRevenue += target.price * feeMultiplier * profaneProb * hitProb;
             });
 
-            const nonTargetProfaneProb = 1 - targetHitTotal;
-            expectedRevenue += nonTargetPrice * feeMultiplier * profaneProb * nonTargetProfaneProb;
-            expectedRevenue += nonTargetPrice * feeMultiplier * prideProb;
+            let partialHitProb = 0;
+            let partialHitRevenue = 0;
+
+            if (singleTargets.length > 0) {
+                for (let i = 1; i <= N; i++) {
+                    for (let j = i + 1; j <= N; j++) {
+                        const affixA = `T${i}`;
+                        const affixB = `T${j}`;
+
+                        let isExactDouble = false;
+                        doubleTargets.forEach(dt => {
+                            if ((dt.affix1 === affixA && dt.affix2 === affixB) || 
+                                (dt.affix1 === affixB && dt.affix2 === affixA)) {
+                                isExactDouble = true;
+                            }
+                        });
+
+                        if (!isExactDouble) {
+                            let matchingSingleTarget = null;
+                            let maxPrice = 0;
+                            singleTargets.forEach(st => {
+                                if (st.affix1 === affixA || st.affix1 === affixB) {
+                                    if (st.price > maxPrice) {
+                                        maxPrice = st.price;
+                                        matchingSingleTarget = st;
+                                    }
+                                }
+                            });
+
+                            if (matchingSingleTarget) {
+                                const hitProb = 1 / C2;
+                                partialHitProb += hitProb;
+                                partialHitRevenue += matchingSingleTarget.price * feeMultiplier * profaneProb * hitProb;
+                            }
+                        }
+                    }
+                }
+            }
+
+            let remainingProfaneProb = 1 - exactDoubleHitProb - partialHitProb;
+            let remainingProfaneRevenue = nonTargetPrice * feeMultiplier * profaneProb * remainingProfaneProb;
+
+            expectedRevenue += exactDoubleRevenue;
+            expectedRevenue += partialHitRevenue;
+            expectedRevenue += remainingProfaneRevenue;
+
+            let prideTargetHitTotal = 0;
+            singleTargets.forEach(target => {
+                const hitProb = 1 / N;
+                prideTargetHitTotal += hitProb;
+                expectedRevenue += target.price * feeMultiplier * prideProb * hitProb;
+            });
+
+            let prideNonTargetProb = 1 - prideTargetHitTotal;
+            expectedRevenue += nonTargetPrice * feeMultiplier * prideProb * prideNonTargetProb;
         }
 
         const netProfit = expectedRevenue - singleCost;
@@ -684,6 +745,195 @@ class ErosionCostCalculator {
             netProfitElement.className = 'stat-value positive';
         } else {
             netProfitElement.className = 'stat-value negative';
+        }
+    }
+
+    getConfigsStorageKey() {
+        return 'erosion_calculator_configs';
+    }
+
+    loadConfigsList() {
+        try {
+            const storedConfigs = localStorage.getItem(this.getConfigsStorageKey());
+            const configSelect = document.getElementById('load-config-select');
+            
+            if (configSelect) {
+                configSelect.innerHTML = '<option value="">加载配置...</option>';
+                
+                if (storedConfigs) {
+                    const configs = JSON.parse(storedConfigs);
+                    Object.keys(configs).sort().forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        option.textContent = name;
+                        configSelect.appendChild(option);
+                    });
+                }
+            }
+        } catch (e) {
+            console.error('Error loading configs list:', e);
+        }
+    }
+
+    saveConfig() {
+        const configNameInput = document.getElementById('config-name-input');
+        const configName = configNameInput?.value.trim();
+        
+        if (!configName) {
+            alert('请输入配置名称');
+            return;
+        }
+
+        try {
+            const storedConfigs = localStorage.getItem(this.getConfigsStorageKey());
+            let configs = storedConfigs ? JSON.parse(storedConfigs) : {};
+
+            const config = {
+                equipmentLevel: document.getElementById('equipment-level-erosion-advanced')?.value,
+                equipmentPrice: parseFloat(document.getElementById('equipment-price-advanced')?.value) || 0,
+                darkCorePrice: parseFloat(document.getElementById('dark-core-price-advanced')?.value) || 0,
+                demonCorePrice: parseFloat(document.getElementById('demon-core-price-advanced')?.value) || 0,
+                equipmentAffixCount: parseInt(document.getElementById('equipment-affix-count-advanced')?.value) || 6,
+                includeFee: document.getElementById('include-fee')?.checked,
+                mutationPrice: parseFloat(document.getElementById('mutation-price')?.value) || 0,
+                nonTargetPrice: parseFloat(document.getElementById('non-target-price')?.value) || 0,
+                targets: this.targets.map(t => ({
+                    type: t.type,
+                    affix1: t.affix1,
+                    affix2: t.affix2,
+                    price: t.price
+                }))
+            };
+
+            configs[configName] = config;
+            localStorage.setItem(this.getConfigsStorageKey(), JSON.stringify(configs));
+
+            this.loadConfigsList();
+            configNameInput.value = '';
+            alert(`配置 "${configName}" 保存成功！`);
+        } catch (e) {
+            console.error('Error saving config:', e);
+            alert('保存配置失败');
+        }
+    }
+
+    loadConfig(configName) {
+        if (!configName) return;
+
+        try {
+            const storedConfigs = localStorage.getItem(this.getConfigsStorageKey());
+            if (!storedConfigs) return;
+
+            const configs = JSON.parse(storedConfigs);
+            const config = configs[configName];
+            if (!config) return;
+
+            if (config.equipmentLevel) {
+                const el = document.getElementById('equipment-level-erosion-advanced');
+                if (el) el.value = config.equipmentLevel;
+            }
+            if (config.equipmentPrice !== undefined) {
+                const el = document.getElementById('equipment-price-advanced');
+                if (el) el.value = config.equipmentPrice;
+            }
+            if (config.darkCorePrice !== undefined) {
+                const el = document.getElementById('dark-core-price-advanced');
+                if (el) el.value = config.darkCorePrice;
+            }
+            if (config.demonCorePrice !== undefined) {
+                const el = document.getElementById('demon-core-price-advanced');
+                if (el) el.value = config.demonCorePrice;
+            }
+            if (config.equipmentAffixCount !== undefined) {
+                const el = document.getElementById('equipment-affix-count-advanced');
+                if (el) el.value = config.equipmentAffixCount;
+            }
+            if (config.includeFee !== undefined) {
+                const el = document.getElementById('include-fee');
+                if (el) el.checked = config.includeFee;
+            }
+            if (config.mutationPrice !== undefined) {
+                const el = document.getElementById('mutation-price');
+                if (el) el.value = config.mutationPrice;
+            }
+            if (config.nonTargetPrice !== undefined) {
+                const el = document.getElementById('non-target-price');
+                if (el) el.value = config.nonTargetPrice;
+            }
+
+            this.targets = [];
+            this.targetIdCounter = 0;
+            const targetList = document.getElementById('target-list');
+            if (targetList) {
+                targetList.innerHTML = '';
+            }
+
+            if (config.targets && config.targets.length > 0) {
+                config.targets.forEach(targetData => {
+                    this.addTarget();
+                    const lastTarget = this.targets[this.targets.length - 1];
+                    if (lastTarget) {
+                        lastTarget.type = targetData.type;
+                        lastTarget.affix1 = targetData.affix1;
+                        lastTarget.affix2 = targetData.affix2;
+                        lastTarget.price = targetData.price;
+
+                        const targetItem = document.getElementById(`target-${lastTarget.id}`);
+                        if (targetItem) {
+                            const typeSelect = targetItem.querySelector('.target-type');
+                            const affix1Select = targetItem.querySelector('.affix1-select');
+                            const affix2Select = targetItem.querySelector('.affix2-select');
+                            const priceInput = targetItem.querySelector('.target-price');
+
+                            if (typeSelect) typeSelect.value = targetData.type;
+                            if (affix1Select) affix1Select.value = targetData.affix1;
+                            if (affix2Select) {
+                                if (targetData.type === 'double') {
+                                    affix2Select.style.display = 'block';
+                                    affix2Select.value = targetData.affix2;
+                                } else {
+                                    affix2Select.style.display = 'none';
+                                }
+                            }
+                            if (priceInput) priceInput.value = targetData.price;
+                        }
+                    }
+                });
+            }
+
+            this.saveToStorage();
+        } catch (e) {
+            console.error('Error loading config:', e);
+            alert('加载配置失败');
+        }
+    }
+
+    deleteConfig() {
+        const configSelect = document.getElementById('load-config-select');
+        const configName = configSelect?.value;
+        
+        if (!configName) {
+            alert('请先选择要删除的配置');
+            return;
+        }
+
+        if (!confirm(`确定要删除配置 "${configName}" 吗？`)) {
+            return;
+        }
+
+        try {
+            const storedConfigs = localStorage.getItem(this.getConfigsStorageKey());
+            if (!storedConfigs) return;
+
+            const configs = JSON.parse(storedConfigs);
+            delete configs[configName];
+            localStorage.setItem(this.getConfigsStorageKey(), JSON.stringify(configs));
+
+            this.loadConfigsList();
+            alert(`配置 "${configName}" 删除成功！`);
+        } catch (e) {
+            console.error('Error deleting config:', e);
+            alert('删除配置失败');
         }
     }
 }
