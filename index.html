@@ -90,7 +90,7 @@
                     </button>
                     <button class="function-btn" onclick="showCraftingModule('erosion-simulation')">
                         <i class="fas fa-magic"></i>
-                        侵蚀模拟 <span class="maintenance-badge">维护中</span>
+                        侵蚀模拟
                     </button>
                     <button class="function-btn" onclick="showCraftingModule('memory-crafting')">
                         <i class="fas fa-gem"></i>
@@ -322,305 +322,285 @@
                 <!-- 侵蚀模拟模块 -->
                 <div class="crafting-module" id="erosion-simulation" style="display: none;">
                     <div class="erosion-container">
-                        <!-- 装备选择和价格设置区域 -->
-                        <div class="equipment-selection-area">
+                        <!-- 侵蚀成本计算模块 -->
+                        <div class="erosion-calculation-area">
                             <div class="module-card">
-                                <h3><i class="fas fa-cog"></i> 装备选择与价格设置</h3>
-                                <div class="equipment-selection-grid">
-                                    <!-- 第一行：装备类型、装备等级、装备名称 -->
+                                <h3><i class="fas fa-calculator"></i> 侵蚀成本计算器</h3>
+                                
+                                <!-- 模式切换 -->
+                                <div class="mode-switch-section">
+                                    <div class="mode-toggle-container">
+                                        <span class="mode-label">基础模式</span>
+                                        <button class="mode-toggle-btn" id="mode-toggle-btn">
+                                            <div class="toggle-slider">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </div>
+                                        </button>
+                                        <span class="mode-label">高级模式</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- 基础模式输入参数区域 -->
+                                <div id="basic-mode-section">
+                                    <!-- 输入参数区域 -->
+                                <div class="input-params-grid">
+                                    <!-- 第一行：装备等级、装备价格、装备词缀数量 -->
                                     <div class="form-row">
-                                        <div class="form-group">
-                                            <label>装备类型</label>
-                                            <select id="equipment-type" class="equipment-select">
-                                                <option value="">请选择装备类型</option>
-                                                <option value="力量头部">力量头部</option>
-                                                <option value="敏捷头部">敏捷头部</option>
-                                                <option value="智慧头部">智慧头部</option>
-                                                <option value="力量胸甲">力量胸甲</option>
-                                                <option value="敏捷胸甲">敏捷胸甲</option>
-                                                <option value="智慧胸甲">智慧胸甲</option>
-                                                <option value="力量手套">力量手套</option>
-                                                <option value="敏捷手套">敏捷手套</option>
-                                                <option value="智慧手套">智慧手套</option>
-                                                <option value="力量鞋子">力量鞋子</option>
-                                                <option value="敏捷鞋子">敏捷鞋子</option>
-                                                <option value="智慧鞋子">智慧鞋子</option>
-                                                <option value="单手">单手</option>
-                                                <option value="双手">双手</option>
-                                                <option value="力量盾牌">力量盾牌</option>
-                                                <option value="敏捷盾牌">敏捷盾牌</option>
-                                                <option value="智慧盾牌">智慧盾牌</option>
-                                                <option value="项链">项链</option>
-                                                <option value="戒指">戒指</option>
-                                                <option value="腰带">腰带</option>
-                                                <option value="灵戒">灵戒</option>
-                                            </select>
-                                        </div>
-                                        
                                         <div class="form-group">
                                             <label>装备等级</label>
                                             <select id="equipment-level-erosion" class="equipment-select">
-                                                <option value="82">82级</option>
-                                                <option value="86">86级</option>
-                                                <option value="100">100级</option>
+                                                <option value="82">≥82级</option>
+                                                <option value="81">&lt;82级</option>
                                             </select>
                                         </div>
-                                        
-                                        <div class="form-group">
-                                            <label>装备名称</label>
-                                            <select id="equipment-name" class="equipment-select">
-                                                <option value="">请先选择装备类型</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- 武器类型行（仅在选择武器时显示） -->
-                                    <div class="form-row" id="weapon-subtype-group" style="display: none;">
-                                        <div class="form-group">
-                                            <label>武器类型</label>
-                                            <select id="weapon-subtype" class="equipment-select">
-                                                <option value="">请选择武器类型</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- 第二行：装备价格、异魔之核、使魔之核 -->
-                                    <div class="form-row">
                                         <div class="form-group">
                                             <label>装备价格</label>
-                                            <input type="number" id="equipment-price" class="price-input" placeholder="装备价格" min="0" step="0.01">
+                                            <input type="number" id="equipment-price" class="price-input" placeholder="初火源质" min="0" step="0.01" value="10">
                                         </div>
                                         <div class="form-group">
-                                            <label>异魔之核</label>
-                                            <input type="number" id="dark-core-price" class="price-input" placeholder="异魔之核价格" min="0" step="0.01">
+                                            <label>装备词缀数量</label>
+                                            <input type="number" id="equipment-affix-count" class="price-input" placeholder="词缀数量" min="2" max="10" value="6">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 第二行：材料价格 -->
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>异魔之核价格</label>
+                                            <input type="number" id="dark-core-price" class="price-input" placeholder="初火源质" min="0" step="0.01" value="5">
                                         </div>
                                         <div class="form-group">
-                                            <label>使魔之核</label>
-                                            <input type="number" id="demon-core-price" class="price-input" placeholder="使魔之核价格" min="0" step="0.01">
+                                            <label>使魔之核价格</label>
+                                            <input type="number" id="demon-core-price" class="price-input" placeholder="初火源质" min="0" step="0.01" value="30">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>需要提升的词缀数量</label>
+                                            <select id="target-upgrade-count" class="equipment-select">
+                                                <option value="1">提升1个词缀</option>
+                                                <option value="2">提升2个词缀</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 计算按钮 -->
+                                <button class="calculate-btn" id="calculate-erosion-cost-btn">
+                                    <i class="fas fa-calculator"></i>
+                                    计算侵蚀成本
+                                </button>
+                                </div>
+                                
+                                <!-- 高级模式输入区域 -->
+                                <div id="advanced-mode-section" style="display: none;">
+                                    <!-- 输入参数区域 -->
+                                    <div class="input-params-grid">
+                                        <!-- 第一行：装备等级、装备价格、装备词缀数量 -->
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label>装备等级</label>
+                                                <select id="equipment-level-erosion-advanced" class="equipment-select">
+                                                    <option value="82">≥82级</option>
+                                                    <option value="81">&lt;82级</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>装备价格</label>
+                                                <input type="number" id="equipment-price-advanced" class="price-input" placeholder="初火源质" min="0" step="0.01" value="10">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>装备词缀数量</label>
+                                                <input type="number" id="equipment-affix-count-advanced" class="price-input" placeholder="词缀数量" min="2" max="10" value="6">
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 第二行：材料价格 -->
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label>异魔之核价格</label>
+                                                <input type="number" id="dark-core-price-advanced" class="price-input" placeholder="初火源质" min="0" step="0.01" value="5">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>使魔之核价格</label>
+                                                <input type="number" id="demon-core-price-advanced" class="price-input" placeholder="初火源质" min="0" step="0.01" value="30">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>
+                                                    <input type="checkbox" id="include-fee" checked>
+                                                    手续费
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 其他结果价值输入 -->
+                                    <div class="other-results-section">
+                                        <div class="section-header">
+                                            <h4><i class="fas fa-coins"></i> 其他结果价值</h4>
+                                        </div>
+                                        <div class="other-results-grid">
+                                            <div class="form-group">
+                                                <label>异化结果售价（非绑定，不可再侵蚀）</label>
+                                                <input type="number" id="mutation-price" class="price-input" placeholder="初火源质" min="0" step="0.01" value="0">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>非目标词缀售价（非绑定，可交易）</label>
+                                                <input type="number" id="non-target-price" class="price-input" placeholder="初火源质" min="0" step="0.01" value="0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 动态目标词缀区域 -->
+                                    <div class="target-affixes-section">
+                                        <div class="section-header">
+                                            <h4><i class="fas fa-tags"></i> 目标词缀组合</h4>
+                                            <button class="add-target-btn" id="add-target-btn">
+                                                <i class="fas fa-plus"></i>
+                                                添加目标
+                                            </button>
+                                        </div>
+                                        <div id="target-list" class="target-list">
+                                            <!-- 目标将在这里动态添加 -->
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 计算按钮 -->
+                                    <button class="calculate-btn" id="calculate-arbitrage-btn">
+                                        <i class="fas fa-chart-line"></i>
+                                        计算套利预期
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 基础模式结果展示区域 -->
+                        <div id="basic-results-section">
+                        <!-- 结果展示区域 -->
+                        <div class="results-area">
+                            <div class="module-card">
+                                <h3><i class="fas fa-chart-pie"></i> 计算结果</h3>
+                                
+                                <!-- 推荐侵蚀类型 -->
+                                <div class="recommendation-section" id="recommendation-section" style="display: none;">
+                                    <div class="recommendation-header">
+                                        <h4><i class="fas fa-lightbulb"></i> 推荐方案</h4>
+                                    </div>
+                                    <div class="recommendation-content" id="recommendation-content">
+                                    </div>
+                                </div>
+                                
+                                <!-- 详细结果展示 -->
+                                <div class="detailed-results" id="detailed-results" style="display: none;">
+                                    <div class="results-grid">
+                                        <!-- 黑暗侵蚀结果 -->
+                                        <div class="result-card" id="dark-result-card">
+                                            <h5><i class="fas fa-moon"></i> 黑暗侵蚀</h5>
+                                            <div class="result-stats">
+                                                <div class="stat-row">
+                                                    <span class="stat-label">预期侵蚀次数：</span>
+                                                    <span class="stat-value" id="dark-erosion-count">-</span>
+                                                </div>
+                                                <div class="stat-row">
+                                                    <span class="stat-label">异魔之核消耗：</span>
+                                                    <span class="stat-value" id="dark-core-count">-</span>
+                                                </div>
+                                                <div class="stat-row">
+                                                    <span class="stat-label">使魔之核消耗：</span>
+                                                    <span class="stat-value" id="dark-demon-count">0</span>
+                                                </div>
+                                                <div class="stat-row">
+                                                    <span class="stat-label">装备消耗：</span>
+                                                    <span class="stat-value" id="dark-equipment-count">-</span>
+                                                </div>
+                                                <div class="stat-row total-row">
+                                                    <span class="stat-label">总成本：</span>
+                                                    <span class="stat-value" id="dark-total-cost">-</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 至暗侵蚀结果 -->
+                                        <div class="result-card" id="deepest-result-card">
+                                            <h5><i class="fas fa-skull"></i> 至暗侵蚀</h5>
+                                            <div class="result-stats">
+                                                <div class="stat-row">
+                                                    <span class="stat-label">预期侵蚀次数：</span>
+                                                    <span class="stat-value" id="deepest-erosion-count">-</span>
+                                                </div>
+                                                <div class="stat-row">
+                                                    <span class="stat-label">异魔之核消耗：</span>
+                                                    <span class="stat-value" id="deepest-core-count">0</span>
+                                                </div>
+                                                <div class="stat-row">
+                                                    <span class="stat-label">使魔之核消耗：</span>
+                                                    <span class="stat-value" id="deepest-demon-count">-</span>
+                                                </div>
+                                                <div class="stat-row">
+                                                    <span class="stat-label">装备消耗：</span>
+                                                    <span class="stat-value" id="deepest-equipment-count">-</span>
+                                                </div>
+                                                <div class="stat-row total-row">
+                                                    <span class="stat-label">总成本：</span>
+                                                    <span class="stat-value" id="deepest-total-cost">-</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        </div>
                         
-                        <!-- 侵蚀模拟区域 -->
-                        <div class="erosion-simulation-area">
-                            <div class="erosion-layout">
-                                <!-- 左侧：侵蚀控制 -->
-                                <div class="erosion-left-panel">
-                                    <div class="module-card">
-                                        <h3><i class="fas fa-magic"></i> 侵蚀模拟</h3>
-                                        <div class="erosion-controls">
-                                            <div class="erosion-buttons">
-                                                <button class="erosion-btn dark-erosion" id="dark-erosion-btn">
-                                                    <i class="fas fa-moon"></i>
-                                                    黑暗侵蚀
-                                                </button>
-                                                <button class="erosion-btn deepest-erosion" id="extreme-erosion-btn">
-                                                    <i class="fas fa-skull"></i>
-                                                    至暗侵蚀
-                                                </button>
-                                            </div>
-                                            
-                                            <!-- 模拟N次功能 -->
-                                            <div class="simulation-controls">
-                                                <div class="simulation-input-group">
-                                                    <label>模拟次数</label>
-                                                    <div class="number-input-container">
-                                                        <button class="number-btn" onclick="adjustSimulationCount(-100)">
-                                                            <i class="fas fa-minus"></i>
-                                                        </button>
-                                                        <input type="number" id="simulation-count" value="100" min="100" step="100" 
-                                                               class="simulation-input" onwheel="handleSimulationWheel(event)" 
-                                                               oninput="validateSimulationCount()">
-                                                        <button class="number-btn" onclick="adjustSimulationCount(100)">
-                                                            <i class="fas fa-plus"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <div class="simulation-buttons">
-                                                    <button class="simulation-btn dark-simulation" id="batch-dark-btn">
-                                                        <i class="fas fa-moon"></i>
-                                                        模拟黑暗侵蚀
-                                                    </button>
-                                                    <button class="simulation-btn deepest-simulation" id="batch-extreme-btn">
-                                                        <i class="fas fa-skull"></i>
-                                                        模拟至暗侵蚀
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="erosion-stats">
-                                                <div class="stat-item">
-                                                    <label>侵蚀次数</label>
-                                                    <span id="erosion-count">0</span>
-                                                </div>
-                                                <div class="stat-item">
-                                                    <label>异魔之核</label>
-                                                    <span id="dark-core-used">0</span>
-                                                </div>
-                                                <div class="stat-item">
-                                                    <label>使魔之核</label>
-                                                    <span id="demon-core-used">0</span>
-                                                </div>
-                                                <div class="stat-item total-cost">
-                                                    <label>总成本</label>
-                                                    <span id="total-erosion-cost">0 初火源质</span>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- 侵蚀结果统计 -->
-                                            <div class="erosion-results-stats">
-                                                <h4><i class="fas fa-chart-bar"></i> 侵蚀结果统计</h4>
-                                                <div class="result-stats-grid">
-                                                    <div class="result-stat-item">
-                                                        <label>异化次数</label>
-                                                        <span id="mutation-count">0</span>
-                                                    </div>
-                                                    <div class="result-stat-item">
-                                                        <label>混沌次数</label>
-                                                        <span id="chaos-count">0</span>
-                                                    </div>
-                                                    <div class="result-stat-item">
-                                                        <label>亵渎次数</label>
-                                                        <span id="profane-count">0</span>
-                                                    </div>
-                                                    <div class="result-stat-item">
-                                                        <label>傲慢次数</label>
-                                                        <span id="pride-count">0</span>
-                                                    </div>
-                                                    <div class="result-stat-item">
-                                                        <label>虚无次数</label>
-                                                        <span id="void-count">0</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- 侵蚀结果展示区域 -->
-                            <div class="erosion-result-area" id="erosion-result-area" style="display: none;">
-                                <div class="result-header">
-                                    <h4><i class="fas fa-star"></i> 侵蚀结果</h4>
-                                </div>
-                                <div class="result-content" id="erosion-result-content">
-                                    <!-- 侵蚀结果将在这里显示 -->
-                                </div>
-                            </div>
-                            
-                            <!-- 侵蚀成本计算功能 -->
-                            <div class="erosion-cost-calculation">
-                                <h4><i class="fas fa-calculator"></i> 侵蚀成本计算</h4>
-                                
-                                <!-- 侵蚀类型选择 -->
-                                <div class="erosion-type-selection">
-                                    <label>侵蚀类型</label>
-                                    <div class="erosion-type-buttons">
-                                        <button class="erosion-type-btn active" id="cost-dark-btn" >
-                                            <i class="fas fa-moon"></i>
-                                            黑暗侵蚀
-                                        </button>
-                                        <button class="erosion-type-btn" id="cost-deepest-btn" >
-                                            <i class="fas fa-skull"></i>
-                                            至暗侵蚀
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <!-- 侵蚀需求选择 -->
-                                 <div class="target-affixes-selection">
-                                     <div class="target-affix-group">
-                                          <label>需要提升的词缀数量</label>
-                                          <select id="target-upgrade-count" class="equipment-select" >
-                                              <option value="">请选择提升数量</option>
-                                              <option value="1">提升1个词缀</option>
-                                              <option value="2">提升2个词缀</option>
-                                          </select>
-                                      </div>
-                                      <div class="target-affix-group">
-                                          <label>装备词条数量</label>
-                                          <input type="number" id="equipment-affix-count" class="equipment-select" placeholder="装备总词条数" min="1" max="10" value="4" >
-                                      </div>
-                                 </div>
-                                
-                                <!-- 计算按钮 -->
-                                <button class="calculate-erosion-btn" >
-                                    <i class="fas fa-calculator"></i>
-                                    计算侵蚀成本
-                                </button>
-                                
-                                <!-- 成本结果显示 -->
-                                <div class="erosion-cost-result" id="erosion-cost-result" style="display: none;">
-                                    <div class="cost-result-header">
-                                        <h5><i class="fas fa-coins"></i> 预期成本</h5>
-                                    </div>
-                                    <div class="cost-result-content">
-                                        <div class="cost-item">
-                                            <label>预期侵蚀次数：</label>
-                                            <span id="expected-erosion-count">0</span>
+                        <!-- 高级模式结果展示区域 -->
+                        <div id="advanced-results-section" style="display: none;">
+                            <div class="results-area">
+                                <div class="module-card">
+                                    <h3><i class="fas fa-chart-line"></i> 智能决策与期望对拼</h3>
+                                    
+                                    <!-- 智能推荐结论 -->
+                                    <div class="arbitrage-recommendation-section" id="arbitrage-recommendation-section" style="display: none;">
+                                        <div class="arbitrage-recommendation-header">
+                                            <h4><i class="fas fa-lightbulb"></i> 智能推荐</h4>
                                         </div>
-                                        <div class="cost-item">
-                                            <label>预期材料消耗：</label>
-                                            <span id="expected-material-cost">0 异魔之核 + 0 使魔之核</span>
-                                        </div>
-                                        <div class="cost-item">
-                                            <label>预期装备消耗：</label>
-                                            <span id="expected-equipment-cost">0 个装备</span>
-                                        </div>
-                                        <div class="cost-item total-expected-cost">
-                                            <label>预期总成本：</label>
-                                            <span id="expected-total-cost">0 初火源质</span>
+                                        <div class="arbitrage-recommendation-content" id="arbitrage-recommendation-content">
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            
-                            <button class="reset-btn" >
-                                <i class="fas fa-undo"></i>
-                                重置计数
-                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- 右侧：装备展示 -->
-                                <div class="erosion-right-panel">
-                                    <div class="module-card">
-                                        <h3><i class="fas fa-shield-alt"></i> 装备展示</h3>
-                                        <div class="equipment-display">
-                                            <div class="equipment-preview">
-                                                <div class="equipment-icon">
-                                                    <img id="equipment-image" src="" alt="装备图标" style="display: none;">
-                                                    <div class="placeholder-icon">
-                                                        <i class="fas fa-shield-alt"></i>
-                                                    </div>
+                                    
+                                    <!-- 双轨对比卡片 -->
+                                    <div class="arbitrage-results-grid" id="arbitrage-results-grid" style="display: none;">
+                                        <!-- 黑暗侵蚀结果 -->
+                                        <div class="arbitrage-result-card" id="arbitrage-dark-result-card">
+                                            <h5><i class="fas fa-moon"></i> 黑暗侵蚀</h5>
+                                            <div class="arbitrage-result-stats">
+                                                <div class="stat-row">
+                                                    <span class="stat-label">单次成本：</span>
+                                                    <span class="stat-value" id="arbitrage-dark-single-cost">-</span>
                                                 </div>
-                                                <div class="equipment-info">
-                                                    <h4 id="display-equipment-name">请选择装备</h4>
-                                                    <p id="display-equipment-level">等级: --</p>
+                                                <div class="stat-row">
+                                                    <span class="stat-label">单次期望总收益：</span>
+                                                    <span class="stat-value" id="arbitrage-dark-expected-revenue">-</span>
+                                                </div>
+                                                <div class="stat-row net-profit-row">
+                                                    <span class="stat-label">单次期望净利润：</span>
+                                                    <span class="stat-value" id="arbitrage-dark-net-profit">-</span>
                                                 </div>
                                             </div>
-                                            
-                                            <div class="equipment-affixes">
-                                                <div class="affix-section">
-                                                    <h5>基础词缀</h5>
-                                                    <div id="base-affixes" class="affix-list">
-                                                        <p class="no-affixes">请选择装备</p>
-                                                    </div>
+                                        </div>
+                                        
+                                        <!-- 至暗侵蚀结果 -->
+                                        <div class="arbitrage-result-card" id="arbitrage-deepest-result-card">
+                                            <h5><i class="fas fa-skull"></i> 至暗侵蚀</h5>
+                                            <div class="arbitrage-result-stats">
+                                                <div class="stat-row">
+                                                    <span class="stat-label">单次成本：</span>
+                                                    <span class="stat-value" id="arbitrage-deepest-single-cost">-</span>
                                                 </div>
-                                                
-                                                <div class="affix-section">
-                                                    <h5>普通词缀</h5>
-                                                    <div id="normal-affixes" class="affix-list">
-                                                        <p class="no-affixes">请选择装备</p>
-                                                    </div>
+                                                <div class="stat-row">
+                                                    <span class="stat-label">单次期望总收益：</span>
+                                                    <span class="stat-value" id="arbitrage-deepest-expected-revenue">-</span>
                                                 </div>
-                                                
-                                                <div class="affix-section" id="erosion-affixes-section" style="display: none;">
-                                                    <h5>已侵蚀词缀</h5>
-                                                    <div id="erosion-affixes" class="affix-list">
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="equipment-status" id="equipment-status" style="display: none;">
+                                                <div class="stat-row net-profit-row">
+                                                    <span class="stat-label">单次期望净利润：</span>
+                                                    <span class="stat-value" id="arbitrage-deepest-net-profit">-</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -2184,7 +2164,7 @@
     </div>
 
     <script src="legendary_equipment_new_data.js"></script>
-    <script src="erosion_system_new.js"></script>
-    <script src="script.js?v=13"></script>
+    <script src="erosion_cost_calculator.js"></script>
+    <script src="script.js?v=15"></script>
 </body>
 </html>
