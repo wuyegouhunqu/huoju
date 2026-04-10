@@ -1,0 +1,974 @@
+[
+  {
+    "名称": "啊呜啊呜-罗兰",
+    "稀有度": "魔法",
+    "图片文件名": "啊呜啊呜-罗兰.webp",
+    "详情页URL": "https://tlidb.com/cn/Awooawoo_-_Violet"
+  },
+  {
+    "名称": "旅行小蜥-青叶",
+    "稀有度": "稀有",
+    "图片文件名": "旅行小蜥-青叶.webp",
+    "详情页URL": "https://tlidb.com/cn/Traveling_Lizard_-_Green_Leaf"
+  },
+  {
+    "名称": "赤伞",
+    "稀有度": "传奇",
+    "图片文件名": "赤伞.webp",
+    "详情页URL": "https://tlidb.com/cn/Red_Umbrella"
+  },
+  {
+    "名称": "闲游小鼬-浅海",
+    "稀有度": "魔法",
+    "图片文件名": "闲游小鼬-浅海.webp",
+    "详情页URL": "https://tlidb.com/cn/Idling_Weasel_-_Shallow_sea"
+  },
+  {
+    "名称": "哀怨线球-罗兰",
+    "稀有度": "稀有",
+    "图片文件名": "哀怨线球-罗兰.webp",
+    "详情页URL": "https://tlidb.com/cn/Plaintive_Ball_of_Thread_-_Violet"
+  },
+  {
+    "名称": "雾蝎",
+    "稀有度": "传奇",
+    "图片文件名": "雾蝎.webp",
+    "详情页URL": "https://tlidb.com/cn/Fog_Scorpion"
+  },
+  {
+    "名称": "啊呜啊呜-青雨",
+    "稀有度": "魔法",
+    "图片文件名": "啊呜啊呜-青雨.webp",
+    "详情页URL": "https://tlidb.com/cn/Awooawoo_-_Drizzle"
+  },
+  {
+    "名称": "旅行小蜥-罗兰",
+    "稀有度": "稀有",
+    "图片文件名": "旅行小蜥-罗兰.webp",
+    "详情页URL": "https://tlidb.com/cn/Traveling_Lizard_-_Violet"
+  },
+  {
+    "名称": "花语者",
+    "稀有度": "传奇",
+    "图片文件名": "花语者.webp",
+    "详情页URL": "https://tlidb.com/cn/Flower_Whisperer"
+  },
+  {
+    "名称": "噜噜里-紫萤",
+    "稀有度": "魔法",
+    "图片文件名": "噜噜里-紫萤.webp",
+    "详情页URL": "https://tlidb.com/cn/Luluri_-_Amethyst"
+  },
+  {
+    "名称": "幽狱轻骑-幽光",
+    "稀有度": "稀有",
+    "图片文件名": "幽狱轻骑-幽光.webp",
+    "详情页URL": "https://tlidb.com/cn/Hell_Cavalry_-_Glow"
+  },
+  {
+    "名称": "骨虫之女",
+    "稀有度": "传奇",
+    "图片文件名": "骨虫之女.webp",
+    "详情页URL": "https://tlidb.com/cn/The_Bone_worm%27s_Daughter"
+  },
+  {
+    "名称": "噜噜里-赤枫",
+    "稀有度": "魔法",
+    "图片文件名": "噜噜里-赤枫.webp",
+    "详情页URL": "https://tlidb.com/cn/Luluri_-_Maple"
+  },
+  {
+    "名称": "凛冬莽汉-浅海",
+    "稀有度": "稀有",
+    "图片文件名": "凛冬莽汉-浅海.webp",
+    "详情页URL": "https://tlidb.com/cn/Winter_Darer_-_Shallow_Sea"
+  },
+  {
+    "名称": "捕星者",
+    "稀有度": "传奇",
+    "图片文件名": "捕星者.webp",
+    "详情页URL": "https://tlidb.com/cn/Starcatcher"
+  },
+  {
+    "名称": "闲游小鼬-新芽",
+    "稀有度": "魔法",
+    "图片文件名": "闲游小鼬-新芽.webp",
+    "详情页URL": "https://tlidb.com/cn/Idling_Weasel_-_Sprouts"
+  },
+  {
+    "名称": "采云者-罗兰",
+    "稀有度": "稀有",
+    "图片文件名": "采云者-罗兰.webp",
+    "详情页URL": "https://tlidb.com/cn/Cloudgatherer_-_Violet"
+  },
+  {
+    "名称": "织梦者",
+    "稀有度": "传奇",
+    "图片文件名": "织梦者.webp",
+    "详情页URL": "https://tlidb.com/cn/Dreamweaver"
+  },
+  {
+    "名称": "啊呜啊呜-琥珀",
+    "稀有度": "魔法",
+    "图片文件名": "啊呜啊呜-琥珀.webp",
+    "详情页URL": "https://tlidb.com/cn/Awooawoo_-_Amber"
+  },
+  {
+    "名称": "招财小栗-荷叶",
+    "稀有度": "稀有",
+    "图片文件名": "招财小栗-荷叶.webp",
+    "详情页URL": "https://tlidb.com/cn/Greedy_Chestnut_-_Lotus_Leaf"
+  },
+  {
+    "名称": "炎刀客",
+    "稀有度": "传奇",
+    "图片文件名": "炎刀客.webp",
+    "详情页URL": "https://tlidb.com/cn/Fire_Swordsman"
+  },
+  {
+    "名称": "闲游小鼬-深渊",
+    "稀有度": "魔法",
+    "图片文件名": "闲游小鼬-深渊.webp",
+    "详情页URL": "https://tlidb.com/cn/Idling_Weasel_-_Abyss"
+  },
+  {
+    "名称": "招财小栗-翡翠",
+    "稀有度": "稀有",
+    "图片文件名": "招财小栗-翡翠.webp",
+    "详情页URL": "https://tlidb.com/cn/Greedy_Chestnut_-_Emerald"
+  },
+  {
+    "名称": "歧路人",
+    "稀有度": "传奇",
+    "图片文件名": "歧路人.webp",
+    "详情页URL": "https://tlidb.com/cn/Crossroad_Walker"
+  },
+  {
+    "名称": "噜噜里-金叶",
+    "稀有度": "魔法",
+    "图片文件名": "噜噜里-金叶.webp",
+    "详情页URL": "https://tlidb.com/cn/Luluri_-_Golden_Leaf"
+  },
+  {
+    "名称": "招财小栗-辉光",
+    "稀有度": "稀有",
+    "图片文件名": "招财小栗-辉光.webp",
+    "详情页URL": "https://tlidb.com/cn/Greedy_Chestnut_-_Radiance"
+  },
+  {
+    "名称": "炽羽",
+    "稀有度": "传奇",
+    "图片文件名": "炽羽.webp",
+    "详情页URL": "https://tlidb.com/cn/Firewing"
+  },
+  {
+    "名称": "刺头小蜗-繁花",
+    "稀有度": "魔法",
+    "图片文件名": "刺头小蜗-繁花.webp",
+    "详情页URL": "https://tlidb.com/cn/Spiny_Snail_-_Flower"
+  },
+  {
+    "名称": "凛冬莽汉",
+    "稀有度": "稀有",
+    "图片文件名": "凛冬莽汉.webp",
+    "详情页URL": "https://tlidb.com/cn/Winter_Darer"
+  },
+  {
+    "名称": "机关权柄",
+    "稀有度": "传奇",
+    "图片文件名": "机关权柄.webp",
+    "详情页URL": "https://tlidb.com/cn/Mechanical_Throne"
+  },
+  {
+    "名称": "探险小獭-橄榄",
+    "稀有度": "魔法",
+    "图片文件名": "探险小獭-橄榄.webp",
+    "详情页URL": "https://tlidb.com/cn/Explorer_Otter_-_Olive"
+  },
+  {
+    "名称": "招财小栗-藕荷",
+    "稀有度": "稀有",
+    "图片文件名": "招财小栗-藕荷.webp",
+    "详情页URL": "https://tlidb.com/cn/Greedy_Chestnut_-_Lotus_Root"
+  },
+  {
+    "名称": "龙蝎火女",
+    "稀有度": "传奇",
+    "图片文件名": "龙蝎火女.webp",
+    "详情页URL": "https://tlidb.com/cn/Drapion_Lady"
+  },
+  {
+    "名称": "刺头小蜗-鸢尾",
+    "稀有度": "魔法",
+    "图片文件名": "刺头小蜗-鸢尾.webp",
+    "详情页URL": "https://tlidb.com/cn/Spiny_Snail_-_Iris"
+  },
+  {
+    "名称": "采云者-火花",
+    "稀有度": "稀有",
+    "图片文件名": "采云者-火花.webp",
+    "详情页URL": "https://tlidb.com/cn/Cloudgatherer_-_Sparkle"
+  },
+  {
+    "名称": "风语叶",
+    "稀有度": "传奇",
+    "图片文件名": "风语叶.webp",
+    "详情页URL": "https://tlidb.com/cn/Whisperwind_Leaves"
+  },
+  {
+    "名称": "探险小獭-泥岩",
+    "稀有度": "魔法",
+    "图片文件名": "探险小獭-泥岩.webp",
+    "详情页URL": "https://tlidb.com/cn/Explorer_Otter_-_Mudstone"
+  },
+  {
+    "名称": "哀怨线球",
+    "稀有度": "稀有",
+    "图片文件名": "哀怨线球.webp",
+    "详情页URL": "https://tlidb.com/cn/Plaintive_Ball_of_Thread"
+  },
+  {
+    "名称": "圣歌",
+    "稀有度": "传奇",
+    "图片文件名": "圣歌.webp",
+    "详情页URL": "https://tlidb.com/cn/Anthem"
+  },
+  {
+    "名称": "探险小獭-磐岩",
+    "稀有度": "魔法",
+    "图片文件名": "探险小獭-磐岩.webp",
+    "详情页URL": "https://tlidb.com/cn/Explorer_Otter_-_Rock"
+  },
+  {
+    "名称": "旅行小蜥-深海",
+    "稀有度": "稀有",
+    "图片文件名": "旅行小蜥-深海.webp",
+    "详情页URL": "https://tlidb.com/cn/Traveling_Lizard_-_Ocean"
+  },
+  {
+    "名称": "灵佑",
+    "稀有度": "传奇",
+    "图片文件名": "灵佑.webp",
+    "详情页URL": "https://tlidb.com/cn/Spirit_Bless"
+  },
+  {
+    "名称": "探险小獭-流沙",
+    "稀有度": "魔法",
+    "图片文件名": "探险小獭-流沙.webp",
+    "详情页URL": "https://tlidb.com/cn/Explorer_Otter_-_Quicksand"
+  },
+  {
+    "名称": "旅行小蜥-繁花",
+    "稀有度": "稀有",
+    "图片文件名": "旅行小蜥-繁花.webp",
+    "详情页URL": "https://tlidb.com/cn/Traveling_Lizard_-_Flower"
+  },
+  {
+    "名称": "永恒维系者",
+    "稀有度": "传奇",
+    "图片文件名": "永恒维系者.webp",
+    "详情页URL": "https://tlidb.com/cn/Preserver_of_Eternity"
+  },
+  {
+    "名称": "刺头小蜗-晴空",
+    "稀有度": "魔法",
+    "图片文件名": "刺头小蜗-晴空.webp",
+    "详情页URL": "https://tlidb.com/cn/Spiny_Snail_-_Cloudless_Sky"
+  },
+  {
+    "名称": "幽狱轻骑",
+    "稀有度": "稀有",
+    "图片文件名": "幽狱轻骑.webp",
+    "详情页URL": "https://tlidb.com/cn/Hell_Cavalry"
+  },
+  {
+    "名称": "苍蓝骑士",
+    "稀有度": "传奇",
+    "图片文件名": "苍蓝骑士.webp",
+    "详情页URL": "https://tlidb.com/cn/Knight_of_Pale_Blue"
+  },
+  {
+    "名称": "闲游小鼬-落樱",
+    "稀有度": "魔法",
+    "图片文件名": "闲游小鼬-落樱.webp",
+    "详情页URL": "https://tlidb.com/cn/Idling_Weasel_-_Cherry_Blossom"
+  },
+  {
+    "名称": "采云者-青空",
+    "稀有度": "稀有",
+    "图片文件名": "采云者-青空.webp",
+    "详情页URL": "https://tlidb.com/cn/Cloudgatherer_-_Sky"
+  },
+  {
+    "名称": "幽影舰长",
+    "稀有度": "传奇",
+    "图片文件名": "幽影舰长.webp",
+    "详情页URL": "https://tlidb.com/cn/Captain_Shadow"
+  },
+  {
+    "名称": "噜噜里-青叶",
+    "稀有度": "魔法",
+    "图片文件名": "噜噜里-青叶.webp",
+    "详情页URL": "https://tlidb.com/cn/Luluri_-_Green_Leaf"
+  },
+  {
+    "名称": "哀怨线球-繁花",
+    "稀有度": "稀有",
+    "图片文件名": "哀怨线球-繁花.webp",
+    "详情页URL": "https://tlidb.com/cn/Plaintive_Ball_of_Thread_-_Flower"
+  },
+  {
+    "名称": "永恒呼唤者",
+    "稀有度": "传奇",
+    "图片文件名": "永恒呼唤者.webp",
+    "详情页URL": "https://tlidb.com/cn/Eternity_Summoner"
+  },
+  {
+    "名称": "快乐小肥",
+    "稀有度": "魔法",
+    "图片文件名": "快乐小肥.webp",
+    "详情页URL": "https://tlidb.com/cn/Happy_Chonky"
+  },
+  {
+    "名称": "采云者-流金",
+    "稀有度": "稀有",
+    "图片文件名": "采云者-流金.webp",
+    "详情页URL": "https://tlidb.com/cn/Cloudgatherer_-_Surging_Gold"
+  },
+  {
+    "名称": "白垩之灵",
+    "稀有度": "传奇",
+    "图片文件名": "白垩之灵.webp",
+    "详情页URL": "https://tlidb.com/cn/Chalk_Spirit"
+  },
+  {
+    "名称": "快乐小肥-灰烬",
+    "稀有度": "魔法",
+    "图片文件名": "快乐小肥-灰烬.webp",
+    "详情页URL": "https://tlidb.com/cn/Happy_Chonky_-_Ember"
+  },
+  {
+    "名称": "凛冬莽汉-熔岩",
+    "稀有度": "稀有",
+    "图片文件名": "凛冬莽汉-熔岩.webp",
+    "详情页URL": "https://tlidb.com/cn/Winter_Darer_-_Lava"
+  },
+  {
+    "名称": "熔火",
+    "稀有度": "未知",
+    "图片文件名": "熔火.webp",
+    "详情页URL": "https://tlidb.com/cn/Melting_Flames"
+  },
+  {
+    "名称": "啊呜啊呜-白雾",
+    "稀有度": "魔法",
+    "图片文件名": "啊呜啊呜-白雾.webp",
+    "详情页URL": "https://tlidb.com/cn/Awooawoo_-_White_Mist"
+  },
+  {
+    "名称": "幽狱轻骑-碎冰",
+    "稀有度": "稀有",
+    "图片文件名": "幽狱轻骑-碎冰.webp",
+    "详情页URL": "https://tlidb.com/cn/Hell_Cavalry_-_Crushed_Ice"
+  },
+  {
+    "名称": "傀冰",
+    "稀有度": "传奇",
+    "图片文件名": "傀冰.webp",
+    "详情页URL": "https://tlidb.com/cn/Ice_Puppet"
+  },
+  {
+    "名称": "快乐小肥-电光",
+    "稀有度": "未知",
+    "图片文件名": "快乐小肥-电光.webp",
+    "详情页URL": "https://tlidb.com/cn/Happy_Chonky_-_Electrify"
+  },
+  {
+    "名称": "幽狱轻骑-闷雷",
+    "稀有度": "稀有",
+    "图片文件名": "幽狱轻骑-闷雷.webp",
+    "详情页URL": "https://tlidb.com/cn/Hell_Cavalry_-_Muffled_Thunder"
+  },
+  {
+    "名称": "凌雷",
+    "稀有度": "传奇",
+    "图片文件名": "凌雷.webp",
+    "详情页URL": "https://tlidb.com/cn/Bitter_Thunder"
+  },
+  {
+    "名称": "快乐小肥-翡翠",
+    "稀有度": "魔法",
+    "图片文件名": "快乐小肥-翡翠.webp",
+    "详情页URL": "https://tlidb.com/cn/Happy_Chonky_-_Emerald"
+  },
+  {
+    "名称": "哀怨线球-金箔",
+    "稀有度": "稀有",
+    "图片文件名": "哀怨线球-金箔.webp",
+    "详情页URL": "https://tlidb.com/cn/Plaintive_Ball_of_Thread_-_Gold_Leaf"
+  },
+  {
+    "名称": "唤海星葵",
+    "稀有度": "传奇",
+    "图片文件名": "唤海星葵.webp",
+    "详情页URL": "https://tlidb.com/cn/Starfish_Chanter"
+  },
+  {
+    "名称": "闲游小鼬-火花",
+    "稀有度": "魔法",
+    "图片文件名": "闲游小鼬-火花.webp",
+    "详情页URL": "https://tlidb.com/cn/Idling_Weasel_-_Sparkle"
+  },
+  {
+    "名称": "采云者-苍穹",
+    "稀有度": "稀有",
+    "图片文件名": "采云者-苍穹.webp",
+    "详情页URL": "https://tlidb.com/cn/Cloudgatherer_-_Sky%27s_Dome"
+  },
+  {
+    "名称": "阿空",
+    "稀有度": "传奇",
+    "图片文件名": "阿空.webp",
+    "详情页URL": "https://tlidb.com/cn/Kong"
+  },
+  {
+    "名称": "快乐小肥-暖阳",
+    "稀有度": "魔法",
+    "图片文件名": "快乐小肥-暖阳.webp",
+    "详情页URL": "https://tlidb.com/cn/Happy_Chonky_-_Sun"
+  },
+  {
+    "名称": "哀怨线球-霜寒",
+    "稀有度": "稀有",
+    "图片文件名": "哀怨线球-霜寒.webp",
+    "详情页URL": "https://tlidb.com/cn/Plaintive_Ball_of_Thread_-_Frost"
+  },
+  {
+    "名称": "32号战斗基",
+    "稀有度": "传奇",
+    "图片文件名": "32号战斗基.webp",
+    "详情页URL": "https://tlidb.com/cn/Corgi_Fighter_No.32"
+  },
+  {
+    "名称": "刺头小蜗-苍云",
+    "稀有度": "魔法",
+    "图片文件名": "刺头小蜗-苍云.webp",
+    "详情页URL": "https://tlidb.com/cn/Spiny_Snail_-_Cloud"
+  },
+  {
+    "名称": "幽狱轻骑-浅海",
+    "稀有度": "稀有",
+    "图片文件名": "幽狱轻骑-浅海.webp",
+    "详情页URL": "https://tlidb.com/cn/Hell_Cavalry_-_Sea"
+  },
+  {
+    "名称": "缚心蔷薇",
+    "稀有度": "传奇",
+    "图片文件名": "缚心蔷薇.webp",
+    "详情页URL": "https://tlidb.com/cn/Heart-binding_Rose"
+  },
+  {
+    "名称": "刺头小蜗-青翠",
+    "稀有度": "魔法",
+    "图片文件名": "刺头小蜗-青翠.webp",
+    "详情页URL": "https://tlidb.com/cn/Spiny_Snail_-_Green"
+  },
+  {
+    "名称": "凛冬莽汉-磐石",
+    "稀有度": "稀有",
+    "图片文件名": "凛冬莽汉-磐石.webp",
+    "详情页URL": "https://tlidb.com/cn/Winter_Darer_-_Rock"
+  },
+  {
+    "名称": "衔梅之莺",
+    "稀有度": "传奇",
+    "图片文件名": "衔梅之莺.webp",
+    "详情页URL": "https://tlidb.com/cn/Warbler_of_Plum_Blossoms"
+  },
+  {
+    "名称": "刺头小蜗-焰心",
+    "稀有度": "魔法",
+    "图片文件名": "刺头小蜗-焰心.webp",
+    "详情页URL": "https://tlidb.com/cn/Spiny_Snail_-_Flame"
+  },
+  {
+    "名称": "凛冬莽汉-深空",
+    "稀有度": "稀有",
+    "图片文件名": "凛冬莽汉-深空.webp",
+    "详情页URL": "https://tlidb.com/cn/Winter_Darer_-_Sky"
+  },
+  {
+    "名称": "恶兆之鸩",
+    "稀有度": "传奇",
+    "图片文件名": "恶兆之鸩.webp",
+    "详情页URL": "https://tlidb.com/cn/Poisoned_Omen"
+  },
+  {
+    "名称": "移动电子",
+    "稀有度": "魔法",
+    "图片文件名": "移动电子.webp",
+    "详情页URL": "https://tlidb.com/cn/Shocket"
+  },
+  {
+    "名称": "春困小莴",
+    "稀有度": "稀有",
+    "图片文件名": "春困小莴.webp",
+    "详情页URL": "https://tlidb.com/cn/Letice"
+  },
+  {
+    "名称": "丰碑骑士",
+    "稀有度": "传奇",
+    "图片文件名": "丰碑骑士.webp",
+    "详情页URL": "https://tlidb.com/cn/Monument_Knight"
+  },
+  {
+    "名称": "移动电子-罗兰",
+    "稀有度": "魔法",
+    "图片文件名": "移动电子-罗兰.webp",
+    "详情页URL": "https://tlidb.com/cn/Shocket_-_Violet"
+  },
+  {
+    "名称": "春困小莴-火苗",
+    "稀有度": "稀有",
+    "图片文件名": "春困小莴-火苗.webp",
+    "详情页URL": "https://tlidb.com/cn/Letice_-_Flame"
+  },
+  {
+    "名称": "深渊王魂",
+    "稀有度": "传奇",
+    "图片文件名": "深渊王魂.webp",
+    "详情页URL": "https://tlidb.com/cn/Abyssal_King_Soul"
+  },
+  {
+    "名称": "移动电子-苍白",
+    "稀有度": "魔法",
+    "图片文件名": "移动电子-苍白.webp",
+    "详情页URL": "https://tlidb.com/cn/Shocket_-_Pale"
+  },
+  {
+    "名称": "春困小莴-紫晶",
+    "稀有度": "稀有",
+    "图片文件名": "春困小莴-紫晶.webp",
+    "详情页URL": "https://tlidb.com/cn/Letice_-_Amethyst"
+  },
+  {
+    "名称": "原罪天秤",
+    "稀有度": "传奇",
+    "图片文件名": "原罪天秤.webp",
+    "详情页URL": "https://tlidb.com/cn/Scale_of_Original_Sin"
+  },
+  {
+    "名称": "荧光-魔法",
+    "稀有度": "魔法",
+    "图片文件名": "荧光-魔法.webp",
+    "详情页URL": "https://tlidb.com/cn/Scale_of_Original_Sin"
+  },
+  {
+    "名称": "荧光-稀有",
+    "稀有度": "稀有",
+    "图片文件名": "荧光-稀有.webp",
+    "详情页URL": "https://tlidb.com/cn/Scale_of_Original_Sin"
+  },
+  {
+    "名称": "葫狸葫兔",
+    "稀有度": "传奇",
+    "图片文件名": "葫狸葫兔.webp",
+    "详情页URL": "https://tlidb.com/cn/Fluffhead_Hare"
+  },
+  {
+    "名称": "移动电子-黑夜",
+    "稀有度": "魔法",
+    "图片文件名": "移动电子-黑夜.webp",
+    "详情页URL": "https://tlidb.com/cn/Shocket_-_Dark_Night"
+  },
+  {
+    "名称": "春困小莴-冰霜",
+    "稀有度": "稀有",
+    "图片文件名": "春困小莴-冰霜.webp",
+    "详情页URL": "https://tlidb.com/cn/Letice_-_Frost"
+  },
+  {
+    "名称": "牧灵人",
+    "稀有度": "传奇",
+    "图片文件名": "牧灵人.webp",
+    "详情页URL": "https://tlidb.com/cn/Shepherd"
+  },
+  {
+    "名称": "移动电子-青叶",
+    "稀有度": "魔法",
+    "图片文件名": "移动电子-青叶.webp",
+    "详情页URL": "https://tlidb.com/cn/Shocket_-_Green_Leaf"
+  },
+  {
+    "名称": "春困小莴-枯叶",
+    "稀有度": "稀有",
+    "图片文件名": "春困小莴-枯叶.webp",
+    "详情页URL": "https://tlidb.com/cn/Letice_-_Withered_Leaf"
+  },
+  {
+    "名称": "永夜狂沙",
+    "稀有度": "传奇",
+    "图片文件名": "永夜狂沙.webp",
+    "详情页URL": "https://tlidb.com/cn/Raging_Sands_of_Eternal_Night"
+  },
+  {
+    "名称": "啊呜啊呜-蓝天",
+    "稀有度": "魔法",
+    "图片文件名": "啊呜啊呜-蓝天.webp",
+    "详情页URL": "https://tlidb.com/cn/Awooawoo_-_Blue_Sky"
+  },
+  {
+    "名称": "幽狱轻骑-黄昏",
+    "稀有度": "稀有",
+    "图片文件名": "幽狱轻骑-黄昏.webp",
+    "详情页URL": "https://tlidb.com/cn/Hell_Cavalry_-_Twilight"
+  },
+  {
+    "名称": "美欲巫羚",
+    "稀有度": "传奇",
+    "图片文件名": "美欲巫羚.webp",
+    "详情页URL": "https://tlidb.com/cn/Witch_Antelope_of_Lust"
+  },
+  {
+    "名称": "快乐小肥-罗兰",
+    "稀有度": "魔法",
+    "图片文件名": "快乐小肥-罗兰.webp",
+    "详情页URL": "https://tlidb.com/cn/Happy_Chonky_-_Violet"
+  },
+  {
+    "名称": "怒海大副-寂夜",
+    "稀有度": "稀有",
+    "图片文件名": "怒海大副-寂夜.webp",
+    "详情页URL": "https://tlidb.com/cn/First_Mate_of_the_Furious_Sea_-_Silent_Night"
+  },
+  {
+    "名称": "雾都孤女",
+    "稀有度": "传奇",
+    "图片文件名": "雾都孤女.webp",
+    "详情页URL": "https://tlidb.com/cn/Mistville_Orphan"
+  },
+  {
+    "名称": "闲游小鼬-砂石",
+    "稀有度": "魔法",
+    "图片文件名": "闲游小鼬-砂石.webp",
+    "详情页URL": "https://tlidb.com/cn/Idling_Weasel_-_Sandstone"
+  },
+  {
+    "名称": "怒海大副-磐石",
+    "稀有度": "稀有",
+    "图片文件名": "怒海大副-磐石.webp",
+    "详情页URL": "https://tlidb.com/cn/First_Mate_of_the_Furious_Sea_-_Rock"
+  },
+  {
+    "名称": "电能储备粮",
+    "稀有度": "传奇",
+    "图片文件名": "电能储备粮.webp",
+    "详情页URL": "https://tlidb.com/cn/Backup_Power"
+  },
+  {
+    "名称": "噜噜里-浅海",
+    "稀有度": "魔法",
+    "图片文件名": "噜噜里-浅海.webp",
+    "详情页URL": "https://tlidb.com/cn/Luluri_-_Shallow_Sea"
+  },
+  {
+    "名称": "怒海大副-青空",
+    "稀有度": "稀有",
+    "图片文件名": "怒海大副-青空.webp",
+    "详情页URL": "https://tlidb.com/cn/First_Mate_of_the_Furious_Sea_-_Sky"
+  },
+  {
+    "名称": "怒海喵王",
+    "稀有度": "传奇",
+    "图片文件名": "怒海喵王.webp",
+    "详情页URL": "https://tlidb.com/cn/Captain_Kitty_of_the_Furious_Sea"
+  },
+  {
+    "名称": "干饭武士-蜂蜜",
+    "稀有度": "魔法",
+    "图片文件名": "干饭武士-蜂蜜.webp",
+    "详情页URL": "https://tlidb.com/cn/Feasting_Samurai_-_Honey"
+  },
+  {
+    "名称": "青龙菜菜-松露",
+    "稀有度": "稀有",
+    "图片文件名": "青龙菜菜-松露.webp",
+    "详情页URL": "https://tlidb.com/cn/Dragon_Plant_-_Truffle"
+  },
+  {
+    "名称": "铁铸雄狮",
+    "稀有度": "传奇",
+    "图片文件名": "铁铸雄狮.webp",
+    "详情页URL": "https://tlidb.com/cn/Iron_Lion"
+  },
+  {
+    "名称": "干饭武士",
+    "稀有度": "魔法",
+    "图片文件名": "干饭武士.webp",
+    "详情页URL": "https://tlidb.com/cn/Feasting_Samurai"
+  },
+  {
+    "名称": "青龙菜菜",
+    "稀有度": "稀有",
+    "图片文件名": "青龙菜菜.webp",
+    "详情页URL": "https://tlidb.com/cn/Dragon_Plant"
+  },
+  {
+    "名称": "初号爱丽丝",
+    "稀有度": "传奇",
+    "图片文件名": "初号爱丽丝.webp",
+    "详情页URL": "https://tlidb.com/cn/Alice_1"
+  },
+  {
+    "名称": "干饭武士-薄荷",
+    "稀有度": "魔法",
+    "图片文件名": "干饭武士-薄荷.webp",
+    "详情页URL": "https://tlidb.com/cn/Feasting_Samurai_-_Mint"
+  },
+  {
+    "名称": "青龙菜菜-莴笋",
+    "稀有度": "稀有",
+    "图片文件名": "青龙菜菜-莴笋.webp",
+    "详情页URL": "https://tlidb.com/cn/Dragon_Plant_-_Lettuce"
+  },
+  {
+    "名称": "绮彩之枭",
+    "稀有度": "传奇",
+    "图片文件名": "绮彩之枭.webp",
+    "详情页URL": "https://tlidb.com/cn/Rainbowpaint_Owl"
+  },
+  {
+    "名称": "干饭武士-甜橙",
+    "稀有度": "魔法",
+    "图片文件名": "干饭武士-甜橙.webp",
+    "详情页URL": "https://tlidb.com/cn/Feasting_Samurai_-_Orange"
+  },
+  {
+    "名称": "青龙菜菜-甘蓝",
+    "稀有度": "稀有",
+    "图片文件名": "青龙菜菜-甘蓝.webp",
+    "详情页URL": "https://tlidb.com/cn/Dragon_Plant_-_Kale"
+  },
+  {
+    "名称": "摇摆邦妮",
+    "稀有度": "传奇",
+    "图片文件名": "摇摆邦妮.webp",
+    "详情页URL": "https://tlidb.com/cn/Swaying_Bonnie"
+  },
+  {
+    "名称": "干饭武士-蒜香",
+    "稀有度": "魔法",
+    "图片文件名": "干饭武士-蒜香.webp",
+    "详情页URL": "https://tlidb.com/cn/Feasting_Samurai_-_Garlic"
+  },
+  {
+    "名称": "青龙菜菜-洋葱",
+    "稀有度": "稀有",
+    "图片文件名": "青龙菜菜-洋葱.webp",
+    "详情页URL": "https://tlidb.com/cn/Dragon_Plant_-_Onion"
+  },
+  {
+    "名称": "幽谷花灵",
+    "稀有度": "传奇",
+    "图片文件名": "幽谷花灵.webp",
+    "详情页URL": "https://tlidb.com/cn/Sprite_of_Silent_Vale"
+  },
+  {
+    "名称": "种草小芽",
+    "稀有度": "魔法",
+    "图片文件名": "种草小芽.webp",
+    "详情页URL": "https://tlidb.com/cn/Sprouting_Grass"
+  },
+  {
+    "名称": "良性八哥-芭比粉",
+    "稀有度": "稀有",
+    "图片文件名": "良性八哥-芭比粉.webp",
+    "详情页URL": "https://tlidb.com/cn/Benign_Bug_-_Barbie_Pink"
+  },
+  {
+    "名称": "愚者",
+    "稀有度": "传奇",
+    "图片文件名": "愚者.webp",
+    "详情页URL": "https://tlidb.com/cn/Jestress"
+  },
+  {
+    "名称": "种草小芽-紫砂",
+    "稀有度": "魔法",
+    "图片文件名": "种草小芽-紫砂.webp",
+    "详情页URL": "https://tlidb.com/cn/Sprouting_Grass_-_Purple_Sand"
+  },
+  {
+    "名称": "良性八哥",
+    "稀有度": "魔法",
+    "图片文件名": "良性八哥.webp",
+    "详情页URL": "https://tlidb.com/cn/Benign_Bug"
+  },
+  {
+    "名称": "多多·多萝西",
+    "稀有度": "传奇",
+    "图片文件名": "多多·多萝西.webp",
+    "详情页URL": "https://tlidb.com/cn/Doro-Doro_Dorothy"
+  },
+  {
+    "名称": "种草小芽-白瓷",
+    "稀有度": "魔法",
+    "图片文件名": "种草小芽-白瓷.webp",
+    "详情页URL": "https://tlidb.com/cn/Sprouting_Grass_-_White_Porcelain"
+  },
+  {
+    "名称": "良性八哥-冷酷银",
+    "稀有度": "稀有",
+    "图片文件名": "良性八哥-冷酷银.webp",
+    "详情页URL": "https://tlidb.com/cn/Benign_Bug_-_Merciless_Silver"
+  },
+  {
+    "名称": "引航月影",
+    "稀有度": "传奇",
+    "图片文件名": "引航月影.webp",
+    "详情页URL": "https://tlidb.com/cn/Moonshadow_Guide"
+  },
+  {
+    "名称": "种草小芽-青瓷",
+    "稀有度": "魔法",
+    "图片文件名": "种草小芽-青瓷.webp",
+    "详情页URL": "https://tlidb.com/cn/Sprouting_Grass_-_Green_Porcelain"
+  },
+  {
+    "名称": "良性八哥-鬼火黄",
+    "稀有度": "稀有",
+    "图片文件名": "良性八哥-鬼火黄.webp",
+    "详情页URL": "https://tlidb.com/cn/Benign_Bug_-_Ghost_Light_Yellow"
+  },
+  {
+    "名称": "亵渎圣女的肖像",
+    "稀有度": "传奇",
+    "图片文件名": "亵渎圣女的肖像.webp",
+    "详情页URL": "https://tlidb.com/cn/Portrait_of_a_Fallen_Saintess"
+  },
+  {
+    "名称": "小灯龙",
+    "稀有度": "魔法",
+    "图片文件名": "小灯龙.webp",
+    "详情页URL": "https://tlidb.com/cn/Lumidrake"
+  },
+  {
+    "名称": "小咕咕菇",
+    "稀有度": "稀有",
+    "图片文件名": "小咕咕菇.webp",
+    "详情页URL": "https://tlidb.com/cn/Shro-Shroom"
+  },
+  {
+    "名称": "源博士",
+    "稀有度": "传奇",
+    "图片文件名": "源博士.webp",
+    "详情页URL": "https://tlidb.com/cn/Prof._SOURCE"
+  },
+  {
+    "名称": "种草小芽-黑陶",
+    "稀有度": "魔法",
+    "图片文件名": "种草小芽-黑陶.webp",
+    "详情页URL": "https://tlidb.com/cn/Sprouting_Grass_-_Black_Porcelain"
+  },
+  {
+    "名称": "小咕咕菇-牛肝菌",
+    "稀有度": "稀有",
+    "图片文件名": "小咕咕菇-牛肝菌.webp",
+    "详情页URL": "https://tlidb.com/cn/Shro-Shroom_-_Boletus"
+  },
+  {
+    "名称": "女武神的夜巡",
+    "稀有度": "未知",
+    "图片文件名": "女武神的夜巡.webp",
+    "详情页URL": "https://tlidb.com/cn/Valkyrie%27s_Night_Patrol"
+  },
+  {
+    "名称": "小灯龙-萤光",
+    "稀有度": "魔法",
+    "图片文件名": "小灯龙-萤光.webp",
+    "详情页URL": "https://tlidb.com/cn/Lumidrake_-_Fluorescence"
+  },
+  {
+    "名称": "良性八哥-宽容绿",
+    "稀有度": "稀有",
+    "图片文件名": "良性八哥-宽容绿.webp",
+    "详情页URL": "https://tlidb.com/cn/Benign_Bug_-_Tolerant_Green"
+  },
+  {
+    "名称": "兰心火铳",
+    "稀有度": "传奇",
+    "图片文件名": "兰心火铳.webp",
+    "详情页URL": "https://tlidb.com/cn/Azure_Gunslinger"
+  },
+  {
+    "名称": "小灯龙-幽光",
+    "稀有度": "魔法",
+    "图片文件名": "小灯龙-幽光.webp",
+    "详情页URL": "https://tlidb.com/cn/Lumidrake_-_Glow"
+  },
+  {
+    "名称": "小咕咕菇-见手青",
+    "稀有度": "稀有",
+    "图片文件名": "小咕咕菇-见手青.webp",
+    "详情页URL": "https://tlidb.com/cn/Shro-Shroom_-_Lurid_Bolete"
+  },
+  {
+    "名称": "叠界之匙",
+    "稀有度": "传奇",
+    "图片文件名": "叠界之匙.webp",
+    "详情页URL": "https://tlidb.com/cn/Key_of_Overrealm"
+  },
+  {
+    "名称": "小灯龙-极光",
+    "稀有度": "魔法",
+    "图片文件名": "小灯龙-极光.webp",
+    "详情页URL": "https://tlidb.com/cn/Lumidrake_-_Aurora"
+  },
+  {
+    "名称": "小咕咕菇-杏鲍菇",
+    "稀有度": "稀有",
+    "图片文件名": "小咕咕菇-杏鲍菇.webp",
+    "详情页URL": "https://tlidb.com/cn/Shro-Shroom_-_Oyster_Mushroom"
+  },
+  {
+    "名称": "彩墨朵朵",
+    "稀有度": "传奇",
+    "图片文件名": "彩墨朵朵.webp",
+    "详情页URL": "https://tlidb.com/cn/Squiddle"
+  },
+  {
+    "名称": "小灯龙-烛光",
+    "稀有度": "魔法",
+    "图片文件名": "小灯龙-烛光.webp",
+    "详情页URL": "https://tlidb.com/cn/Lumidrake_-_Candlelight"
+  },
+  {
+    "名称": "小咕咕菇-蓝瘦菇",
+    "稀有度": "稀有",
+    "图片文件名": "小咕咕菇-蓝瘦菇.webp",
+    "详情页URL": "https://tlidb.com/cn/Shro-Shroom_-_Gloom_Shroom"
+  },
+  {
+    "名称": "酷猫宅急送",
+    "稀有度": "传奇",
+    "图片文件名": "酷猫宅急送.webp",
+    "详情页URL": "https://tlidb.com/cn/Kitty_Express"
+  },
+  {
+    "名称": "小灯龙-火光",
+    "稀有度": "魔法",
+    "图片文件名": "小灯龙-火光.webp",
+    "详情页URL": "https://tlidb.com/cn/Lumidrake_-_Flare"
+  },
+  {
+    "名称": "鸟窝头头",
+    "稀有度": "稀有",
+    "图片文件名": "鸟窝头头.webp",
+    "详情页URL": "https://tlidb.com/cn/Bird_Nest"
+  },
+  {
+    "名称": "实习医生雪莱",
+    "稀有度": "传奇",
+    "图片文件名": "实习医生雪莱.webp",
+    "详情页URL": "https://tlidb.com/cn/Intern_Shelley"
+  }
+]
