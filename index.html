@@ -8,6 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>火炬之光无限 - 计算辅助工具</title>
     <link rel="stylesheet" href="styles.css?v=11">
+    <link rel="stylesheet" href="gacha_styles.css?v=1">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -45,6 +46,11 @@
                     <img src="页签/高塔系统.png" alt="高塔系统" class="nav-icon">
                     <span class="nav-text">高塔系统</span>
                 </li>
+                <li class="nav-item" data-tab="gacha">
+                    <i class="fas fa-gift nav-icon"></i>
+                    <span class="nav-text">扭蛋机</span>
+                </li>
+
             </ul>
             
             <!-- 底部控制区域 -->
@@ -2184,11 +2190,178 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 扭蛋机 -->
+            <div class="tab-content" id="gacha">
+                <div class="content-header">
+                    <h1><i class="fas fa-gift"></i> 扭蛋机</h1>
+                </div>
+                
+                <!-- 扭蛋机子标签页 -->
+                <div class="gacha-sub-tabs">
+                    <button class="gacha-sub-tab active" data-tab="cost">
+                        <i class="fas fa-calculator"></i>
+                        成本计算
+                    </button>
+                    <button class="gacha-sub-tab" data-tab="simulation">
+                        <i class="fas fa-gamepad"></i>
+                        抽卡模拟
+                    </button>
+                </div>
+                
+                <!-- 成本计算 -->
+                <div class="gacha-content active" id="gacha-cost">
+                    <div class="gacha-container">
+                        <div class="gacha-cost-config">
+                            <!-- 奖池选择 -->
+                            <div class="gacha-config-section">
+                                <h3><i class="fas fa-box"></i> 奖池选择</h3>
+                                <div class="gacha-select-group">
+                                    <label>选择奖池</label>
+                                    <select id="gacha-pool-select">
+                                        <option value="">请选择奖池</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- 目标契灵选择 -->
+                            <div class="gacha-config-section">
+                                <h3><i class="fas fa-star"></i> 目标契灵</h3>
+                                <div class="gacha-select-group">
+                                    <label>选择目标契灵（传奇）</label>
+                                    <div id="gacha-qiling-select" class="target-qiling-select"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- 抽奖设置 -->
+                            <div class="gacha-config-section">
+                                <h3><i class="fas fa-sliders-h"></i> 抽奖设置</h3>
+                                <div class="gacha-select-group">
+                                    <label>抽奖方式</label>
+                                    <select id="gacha-cost-mode">
+                                        <option value="single">单抽</option>
+                                        <option value="ten">10连抽</option>
+                                    </select>
+                                </div>
+                                <div class="gacha-select-group">
+                                    <label>目标等级</label>
+                                    <select id="gacha-level-select">
+                                        <option value="1">Lv.1（1个契灵）</option>
+                                        <option value="2">Lv.2（2个契灵）</option>
+                                        <option value="3">Lv.3（3个契灵）</option>
+                                        <option value="4">Lv.4（4个契灵）</option>
+                                        <option value="5">Lv.5（5个契灵）</option>
+                                        <option value="6">Lv.6（6个契灵）</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 计算按钮 -->
+                        <button class="gacha-calculate-btn" id="gacha-calculate-btn">
+                            <i class="fas fa-calculator"></i>
+                            计算期望成本
+                        </button>
+                        
+                        <!-- 结果显示 -->
+                        <div class="gacha-cost-result" id="gacha-cost-result" style="display: none;"></div>
+                    </div>
+                </div>
+                
+                <!-- 抽卡模拟 -->
+                <div class="gacha-content" id="gacha-simulation">
+                    <div class="gacha-sim-container">
+                        <!-- 控制区域 -->
+                        <div class="gacha-sim-controls">
+                            <!-- 奖池和抽奖方式 -->
+                            <div class="gacha-control-section">
+                                <h3><i class="fas fa-cog"></i> 抽卡设置</h3>
+                                <div class="gacha-select-group">
+                                    <label>选择奖池</label>
+                                    <select id="gacha-sim-pool-select">
+                                        <option value="">请选择奖池</option>
+                                    </select>
+                                </div>
+                                <div class="gacha-select-group">
+                                    <label>抽奖方式</label>
+                                    <div class="draw-mode-selector">
+                                        <button class="draw-mode-btn active" id="gacha-draw-single">单抽</button>
+                                        <button class="draw-mode-btn" id="gacha-draw-ten">10连抽</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 统计信息 -->
+                            <div class="gacha-control-section">
+                                <h3><i class="fas fa-chart-bar"></i> 抽卡统计</h3>
+                                <div class="gacha-stats">
+                                    <div class="gacha-stat-item total">
+                                        <div class="stat-label">总次数</div>
+                                        <div class="stat-value">0</div>
+                                    </div>
+                                    <div class="gacha-stat-item legendary">
+                                        <div class="stat-label">传奇</div>
+                                        <div class="stat-value">0</div>
+                                    </div>
+                                    <div class="gacha-stat-item rare">
+                                        <div class="stat-label">稀有</div>
+                                        <div class="stat-value">0</div>
+                                    </div>
+                                    <div class="gacha-stat-item magic">
+                                        <div class="stat-label">魔法</div>
+                                        <div class="stat-value">0</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 操作按钮 -->
+                                <div class="gacha-action-buttons">
+                                    <button class="gacha-draw-btn" id="gacha-draw-btn">
+                                        <i class="fas fa-dice"></i>
+                                        开始抽奖
+                                    </button>
+                                    <button class="gacha-reset-btn" id="gacha-reset-btn">
+                                        <i class="fas fa-redo"></i>
+                                        重置
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 结果展示区域 -->
+                        <div class="gacha-results-area">
+                            <!-- 抽奖记录 -->
+                            <div class="gacha-draw-log" id="gacha-draw-log">
+                                <h3><i class="fas fa-history"></i> 抽奖记录</h3>
+                            </div>
+                            
+                            <!-- 契灵图鉴 -->
+                            <div class="gacha-collection">
+                                <h3><i class="fas fa-book"></i> 契灵图鉴</h3>
+                                <div class="gacha-collection-grid" id="gacha-collection-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
+    </div>
+    
+    <!-- 抽卡动画遮罩 -->
+    <div class="gacha-animation-overlay" id="gacha-animation-overlay">
+        <button class="gacha-close-btn" id="gacha-animation-close">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="gacha-card-container">
+            <div id="gacha-animation-cards"></div>
+        </div>
     </div>
 
     <script src="legendary_equipment_new_data.js"></script>
     <script src="erosion_cost_calculator.js"></script>
-    <script src="script.js?v=15"></script>
+    <script src="pactspirit_data.js"></script>
+    <script src="契灵/契灵卡池数据.js"></script>
+    <script src="gacha_system.js"></script>
+    <script src="script.js?v=17"></script>
 </body>
 </html>

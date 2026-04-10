@@ -4760,6 +4760,27 @@ select.select-input option {
     color: #2f855a;
 }
 
+
+
+/* 导航栏图标样式 */
+.sidebar .nav-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar .nav-icon.fas {
+    font-size: 1.2rem;
+    color: white;
+}
+
+[data-theme="light"] .sidebar .nav-icon.fas {
+    color: #1a1a2e;
+}
+
 [data-theme="light"] #harvest-tier-table {
     background: white;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -6823,4 +6844,127 @@ select.select-input option {
         font-size: 14px;
     }
 }
+}
+
+/* ============================================
+   浅色模式最终优化 - 确保所有标签和按钮清晰可见
+   ============================================ */
+
+/* 确保所有导航标签在浅色模式下有明确的背景和边框 */
+[data-theme="light"] .nav-item {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.12) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .nav-item:hover {
+    background: rgba(102, 126, 234, 0.1) !important;
+    border-color: rgba(102, 126, 234, 0.3) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .nav-item.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    color: white !important;
+}
+
+/* 确保所有切换按钮有明确的边框和背景 */
+[data-theme="light"] .toggle-btn:not(.active) {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.18) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .toggle-btn:not(.active):hover {
+    background: rgba(102, 126, 234, 0.1) !important;
+    border-color: rgba(102, 126, 234, 0.4) !important;
+    color: var(--text-primary) !important;
+}
+
+/* 确保所有功能按钮有明确的边框和背景 */
+[data-theme="light"] .function-btn:not(.active) {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.18) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .function-btn:not(.active):hover {
+    background: rgba(102, 126, 234, 0.1) !important;
+    border-color: rgba(102, 126, 234, 0.4) !important;
+    color: var(--text-primary) !important;
+}
+
+/* 确保所有模块卡片有明确的边框 */
+[data-theme="light"] .module-card {
+    background: var(--bg-card) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.14) !important;
+}
+
+[data-theme="light"] .module-card:hover {
+    border-color: rgba(102, 126, 234, 0.3) !important;
+}
+
+/* 确保所有单选按钮选项有明确的背景和边框 */
+[data-theme="light"] .radio-option:not(.active) {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.18) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .radio-option:not(.active):hover {
+    background: rgba(102, 126, 234, 0.1) !important;
+    border-color: rgba(102, 126, 234, 0.4) !important;
+    color: var(--text-primary) !important;
+}
+
+/* 确保所有封印系统标签有明确的背景和边框 */
+[data-theme="light"] .seal-halo-tab:not(.active) {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.18) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .seal-halo-tab:not(.active):hover {
+    background: rgba(102, 126, 234, 0.1) !important;
+    border-color: rgba(102, 126, 234, 0.4) !important;
+    color: var(--text-primary) !important;
+}
+
+/* 确保所有侵蚀类型按钮有明确的背景和边框 */
+[data-theme="light"] .erosion-type-btn:not(.active) {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.18) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .erosion-type-btn:not(.active):hover {
+    background: rgba(102, 126, 234, 0.1) !important;
+    border-color: rgba(102, 126, 234, 0.4) !important;
+    color: var(--text-primary) !important;
+}
+
+/* 确保所有输入框有明确的背景和边框 */
+[data-theme="light"] select,
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="number"],
+[data-theme="light"] textarea {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.18) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] select:hover,
+[data-theme="light"] input[type="text"]:hover,
+[data-theme="light"] input[type="number"]:hover,
+[data-theme="light"] textarea:hover {
+    border-color: rgba(102, 126, 234, 0.4) !important;
+}
+
+[data-theme="light"] select:focus,
+[data-theme="light"] input[type="text"]:focus,
+[data-theme="light"] input[type="number"]:focus,
+[data-theme="light"] textarea:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.18) !important;
 }

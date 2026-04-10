@@ -1,0 +1,1009 @@
+/* ========================================
+   扭蛋机功能样式
+   ======================================== */
+
+/* 扭蛋机模块容器 */
+.gacha-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* 扭蛋机子标签页 */
+.gacha-sub-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+}
+
+.gacha-sub-tab {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gacha-sub-tab:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--text-primary);
+}
+
+.gacha-sub-tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* 扭蛋机内容区域 */
+.gacha-content {
+    display: none;
+}
+
+.gacha-content.active {
+    display: block;
+}
+
+/* ========================================
+   成本计算样式
+   ======================================== */
+
+.gacha-cost-config {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.gacha-config-section {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.gacha-config-section h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.gacha-config-section h3 i {
+    color: var(--accent-color);
+}
+
+/* 选择器样式 */
+.gacha-select-group {
+    margin-bottom: 1rem;
+}
+
+.gacha-select-group:last-child {
+    margin-bottom: 0;
+}
+
+.gacha-select-group label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.gacha-select-group select,
+.gacha-select-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gacha-select-group select:hover,
+.gacha-select-group input:hover {
+    border-color: var(--accent-color);
+}
+
+.gacha-select-group select:focus,
+.gacha-select-group input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* 目标契灵选择 */
+.target-qiling-select {
+    margin-top: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+}
+
+.target-qiling-option {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.target-qiling-option:last-child {
+    border-bottom: none;
+}
+
+.target-qiling-option:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.target-qiling-option.selected {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+.target-qiling-option img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 0.75rem;
+}
+
+.target-qiling-option .qiling-info {
+    flex: 1;
+}
+
+.target-qiling-option .qiling-name {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.target-qiling-option .qiling-rarity {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.target-qiling-option .qiling-rarity.legendary {
+    color: #ffa500;
+}
+
+.target-qiling-option .qiling-rarity.rare {
+    color: #9b59b6;
+}
+
+.target-qiling-option .qiling-rarity.magic {
+    color: #3498db;
+}
+
+/* 成本结果显示 */
+.gacha-cost-result {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.gacha-cost-result h3 {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.cost-result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.cost-result-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.cost-result-item .result-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.cost-result-item .result-value {
+    color: var(--accent-color);
+    font-size: 1.75rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.cost-result-item .result-unit {
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+/* 计算按钮 */
+.gacha-calculate-btn {
+    width: 100%;
+    margin-top: 2rem;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.gacha-calculate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.gacha-calculate-btn:active {
+    transform: translateY(0);
+}
+
+/* ========================================
+   抽卡模拟样式
+   ======================================== */
+
+.gacha-sim-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* 模拟控制区域 */
+.gacha-sim-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.gacha-control-section {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.gacha-control-section h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.gacha-control-section h3 i {
+    color: var(--accent-color);
+}
+
+/* 抽卡方式选择 */
+.draw-mode-selector {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.draw-mode-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.draw-mode-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--text-primary);
+}
+
+.draw-mode-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* 统计信息 */
+.gacha-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.gacha-stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.gacha-stat-item .stat-label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.gacha-stat-item .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.gacha-stat-item.total .stat-value {
+    color: var(--text-primary);
+}
+
+.gacha-stat-item.legendary .stat-value {
+    color: #ffa500;
+}
+
+.gacha-stat-item.rare .stat-value {
+    color: #9b59b6;
+}
+
+.gacha-stat-item.magic .stat-value {
+    color: #3498db;
+}
+
+/* 操作按钮 */
+.gacha-action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.gacha-draw-btn {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.gacha-draw-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.gacha-reset-btn {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gacha-reset-btn:hover {
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+/* 抽卡结果展示区域 */
+.gacha-results-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+/* 抽卡记录 */
+.gacha-draw-log {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.gacha-draw-log h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    padding: 0.5rem 0;
+    z-index: 1;
+}
+
+.gacha-log-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.gacha-log-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 0.75rem;
+}
+
+.gacha-log-item .log-info {
+    flex: 1;
+}
+
+.gacha-log-item .log-name {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.gacha-log-item .log-meta {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.gacha-log-item .log-rarity {
+    font-weight: 500;
+}
+
+.gacha-log-item .log-rarity.legendary {
+    color: #ffa500;
+}
+
+.gacha-log-item .log-rarity.rare {
+    color: #9b59b6;
+}
+
+.gacha-log-item .log-rarity.magic {
+    color: #3498db;
+}
+
+.gacha-log-item .log-index {
+    color: var(--text-tertiary);
+}
+
+/* 契灵图鉴 */
+.gacha-collection {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.gacha-collection h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    padding: 0.5rem 0;
+    z-index: 1;
+}
+
+.gacha-collection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.gacha-collection-item {
+    position: relative;
+    text-align: center;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.gacha-collection-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.gacha-collection-item.legendary {
+    border-color: #ffa500;
+    box-shadow: 0 0 20px rgba(255, 165, 0, 0.2);
+}
+
+.gacha-collection-item.rare {
+    border-color: #9b59b6;
+    box-shadow: 0 0 20px rgba(155, 89, 182, 0.2);
+}
+
+.gacha-collection-item.magic {
+    border-color: #3498db;
+    box-shadow: 0 0 20px rgba(52, 152, 219, 0.2);
+}
+
+.gacha-collection-item img {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+}
+
+.gacha-collection-item .collection-name {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.gacha-collection-item .collection-level {
+    color: var(--accent-color);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.gacha-collection-item .collection-level-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* ========================================
+   抽卡动画样式 - 炉石传说风格
+   ======================================== */
+
+.gacha-animation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.gacha-animation-overlay.active {
+    display: flex;
+}
+
+.gacha-card-container {
+    position: relative;
+    perspective: 1000px;
+}
+
+.gacha-card {
+    width: 250px;
+    height: 350px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: none;
+    opacity: 0;
+}
+
+.gacha-card.animate {
+    animation: cardFlipReveal 0.66s ease forwards;
+}
+
+@keyframes cardFlipReveal {
+    0% {
+        transform: rotateY(180deg) scale(0.6);
+        opacity: 0;
+    }
+    50% {
+        transform: rotateY(90deg) scale(0.8);
+        opacity: 0.5;
+    }
+    100% {
+        transform: rotateY(0deg) scale(1);
+        opacity: 1;
+    }
+}
+
+.gacha-card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotateY(180deg);
+}
+
+.gacha-card-back::before {
+    content: '';
+    width: 80%;
+    height: 80%;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
+}
+
+.gacha-card-back::after {
+    content: '?';
+    font-size: 5rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.3);
+    position: absolute;
+}
+
+.gacha-card-front {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+
+.gacha-card-inner {
+    width: 100%;
+    height: 100%;
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.gacha-card.legendary .gacha-card-inner {
+    border: 4px solid #ffa500;
+    box-shadow: 0 0 60px rgba(255, 165, 0, 0.6), 0 0 100px rgba(255, 165, 0, 0.3);
+}
+
+.gacha-card.rare .gacha-card-inner {
+    border: 4px solid #9b59b6;
+    box-shadow: 0 0 60px rgba(155, 89, 182, 0.6), 0 0 100px rgba(155, 89, 182, 0.3);
+}
+
+.gacha-card.magic .gacha-card-inner {
+    border: 4px solid #3498db;
+    box-shadow: 0 0 60px rgba(52, 152, 219, 0.6), 0 0 100px rgba(52, 152, 219, 0.3);
+}
+
+/* 光芒效果 */
+.gacha-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.gacha-card.legendary .gacha-glow {
+    background: radial-gradient(circle, rgba(255, 165, 0, 0.4) 0%, transparent 70%);
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+.gacha-card.rare .gacha-glow {
+    background: radial-gradient(circle, rgba(155, 89, 182, 0.4) 0%, transparent 70%);
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+.gacha-card.magic .gacha-glow {
+    background: radial-gradient(circle, rgba(52, 152, 219, 0.4) 0%, transparent 70%);
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+.gacha-card-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 15px;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.gacha-card-name {
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.gacha-card-rarity {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.gacha-card.legendary .gacha-card-rarity {
+    color: #ffa500;
+}
+
+.gacha-card.rare .gacha-card-rarity {
+    color: #9b59b6;
+}
+
+.gacha-card.magic .gacha-card-rarity {
+    color: #3498db;
+}
+
+.gacha-close-btn {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gacha-close-btn:hover {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+/* 多卡展示 */
+.gacha-multi-cards {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 90vw;
+}
+
+.gacha-multi-cards .gacha-card {
+    width: 180px;
+    height: 250px;
+}
+
+.gacha-multi-cards .gacha-card-image {
+    width: 100px;
+    height: 100px;
+}
+
+.gacha-multi-cards .gacha-card-name {
+    font-size: 1rem;
+}
+
+/* ========================================
+   浅色主题适配
+   ======================================== */
+
+[data-theme="light"] .gacha-sub-tabs {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .gacha-sub-tab {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-secondary);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .gacha-sub-tab:hover {
+    background: rgba(102, 126, 234, 0.15);
+    color: var(--text-primary);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+[data-theme="light"] .gacha-sub-tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+[data-theme="light"] .gacha-config-section,
+[data-theme="light"] .gacha-control-section,
+[data-theme="light"] .gacha-cost-result,
+[data-theme="light"] .gacha-draw-log,
+[data-theme="light"] .gacha-collection {
+    background: var(--bg-card);
+    border-color: rgba(0, 0, 0, 0.14);
+}
+
+[data-theme="light"] .gacha-select-group select,
+[data-theme="light"] .gacha-select-group input {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-primary);
+    border-color: rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="light"] .gacha-select-group select:hover,
+[data-theme="light"] .gacha-select-group input:hover {
+    border-color: rgba(102, 126, 234, 0.4);
+}
+
+[data-theme="light"] .target-qiling-select {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="light"] .target-qiling-option {
+    background: rgba(0, 0, 0, 0.02);
+    border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .target-qiling-option:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+[data-theme="light"] .target-qiling-option.selected {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+[data-theme="light"] .gacha-stat-item,
+[data-theme="light"] .cost-result-item,
+[data-theme="light"] .gacha-log-item,
+[data-theme="light"] .gacha-collection-item {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.14);
+}
+
+[data-theme="light"] .draw-mode-btn {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-secondary);
+    border-color: rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="light"] .draw-mode-btn:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--text-primary);
+    border-color: rgba(102, 126, 234, 0.4);
+}
+
+[data-theme="light"] .draw-mode-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}
+
+[data-theme="light"] .gacha-card-inner {
+    background: var(--bg-card);
+}
+
+/* 浅色模式计算按钮样式 - 与深色模式一致 */
+[data-theme="light"] .gacha-calculate-btn,
+[data-theme="light"] .gacha-draw-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
+    border: none !important;
+}
+
+[data-theme="light"] .gacha-calculate-btn:hover,
+[data-theme="light"] .gacha-draw-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4) !important;
+}
+
+[data-theme="light"] .gacha-reset-btn {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.18);
+    color: var(--text-secondary);
+}
+
+[data-theme="light"] .gacha-reset-btn:hover {
+    background: rgba(255, 107, 107, 0.1);
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+[data-theme="light"] .gacha-close-btn {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.18);
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .gacha-close-btn:hover {
+    background: rgba(102, 126, 234, 0.15);
+    border-color: #667eea;
+    color: #667eea;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .gacha-results-area {
+        grid-template-columns: 1fr;
+    }
+    
+    .gacha-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .gacha-collection-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+    
+    .gacha-card {
+        width: 200px;
+        height: 300px;
+    }
+}

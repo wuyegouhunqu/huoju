@@ -991,7 +991,9 @@ function initializeApp() {
             initializeHarvestTierSystem();
             initializeErosionSimulationNew();
             await initializeMemoryCrafting();
+            initializeGachaSystem();
             setupCraftingEventListeners();
+
             console.log('[初始化] 所有其他系统初始化完成');
             
             setTimeout(() => {
@@ -1010,7 +1012,9 @@ function initializeApp() {
             initializeHarvestTierSystem();
             initializeErosionSimulationNew();
             await initializeMemoryCrafting();
+            initializeGachaSystem();
             setupCraftingEventListeners();
+
         }, 100);
     });
     
@@ -1769,6 +1773,14 @@ function setupTabNavigation() {
                 console.log('切换到侵蚀模拟标签页，正在初始化...');
                 setTimeout(() => {
                     initializeErosionSimulationNew();
+                }, 100);
+            }
+            
+            // 🔧 如果切换到扭蛋机，重新初始化
+            if (tabId === 'gacha') {
+                console.log('切换到扭蛋机标签页，正在初始化...');
+                setTimeout(() => {
+                    initializeGachaSystem();
                 }, 100);
             }
             
