@@ -7,6 +7,7 @@ let gachaState = {
     targetQiling: null,
     drawMode: 'single',
     targetLevel: 1,
+    simTargetQiling: null,
     
     totalDraws: 0,
     legendaryCount: 0,
@@ -20,7 +21,8 @@ let gachaState = {
     nonTargetLegendaryCount: 0,
     initialized: false,
     consecutiveMagicCount: 0,
-    consecutiveNonTargetLegendary: 0
+    consecutiveNonTargetLegendary: 0,
+    simConsecutiveNonTargetLegendary: 0
 };
 
 function getQilingImageName(qilingName) {
@@ -280,6 +282,73 @@ function calculateCost() {
     }
 }
 
+function populateSimTargetQilingList(pool) {
+    const container = document.getElementById('gacha-sim-target-select');
+    const placeholder = document.getElementById('gacha-sim-target-placeholder');
+    
+    if (!container || !placeholder) return;
+    
+    if (!pool) {
+        container.style.display = 'none';
+        placeholder.style.display = 'block';
+        placeholder.textContent = '请先选择奖池';
+        return;
+    }
+    
+    container.innerHTML = '';
+    container.style.display = 'block';
+    placeholder.style.display = 'none';
+    
+    const legendaryQilings = pool.契灵列表.filter(q => q.品质 === '传奇');
+    
+    if (legendaryQilings.length === 0) {
+        placeholder.style.display = 'block';
+        placeholder.textContent = '该卡池无传奇契灵';
+        container.style.display = 'none';
+        return;
+    }
+    
+    legendaryQilings.forEach(qiling => {
+        const div = document.createElement('div');
+        div.className = 'target-qiling-option';
+        if (gachaState.simTargetQiling === qiling.契灵名称) {
+            div.classList.add('selected');
+        }
+        
+        const img = document.createElement('img');
+        img.src = `契灵/图片/${getQilingImageName(qiling.契灵名称)}.webp`;
+        img.onerror = function() {
+            this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect fill="%23ddd" width="40" height="40" rx="8"/></svg>';
+        };
+        
+        const info = document.createElement('div');
+        info.className = 'qiling-info';
+        
+        const name = document.createElement('div');
+        name.className = 'qiling-name';
+        name.textContent = qiling.契灵名称;
+        
+        const rarity = document.createElement('div');
+        rarity.className = `qiling-rarity ${qiling.品质.toLowerCase()}`;
+        rarity.textContent = qiling.品质;
+        
+        info.appendChild(name);
+        info.appendChild(rarity);
+        
+        div.appendChild(img);
+        div.appendChild(info);
+        
+        div.addEventListener('click', function() {
+            document.querySelectorAll('#gacha-sim-target-select .target-qiling-option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+            gachaState.simTargetQiling = qiling.契灵名称;
+            gachaState.simConsecutiveNonTargetLegendary = 0;
+        });
+        
+        container.appendChild(div);
+    });
+}
+
 function initializeSimulation() {
     const poolSelect = document.getElementById('gacha-sim-pool-select');
     const singleBtn = document.getElementById('gacha-draw-single');
@@ -293,7 +362,20 @@ function initializeSimulation() {
         populatePoolList(poolSelect);
         if (poolSelect.options.length > 1) {
             poolSelect.value = poolSelect.options[1].value;
+            poolSelect.dispatchEvent(new Event('change'));
         }
+        
+        poolSelect.addEventListener('change', function() {
+            const poolIndex = this.value;
+            if (poolIndex) {
+                const pool = qilingPoolData.奖池列表[parseInt(poolIndex)];
+                populateSimTargetQilingList(pool);
+            } else {
+                populateSimTargetQilingList(null);
+            }
+            gachaState.simTargetQiling = null;
+            gachaState.simConsecutiveNonTargetLegendary = 0;
+        });
     }
     
     if (singleBtn) {
@@ -383,8 +465,20 @@ function drawSingle(pool) {
     const rareQilings = pool.契灵列表.filter(q => q.品质 === '稀有');
     const magicQilings = pool.契灵列表.filter(q => q.品质 === '魔法');
     
-    const hasProbabilityBoost = pool.概率提升.说明 === '每获得2个传奇契灵，至少1个指定契灵';
-    const targetQilingName = gachaState.targetQiling;
+    const probabilityBoostDesc = pool.概率提升.说明;
+    let hasProbabilityBoost = false;
+    let requiredLegendaryCount = 0;
+    
+    if (probabilityBoostDesc === '每获得2个传奇契灵，至少1个指定契灵') {
+        hasProbabilityBoost = true;
+        requiredLegendaryCount = 2;
+    } else if (probabilityBoostDesc === '每获得4个传奇契灵，至少1个指定契灵') {
+        hasProbabilityBoost = true;
+        requiredLegendaryCount = 4;
+    }
+    
+    const isSimMode = !!document.getElementById('gacha-simulation');
+    const targetQilingName = isSimMode ? gachaState.simTargetQiling : gachaState.targetQiling;
     
     let legendaryProb = legendaryQilings.reduce((sum, q) => sum + q.出率, 0) + pityBonus;
     let rareProb = rareQilings.reduce((sum, q) => sum + q.出率, 0);
@@ -425,13 +519,20 @@ function drawSingle(pool) {
     
     let selectedQiling;
     if (quality === '传奇' && hasProbabilityBoost && targetQilingName) {
-        if (gachaState.consecutiveNonTargetLegendary >= 1) {
-            console.log('触发每2个传奇至少1个指定的机制：连续1个非目标传奇，本次必须是目标');
+        const consecutiveNonTarget = isSimMode ? gachaState.simConsecutiveNonTargetLegendary : gachaState.consecutiveNonTargetLegendary;
+        const threshold = requiredLegendaryCount - 1;
+        
+        if (consecutiveNonTarget >= threshold) {
+            console.log(`触发每${requiredLegendaryCount}个传奇至少1个指定的机制：连续${threshold}个非目标传奇，本次必须是目标`);
             selectedQiling = targetQilings.find(q => q.契灵名称 === targetQilingName);
             if (!selectedQiling) {
                 selectedQiling = targetQilings[0];
             }
-            gachaState.consecutiveNonTargetLegendary = 0;
+            if (isSimMode) {
+                gachaState.simConsecutiveNonTargetLegendary = 0;
+            } else {
+                gachaState.consecutiveNonTargetLegendary = 0;
+            }
         } else {
             const targetRand = Math.random();
             let targetCumulative = 0;
@@ -450,10 +551,19 @@ function drawSingle(pool) {
             }
             
             if (selectedQiling.契灵名称 !== targetQilingName) {
-                gachaState.consecutiveNonTargetLegendary++;
-                console.log(`连续非目标传奇次数：${gachaState.consecutiveNonTargetLegendary}`);
+                if (isSimMode) {
+                    gachaState.simConsecutiveNonTargetLegendary++;
+                    console.log(`抽卡模拟连续非目标传奇次数：${gachaState.simConsecutiveNonTargetLegendary}`);
+                } else {
+                    gachaState.consecutiveNonTargetLegendary++;
+                    console.log(`成本计算连续非目标传奇次数：${gachaState.consecutiveNonTargetLegendary}`);
+                }
             } else {
-                gachaState.consecutiveNonTargetLegendary = 0;
+                if (isSimMode) {
+                    gachaState.simConsecutiveNonTargetLegendary = 0;
+                } else {
+                    gachaState.consecutiveNonTargetLegendary = 0;
+                }
             }
         }
     } else {
@@ -659,6 +769,13 @@ function resetSimulation() {
     gachaState.pityCount = 0;
     gachaState.consecutiveMagicCount = 0;
     gachaState.consecutiveNonTargetLegendary = 0;
+    gachaState.simTargetQiling = null;
+    gachaState.simConsecutiveNonTargetLegendary = 0;
+    
+    const targetSelect = document.getElementById('gacha-sim-target-select');
+    if (targetSelect) {
+        targetSelect.querySelectorAll('.target-qiling-option').forEach(o => o.classList.remove('selected'));
+    }
     
     updateStatsUI();
     
