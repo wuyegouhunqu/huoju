@@ -56,6 +56,14 @@ function getQilingImageName(qilingName) {
     return imageName;
 }
 
+function getQilingImageExtension(qilingName) {
+    const jpgImages = ['皎月化身', '药仙子'];
+    if (jpgImages.includes(qilingName)) {
+        return 'jpg';
+    }
+    return 'webp';
+}
+
 function initializeGachaSystem() {
     console.log('========== 初始化扭蛋机系统 ==========');
     
@@ -180,7 +188,7 @@ function populateTargetQilingList(poolIndex, container) {
         div.dataset.name = qiling.契灵名称;
         
         const img = document.createElement('img');
-        img.src = `契灵/图片/${getQilingImageName(qiling.契灵名称)}.webp`;
+        img.src = `契灵/图片/${getQilingImageName(qiling.契灵名称)}.${getQilingImageExtension(qiling.契灵名称)}`;
         img.onerror = function() {
             this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect fill="%23ddd" width="40" height="40" rx="8"/></svg>';
         };
@@ -320,7 +328,7 @@ function populateSimTargetQilingList(pool) {
         }
         
         const img = document.createElement('img');
-        img.src = `契灵/图片/${getQilingImageName(qiling.契灵名称)}.webp`;
+        img.src = `契灵/图片/${getQilingImageName(qiling.契灵名称)}.${getQilingImageExtension(qiling.契灵名称)}`;
         img.onerror = function() {
             this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect fill="%23ddd" width="40" height="40" rx="8"/></svg>';
         };
@@ -644,7 +652,7 @@ function updateDrawLog(results) {
         item.className = 'gacha-log-item';
         
         const img = document.createElement('img');
-        img.src = `契灵/图片/${getQilingImageName(result.契灵名称)}.webp`;
+        img.src = `契灵/图片/${getQilingImageName(result.契灵名称)}.${getQilingImageExtension(result.契灵名称)}`;
         img.onerror = function() {
             this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect fill="%23ddd" width="40" height="40" rx="8"/></svg>';
         };
@@ -694,7 +702,7 @@ function updateCollectionUI() {
         div.className = `gacha-collection-item ${item.品质 === '传奇' ? 'legendary' : item.品质 === '稀有' ? 'rare' : 'magic'}`;
         
         const img = document.createElement('img');
-        img.src = `契灵/图片/${getQilingImageName(item.契灵名称)}.webp`;
+        img.src = `契灵/图片/${getQilingImageName(item.契灵名称)}.${getQilingImageExtension(item.契灵名称)}`;
         img.onerror = function() {
             this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect fill="%23ddd" width="80" height="80" rx="10"/></svg>';
         };
@@ -748,7 +756,7 @@ function showDrawAnimation(results) {
         
         const img = document.createElement('img');
         img.className = 'gacha-card-image';
-        img.src = `契灵/图片/${getQilingImageName(result.契灵名称)}.webp`;
+        img.src = `契灵/图片/${getQilingImageName(result.契灵名称)}.${getQilingImageExtension(result.契灵名称)}`;
         img.onerror = function() {
             this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150"><rect fill="%23ddd" width="150" height="150" rx="15"/></svg>';
         };
