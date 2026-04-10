@@ -231,7 +231,11 @@ function calculateCost() {
     }
     
     const qilingNeeded = targetLevel;
-    const legendaryBaseProb = targetQiling.出率;
+    const legendaryQilings = pool.契灵列表.filter(q => q.品质 === '传奇' && q.出率 > 0);
+    const totalLegendaryProb = legendaryQilings.reduce((sum, q) => sum + q.出率, 0);
+    const targetProbInLegendary = targetQiling.出率 / totalLegendaryProb;
+    
+    const expectedLegendaryDraws = 39.6;
     const hasDiscount = pool['10连抽优惠'].说明 === '10连抽消耗8个契灵结晶';
     
     let singleDrawCost = 1;
@@ -241,10 +245,10 @@ function calculateCost() {
     let totalCrystals;
     
     if (drawMode === 'single') {
-        expectedDraws = Math.ceil(qilingNeeded / legendaryBaseProb);
+        expectedDraws = Math.ceil(qilingNeeded / targetProbInLegendary * expectedLegendaryDraws);
         totalCrystals = expectedDraws * singleDrawCost;
     } else {
-        expectedDraws = Math.ceil(qilingNeeded / (legendaryBaseProb * 10));
+        expectedDraws = Math.ceil(qilingNeeded / targetProbInLegendary * expectedLegendaryDraws / 10);
         totalCrystals = expectedDraws * tenDrawCost;
     }
     
@@ -454,16 +458,10 @@ function performDraw() {
 
 function drawSingle(pool) {
     gachaState.pityCount++;
-    let pityBonus = 0;
     
-    if (gachaState.pityCount >= 50) {
-        const pityLevel = gachaState.pityCount - 50;
-        pityBonus = pityLevel * 0.015;
-    }
-    
-    const legendaryQilings = pool.契灵列表.filter(q => q.品质 === '传奇');
-    const rareQilings = pool.契灵列表.filter(q => q.品质 === '稀有');
-    const magicQilings = pool.契灵列表.filter(q => q.品质 === '魔法');
+    const legendaryQilings = pool.契灵列表.filter(q => q.品质 === '传奇' && q.出率 > 0);
+    const rareQilings = pool.契灵列表.filter(q => q.品质 === '稀有' && q.出率 > 0);
+    const magicQilings = pool.契灵列表.filter(q => q.品质 === '魔法' && q.出率 > 0);
     
     const probabilityBoostDesc = pool.概率提升.说明;
     let hasProbabilityBoost = false;
@@ -480,15 +478,36 @@ function drawSingle(pool) {
     const isSimMode = !!document.getElementById('gacha-simulation');
     const targetQilingName = isSimMode ? gachaState.simTargetQiling : gachaState.targetQiling;
     
-    let legendaryProb = legendaryQilings.reduce((sum, q) => sum + q.出率, 0) + pityBonus;
-    let rareProb = rareQilings.reduce((sum, q) => sum + q.出率, 0);
-    let magicProb = 1 - legendaryProb - rareProb;
+    let legendaryProb;
+    let forceLegendary = false;
+    
+    if (gachaState.pityCount <= 50) {
+        legendaryProb = 0.015 * Math.pow(0.985, gachaState.pityCount - 1);
+    } else if (gachaState.pityCount <= 115) {
+        legendaryProb = 0.015 * (gachaState.pityCount - 49);
+    } else {
+        legendaryProb = 1;
+        forceLegendary = true;
+        console.log('保底机制触发：第116抽，本次必定获得传奇契灵！');
+    }
+    
+    if (legendaryProb >= 1) {
+        legendaryProb = 1;
+        forceLegendary = true;
+    }
+    
+    const rareProb = 0.12;
+    const magicProb = 1 - legendaryProb - rareProb;
     
     const rand = Math.random();
     let quality;
     let targetQilings;
     
-    if (gachaState.consecutiveMagicCount >= 9) {
+    if (forceLegendary) {
+        quality = '传奇';
+        targetQilings = legendaryQilings;
+        gachaState.consecutiveMagicCount = 0;
+    } else if (gachaState.consecutiveMagicCount >= 9) {
         console.log('触发10连抽保底机制：连续9次魔法，本次必须是稀有或传奇');
         const rareOrLegendaryRand = Math.random();
         const totalRareLegendaryProb = legendaryProb + rareProb;
@@ -516,6 +535,8 @@ function drawSingle(pool) {
             console.log(`连续魔法次数：${gachaState.consecutiveMagicCount}`);
         }
     }
+    
+    console.log(`第${gachaState.pityCount}抽 - 传奇概率: ${(legendaryProb * 100).toFixed(4)}%, 稀有概率: 12.0000%, 魔法概率: ${(magicProb * 100).toFixed(4)}%, 随机数: ${rand.toFixed(6)}, 抽中: ${quality}`);
     
     let selectedQiling;
     if (quality === '传奇' && hasProbabilityBoost && targetQilingName) {
@@ -574,14 +595,28 @@ function drawSingle(pool) {
         for (const qiling of targetQilings) {
             targetCumulative += qiling.出率 / totalTargetProb;
             if (targetRand <= targetCumulative) {
-                return qiling;
+                selectedQiling = qiling;
+                break;
             }
         }
         
-        return targetQilings[0];
+        if (!selectedQiling) {
+            selectedQiling = targetQilings[0];
+        }
     }
     
-    return selectedQiling;
+    const result = {
+        品质: quality,
+        契灵名称: selectedQiling.契灵名称,
+        出率: selectedQiling.出率
+    };
+    
+    console.log(`抽中契灵: ${result.契灵名称} (${result.品质})`);
+    if (result.品质 === '传奇') {
+        console.log(`🎉 获得传奇！保底计数重置为0`);
+    }
+    
+    return result;
 }
 
 function updateStatsUI() {
@@ -793,3 +828,475 @@ function resetSimulation() {
 }
 
 window.initializeGachaSystem = initializeGachaSystem;
+
+function runGachaSimulationTest(poolIndex, targetQilingName, totalDraws) {
+    const pool = qilingPoolData.奖池列表[poolIndex];
+    if (!pool) {
+        console.error('找不到指定的卡池！');
+        return;
+    }
+    
+    console.log(`\n========================================`);
+    console.log(`开始抽卡模拟测试 - 卡池：${pool.奖池名称}`);
+    console.log(`目标契灵：${targetQilingName || '无'}`);
+    console.log(`模拟次数：${totalDraws.toLocaleString()}`);
+    console.log(`========================================\n`);
+    
+    const legendaryQilings = pool.契灵列表.filter(q => q.品质 === '传奇');
+    const baseLegendaryProb = legendaryQilings.reduce((sum, q) => sum + q.出率, 0);
+    const probabilityBoostDesc = pool.概率提升.说明;
+    
+    console.log(`卡池基础信息：`);
+    console.log(`  - 基础传奇概率：${(baseLegendaryProb * 100).toFixed(3)}%`);
+    console.log(`  - 概率提升规则：${probabilityBoostDesc}`);
+    console.log(`  - 传奇契灵数量：${legendaryQilings.length}`);
+    
+    let testState = {
+        totalDraws: 0,
+        legendaryCount: 0,
+        rareCount: 0,
+        magicCount: 0,
+        pityCount: 0,
+        consecutiveMagicCount: 0,
+        consecutiveNonTargetLegendary: 0,
+        maxPityReached: 0,
+        drawResults: []
+    };
+    
+    const startTime = Date.now();
+    
+    for (let i = 0; i < totalDraws; i++) {
+        testState.pityCount++;
+        testState.totalDraws++;
+        
+        let pityBonus = 0;
+        if (testState.pityCount > 50) {
+            const pityLevel = testState.pityCount - 50;
+            pityBonus = pityLevel * 0.015;
+            if (testState.pityCount > testState.maxPityReached) {
+                testState.maxPityReached = testState.pityCount;
+            }
+        }
+        
+        const rareQilings = pool.契灵列表.filter(q => q.品质 === '稀有');
+        const magicQilings = pool.契灵列表.filter(q => q.品质 === '魔法');
+        
+        let legendaryProb = baseLegendaryProb + pityBonus;
+        let forceLegendary = false;
+        
+        if (legendaryProb >= 1) {
+            legendaryProb = 1;
+            forceLegendary = true;
+        }
+        
+        let rareProb = rareQilings.reduce((sum, q) => sum + q.出率, 0);
+        let magicProb = 1 - legendaryProb - rareProb;
+        
+        const rand = Math.random();
+        let quality;
+        let targetQilings;
+        
+        if (forceLegendary) {
+            quality = '传奇';
+            targetQilings = legendaryQilings;
+            testState.consecutiveMagicCount = 0;
+        } else if (testState.consecutiveMagicCount >= 9) {
+            const rareOrLegendaryRand = Math.random();
+            const totalRareLegendaryProb = legendaryProb + rareProb;
+            if (rareOrLegendaryRand < legendaryProb / totalRareLegendaryProb) {
+                quality = '传奇';
+                targetQilings = legendaryQilings;
+            } else {
+                quality = '稀有';
+                targetQilings = rareQilings;
+            }
+            testState.consecutiveMagicCount = 0;
+        } else {
+            if (rand < legendaryProb) {
+                quality = '传奇';
+                targetQilings = legendaryQilings;
+                testState.consecutiveMagicCount = 0;
+            } else if (rand < legendaryProb + rareProb) {
+                quality = '稀有';
+                targetQilings = rareQilings;
+                testState.consecutiveMagicCount = 0;
+            } else {
+                quality = '魔法';
+                targetQilings = magicQilings;
+                testState.consecutiveMagicCount++;
+            }
+        }
+        
+        let selectedQiling;
+        
+        if (quality === '传奇' && targetQilingName) {
+            let hasProbabilityBoost = false;
+            let requiredLegendaryCount = 0;
+            
+            if (probabilityBoostDesc === '每获得2个传奇契灵，至少1个指定契灵') {
+                hasProbabilityBoost = true;
+                requiredLegendaryCount = 2;
+            } else if (probabilityBoostDesc === '每获得4个传奇契灵，至少1个指定契灵') {
+                hasProbabilityBoost = true;
+                requiredLegendaryCount = 4;
+            }
+            
+            if (hasProbabilityBoost) {
+                const threshold = requiredLegendaryCount - 1;
+                
+                if (testState.consecutiveNonTargetLegendary >= threshold) {
+                    selectedQiling = targetQilings.find(q => q.契灵名称 === targetQilingName);
+                    if (!selectedQiling) {
+                        selectedQiling = targetQilings[0];
+                    }
+                    testState.consecutiveNonTargetLegendary = 0;
+                } else {
+                    const targetRand = Math.random();
+                    let targetCumulative = 0;
+                    let totalTargetProb = targetQilings.reduce((sum, q) => sum + q.出率, 0);
+                    
+                    for (const qiling of targetQilings) {
+                        targetCumulative += qiling.出率 / totalTargetProb;
+                        if (targetRand <= targetCumulative) {
+                            selectedQiling = qiling;
+                            break;
+                        }
+                    }
+                    
+                    if (!selectedQiling) {
+                        selectedQiling = targetQilings[0];
+                    }
+                    
+                    if (selectedQiling.契灵名称 !== targetQilingName) {
+                        testState.consecutiveNonTargetLegendary++;
+                    } else {
+                        testState.consecutiveNonTargetLegendary = 0;
+                    }
+                }
+            }
+        }
+        
+        if (!selectedQiling) {
+            const targetRand = Math.random();
+            let targetCumulative = 0;
+            let totalTargetProb = targetQilings.reduce((sum, q) => sum + q.出率, 0);
+            
+            for (const qiling of targetQilings) {
+                targetCumulative += qiling.出率 / totalTargetProb;
+                if (targetRand <= targetCumulative) {
+                    selectedQiling = qiling;
+                    break;
+                }
+            }
+            
+            if (!selectedQiling) {
+                selectedQiling = targetQilings[0];
+            }
+        }
+        
+        testState.drawResults.push({
+            quality: quality,
+            qiling: selectedQiling
+        });
+        
+        if (quality === '传奇') {
+            testState.legendaryCount++;
+            testState.pityCount = 0;
+        } else if (quality === '稀有') {
+            testState.rareCount++;
+        } else {
+            testState.magicCount++;
+        }
+    }
+    
+    const endTime = Date.now();
+    const duration = (endTime - startTime) / 1000;
+    
+    console.log(`\n模拟完成！耗时：${duration.toFixed(2)}秒\n`);
+    console.log(`========================================`);
+    console.log(`统计结果：`);
+    console.log(`  - 总抽数：${testState.totalDraws.toLocaleString()}`);
+    console.log(`  - 传奇契灵：${testState.legendaryCount.toLocaleString()} (${(testState.legendaryCount / testState.totalDraws * 100).toFixed(3)}%)`);
+    console.log(`  - 稀有契灵：${testState.rareCount.toLocaleString()} (${(testState.rareCount / testState.totalDraws * 100).toFixed(3)}%)`);
+    console.log(`  - 魔法契灵：${testState.magicCount.toLocaleString()} (${(testState.magicCount / testState.totalDraws * 100).toFixed(3)}%)`);
+    console.log(`  - 最高连续无传奇：${testState.maxPityReached}抽`);
+    
+    if (targetQilingName) {
+        const targetCount = testState.drawResults.filter(r => r.quality === '传奇' && r.qiling.契灵名称 === targetQilingName).length;
+        console.log(`  - 目标契灵【${targetQilingName}】：${targetCount.toLocaleString()} (${(targetCount / testState.legendaryCount * 100).toFixed(2)}% 传奇)`);
+    }
+    
+    console.log(`========================================\n`);
+    
+    return testState;
+}
+
+function randomGachaTest() {
+    const randomPoolIndices = [];
+    const poolCount = qilingPoolData.奖池列表.length;
+    
+    while (randomPoolIndices.length < 3) {
+        const randomIndex = Math.floor(Math.random() * poolCount);
+        if (!randomPoolIndices.includes(randomIndex)) {
+            randomPoolIndices.push(randomIndex);
+        }
+    }
+    
+    console.log('随机选择的3个卡池索引：', randomPoolIndices);
+    
+    randomPoolIndices.forEach((poolIndex, i) => {
+        const pool = qilingPoolData.奖池列表[poolIndex];
+        const legendaryQilings = pool.契灵列表.filter(q => q.品质 === '传奇');
+        const targetQiling = legendaryQilings.length > 0 ? legendaryQilings[0].契灵名称 : null;
+        
+        console.log(`\n===== 测试 ${i + 1} =====`);
+        runGachaSimulationTest(poolIndex, targetQiling, 100000);
+    });
+}
+
+window.randomGachaTest = randomGachaTest;
+window.runGachaSimulationTest = runGachaSimulationTest;
+
+function runDetailedBatchTest() {
+    console.log('\n========================================');
+    console.log('开始批量抽卡详细测试');
+    console.log('测试目标：验证多个卡池各1万次抽卡的概率');
+    console.log('========================================\n');
+    
+    const testPools = [
+        { name: '猫团酷送', index: null, targetQiling: '酷猫宅急送' },
+        { name: '如我梦中', index: null, targetQiling: '牧灵人' },
+        { name: '黑潮盛宴', index: null, targetQiling: null }
+    ];
+    
+    testPools.forEach(poolInfo => {
+        poolInfo.index = qilingPoolData.奖池列表.findIndex(p => p.奖池名称 === poolInfo.name);
+    });
+    
+    testPools.forEach((poolInfo, i) => {
+        if (poolInfo.index === -1) {
+            console.log(`❌ 找不到卡池：${poolInfo.name}`);
+            return;
+        }
+        
+        const pool = qilingPoolData.奖池列表[poolInfo.index];
+        const legendaryQilings = pool.契灵列表.filter(q => q.品质 === '传奇' && q.出率 > 0);
+        const baseLegendaryProb = legendaryQilings.reduce((sum, q) => sum + q.出率, 0);
+        
+        console.log(`\n===== 测试 ${i + 1}：${poolInfo.name} =====`);
+        console.log('卡池基础信息：');
+        console.log(`  - 基础传奇概率：${(baseLegendaryProb * 100).toFixed(3)}%`);
+        console.log(`  - 概率提升规则：${pool.概率提升.说明}`);
+        console.log(`  - 传奇契灵列表：`);
+        legendaryQilings.forEach(q => {
+            console.log(`    - ${q.契灵名称}：${(q.出率 * 100).toFixed(3)}%`);
+        });
+        
+        let targetQilingName = poolInfo.targetQiling;
+        if (!targetQilingName && legendaryQilings.length > 0) {
+            targetQilingName = legendaryQilings[0].契灵名称;
+        }
+        
+        if (targetQilingName) {
+            console.log(`  - 目标契灵：${targetQilingName}`);
+        }
+        
+        console.log('\n开始10,000次抽卡模拟...\n');
+        
+        let testState = {
+            totalDraws: 0,
+            legendaryCount: 0,
+            rareCount: 0,
+            magicCount: 0,
+            pityCount: 0,
+            consecutiveMagicCount: 0,
+            consecutiveNonTargetLegendary: 0,
+            maxPityReached: 0,
+            drawResults: []
+        };
+        
+        const startTime = Date.now();
+        const isSimMode = false;
+        const probabilityBoostDesc = pool.概率提升.说明;
+        let hasProbabilityBoost = false;
+        let requiredLegendaryCount = 0;
+        
+        if (probabilityBoostDesc === '每获得2个传奇契灵，至少1个指定契灵') {
+            hasProbabilityBoost = true;
+            requiredLegendaryCount = 2;
+        } else if (probabilityBoostDesc === '每获得4个传奇契灵，至少1个指定契灵') {
+            hasProbabilityBoost = true;
+            requiredLegendaryCount = 4;
+        }
+        
+        for (let drawNum = 1; drawNum <= 10000; drawNum++) {
+            testState.pityCount++;
+            testState.totalDraws++;
+            
+            const rareQilings = pool.契灵列表.filter(q => q.品质 === '稀有' && q.出率 > 0);
+            const magicQilings = pool.契灵列表.filter(q => q.品质 === '魔法' && q.出率 > 0);
+            
+            let pityBonus = 0;
+            if (testState.pityCount > 50) {
+                const pityLevel = testState.pityCount - 50;
+                pityBonus = pityLevel * 0.015;
+                if (testState.pityCount > testState.maxPityReached) {
+                    testState.maxPityReached = testState.pityCount;
+                }
+            }
+            
+            let legendaryProb = baseLegendaryProb + pityBonus;
+            let forceLegendary = false;
+            
+            if (legendaryProb >= 1) {
+                legendaryProb = 1;
+                forceLegendary = true;
+            }
+            
+            let rareProb = rareQilings.reduce((sum, q) => sum + q.出率, 0);
+            let magicProb = 1 - legendaryProb - rareProb;
+            
+            const rand = Math.random();
+            let quality;
+            let targetQilings;
+            
+            if (forceLegendary) {
+                quality = '传奇';
+                targetQilings = legendaryQilings;
+                testState.consecutiveMagicCount = 0;
+            } else if (testState.consecutiveMagicCount >= 9) {
+                const rareOrLegendaryRand = Math.random();
+                const totalRareLegendaryProb = legendaryProb + rareProb;
+                if (rareOrLegendaryRand < legendaryProb / totalRareLegendaryProb) {
+                    quality = '传奇';
+                    targetQilings = legendaryQilings;
+                } else {
+                    quality = '稀有';
+                    targetQilings = rareQilings;
+                }
+                testState.consecutiveMagicCount = 0;
+            } else {
+                if (rand < legendaryProb) {
+                    quality = '传奇';
+                    targetQilings = legendaryQilings;
+                    testState.consecutiveMagicCount = 0;
+                } else if (rand < legendaryProb + rareProb) {
+                    quality = '稀有';
+                    targetQilings = rareQilings;
+                    testState.consecutiveMagicCount = 0;
+                } else {
+                    quality = '魔法';
+                    targetQilings = magicQilings;
+                    testState.consecutiveMagicCount++;
+                }
+            }
+            
+            let selectedQiling;
+            
+            if (quality === '传奇' && hasProbabilityBoost && targetQilingName) {
+                const threshold = requiredLegendaryCount - 1;
+                
+                if (testState.consecutiveNonTargetLegendary >= threshold) {
+                    selectedQiling = targetQilings.find(q => q.契灵名称 === targetQilingName);
+                    if (!selectedQiling) {
+                        selectedQiling = targetQilings[0];
+                    }
+                    testState.consecutiveNonTargetLegendary = 0;
+                } else {
+                    const targetRand = Math.random();
+                    let targetCumulative = 0;
+                    let totalTargetProb = targetQilings.reduce((sum, q) => sum + q.出率, 0);
+                    
+                    for (const qiling of targetQilings) {
+                        targetCumulative += qiling.出率 / totalTargetProb;
+                        if (targetRand <= targetCumulative) {
+                            selectedQiling = qiling;
+                            break;
+                        }
+                    }
+                    
+                    if (!selectedQiling) {
+                        selectedQiling = targetQilings[0];
+                    }
+                    
+                    if (selectedQiling.契灵名称 !== targetQilingName) {
+                        testState.consecutiveNonTargetLegendary++;
+                    } else {
+                        testState.consecutiveNonTargetLegendary = 0;
+                    }
+                }
+            } else {
+                const targetRand = Math.random();
+                let targetCumulative = 0;
+                let totalTargetProb = targetQilings.reduce((sum, q) => sum + q.出率, 0);
+                
+                for (const qiling of targetQilings) {
+                    targetCumulative += qiling.出率 / totalTargetProb;
+                    if (targetRand <= targetCumulative) {
+                        selectedQiling = qiling;
+                        break;
+                    }
+                }
+                
+                if (!selectedQiling) {
+                    selectedQiling = targetQilings[0];
+                }
+            }
+            
+            const result = {
+                quality: quality,
+                qiling: selectedQiling
+            };
+            
+            testState.drawResults.push(result);
+            
+            if (quality === '传奇') {
+                testState.legendaryCount++;
+                testState.pityCount = 0;
+            } else if (quality === '稀有') {
+                testState.rareCount++;
+            } else {
+                testState.magicCount++;
+            }
+            
+            if (drawNum % 1000 === 0) {
+                console.log(`进度：${drawNum.toLocaleString()} / 10,000 (${(drawNum / 100).toFixed(0)}%)`);
+            }
+        }
+        
+        const endTime = Date.now();
+        const duration = (endTime - startTime) / 1000;
+        
+        console.log('\n========================================');
+        console.log(`${poolInfo.name} - 测试结果`);
+        console.log('========================================');
+        console.log(`  - 测试耗时：${duration.toFixed(2)}秒`);
+        console.log(`  - 总抽数：${testState.totalDraws.toLocaleString()}`);
+        console.log(`  - 传奇契灵：${testState.legendaryCount.toLocaleString()} (${(testState.legendaryCount / testState.totalDraws * 100).toFixed(3)}%)`);
+        console.log(`  - 稀有契灵：${testState.rareCount.toLocaleString()} (${(testState.rareCount / testState.totalDraws * 100).toFixed(3)}%)`);
+        console.log(`  - 魔法契灵：${testState.magicCount.toLocaleString()} (${(testState.magicCount / testState.totalDraws * 100).toFixed(3)}%)`);
+        console.log(`  - 最高连续无传奇：${testState.maxPityReached}抽`);
+        
+        if (targetQilingName) {
+            const targetCount = testState.drawResults.filter(r => r.quality === '传奇' && r.qiling.契灵名称 === targetQilingName).length;
+            console.log(`  - 目标契灵【${targetQilingName}】：${targetCount.toLocaleString()} (${(targetCount / testState.legendaryCount * 100).toFixed(2)}% 传奇)`);
+        }
+        
+        const legendaryDiff = ((testState.legendaryCount / testState.totalDraws - baseLegendaryProb) / baseLegendaryProb * 100);
+        console.log(`  - 传奇概率偏差：${legendaryDiff >= 0 ? '+' : ''}${legendaryDiff.toFixed(2)}%`);
+        
+        if (Math.abs(legendaryDiff) < 5) {
+            console.log('  ✅ 传奇概率符合预期（偏差 < 5%）');
+        } else if (Math.abs(legendaryDiff) < 10) {
+            console.log('  ⚠️  传奇概率略有偏差（5% ≤ 偏差 < 10%）');
+        } else {
+            console.log('  ❌ 传奇概率偏差较大（偏差 ≥ 10%）');
+        }
+        
+        console.log('========================================\n');
+    });
+    
+    console.log('所有卡池测试完成！');
+}
+
+window.runDetailedBatchTest = runDetailedBatchTest;
