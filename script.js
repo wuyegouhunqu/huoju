@@ -2431,48 +2431,313 @@ function calculateDamageReduction() {
     }
 }
 
-// 叠乘增伤计算函数
-function calculateMultiplyDamage() {
+let damageSources = [];
+let sourceIdCounter = 0;
+
+function addDamageSource() {
+    const id = sourceIdCounter++;
+    const container = document.getElementById('all-sources-list');
+    
+    const sourceDiv = document.createElement('div');
+    sourceDiv.className = 'damage-source-item';
+    sourceDiv.dataset.id = id;
+    
+    sourceDiv.innerHTML = `
+        <div class="source-header">
+            <span class="source-number">${id + 1}</span>
+            <div class="type-selector-btns">
+                <button class="type-btn inc active" onclick="setSourceType(${id}, 'inc')">inc</button>
+                <button class="type-btn more" onclick="setSourceType(${id}, 'more')">more</button>
+            </div>
+            <div class="calc-selector-btns">
+                <button class="calc-btn direct active" onclick="setCalcType(${id}, 'direct')">直接填写</button>
+                <button class="calc-btn add" onclick="setCalcType(${id}, 'add')">叠加计算</button>
+                <button class="calc-btn multiply" onclick="setCalcType(${id}, 'multiply')">叠乘计算</button>
+            </div>
+            <input type="text" class="source-name" placeholder="来源名称（可选）" value="">
+            <div class="source-inputs" id="inputs-${id}">
+                <div class="direct-input">
+                    <input type="number" class="source-value" placeholder="增伤值(%)" min="0" step="0.1" data-source-id="${id}" onwheel="return false;" oninput="calculateSingleSource(${id})">
+                </div>
+            </div>
+            <div class="source-result" id="result-${id}"></div>
+            <button class="remove-btn" onclick="removeDamageSource(${id})">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(sourceDiv);
+    
+    damageSources.push({
+        id: id,
+        type: 'inc',
+        name: '',
+        calcType: 'direct',
+        value: 0,
+        singleValue: 0,
+        times: 1
+    });
+}
+
+function calculateSingleSource(id) {
+    const item = document.querySelector(`.damage-source-item[data-id="${id}"]`);
+    if (!item) return;
+    
+    const source = damageSources.find(s => s.id === id);
+    if (!source) return;
+    
+    const nameInput = item.querySelector('.source-name');
+    source.name = nameInput.value || `来源${item.querySelector('.source-number').textContent}`;
+    
+    let value = 0;
+    
+    if (source.calcType === 'direct') {
+        const valueInput = item.querySelector('.source-value');
+        value = parseFloat(valueInput.value) || 0;
+    } else if (source.calcType === 'add') {
+        const singleValueInput = item.querySelector('.single-value');
+        const timesInput = item.querySelector('.times');
+        const singleValue = parseFloat(singleValueInput?.value) || 0;
+        const times = parseInt(timesInput?.value) || 1;
+        value = singleValue * times;
+    } else if (source.calcType === 'multiply') {
+        const singleValueInput = item.querySelector('.single-value');
+        const timesInput = item.querySelector('.times');
+        const singleValue = parseFloat(singleValueInput?.value) || 0;
+        const times = parseInt(timesInput?.value) || 1;
+        value = (Math.pow(1 + singleValue / 100, times) - 1) * 100;
+    }
+    
+    source.value = value;
+    
+    const resultDiv = document.getElementById(`result-${id}`);
+    if (resultDiv) {
+        resultDiv.innerHTML = `<span class="source-value-display">${source.name}：${value.toFixed(2)}%</span>`;
+    }
+}
+
+function setSourceType(id, type) {
+    const item = document.querySelector(`.damage-source-item[data-id="${id}"]`);
+    if (!item) return;
+    
+    const source = damageSources.find(s => s.id === id);
+    if (!source) return;
+    
+    source.type = type;
+    
+    const typeBtns = item.querySelectorAll('.type-btn');
+    typeBtns.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.classList.contains(type)) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+function setCalcType(id, calcType) {
+    const item = document.querySelector(`.damage-source-item[data-id="${id}"]`);
+    if (!item) return;
+    
+    const source = damageSources.find(s => s.id === id);
+    if (!source) return;
+    
+    source.calcType = calcType;
+    
+    const calcBtns = item.querySelectorAll('.calc-btn');
+    calcBtns.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.classList.contains(calcType)) {
+            btn.classList.add('active');
+        }
+    });
+    
+    const inputsDiv = document.getElementById(`inputs-${id}`);
+    
+    if (calcType === 'direct') {
+        inputsDiv.innerHTML = `
+            <div class="direct-input">
+                <input type="number" class="source-value" placeholder="增伤值(%)" min="0" step="0.1" data-source-id="${id}" onwheel="return false;" oninput="calculateSingleSource(${id})">
+            </div>
+        `;
+    } else if (calcType === 'add') {
+        inputsDiv.innerHTML = `
+            <div class="add-inputs">
+                <input type="number" class="single-value" placeholder="单次增伤(%)" min="0" step="0.1" data-source-id="${id}" onwheel="return false;" oninput="calculateSingleSource(${id})">
+                <input type="number" class="times" placeholder="叠加次数" min="1" step="1" value="1" data-source-id="${id}" onwheel="return false;" oninput="calculateSingleSource(${id})">
+            </div>
+        `;
+    } else if (calcType === 'multiply') {
+        inputsDiv.innerHTML = `
+            <div class="multiply-inputs">
+                <input type="number" class="single-value" placeholder="单次增伤(%)" min="0" step="0.1" data-source-id="${id}" onwheel="return false;" oninput="calculateSingleSource(${id})">
+                <input type="number" class="times" placeholder="叠乘次数" min="1" step="1" value="1" data-source-id="${id}" onwheel="return false;" oninput="calculateSingleSource(${id})">
+            </div>
+        `;
+    }
+}
+
+function removeDamageSource(id) {
+    const item = document.querySelector(`.damage-source-item[data-id="${id}"]`);
+    if (item) {
+        item.remove();
+        damageSources = damageSources.filter(s => s.id !== id);
+        updateSourceNumbers();
+    }
+}
+
+function updateSourceNumbers() {
+    const items = document.querySelectorAll('.damage-source-item');
+    items.forEach((item, index) => {
+        const numberEl = item.querySelector('.source-number');
+        if (numberEl) {
+            numberEl.textContent = index + 1;
+        }
+    });
+}
+
+function updateSourceCalculation(id) {
+    const item = document.querySelector(`.damage-source-item[data-id="${id}"]`);
+    if (!item) return;
+    
+    const source = damageSources.find(s => s.id === id);
+    if (!source) return;
+    
+    const calcType = item.querySelector('.calc-selector').value;
+    source.calcType = calcType;
+    
+    const inputsDiv = document.getElementById(`inputs-${id}`);
+    
+    if (calcType === 'direct') {
+        inputsDiv.innerHTML = `
+            <div class="direct-input">
+                <input type="number" class="source-value" placeholder="增伤值(%)" min="0" step="0.1" data-source-id="${id}" onwheel="return false;">
+            </div>
+        `;
+    } else if (calcType === 'add') {
+        inputsDiv.innerHTML = `
+            <div class="add-inputs">
+                <input type="number" class="single-value" placeholder="单次增伤(%)" min="0" step="0.1" data-source-id="${id}" onwheel="return false;">
+                <input type="number" class="times" placeholder="叠加次数" min="1" step="1" value="1" data-source-id="${id}" onwheel="return false;">
+            </div>
+        `;
+    } else if (calcType === 'multiply') {
+        inputsDiv.innerHTML = `
+            <div class="multiply-inputs">
+                <input type="number" class="single-value" placeholder="单次增伤(%)" min="0" step="0.1" data-source-id="${id}" onwheel="return false;">
+                <input type="number" class="times" placeholder="叠乘次数" min="1" step="1" value="1" data-source-id="${id}" onwheel="return false;">
+            </div>
+        `;
+    }
+}
+
+function calculateDamageIncrease() {
     try {
-        const singleIncreaseInput = document.getElementById('single-damage-increase');
-        const multiplyTimesInput = document.getElementById('multiply-times');
+        let incSources = [];
+        let moreSources = [];
         
-        if (!singleIncreaseInput || !multiplyTimesInput) {
-            showNotification('找不到输入元素', 'error');
-            return;
-        }
-        
-        const singleIncrease = parseFloat(singleIncreaseInput.value) || 0;
-        const multiplyTimes = parseInt(multiplyTimesInput.value) || 0;
-        
-        if (singleIncrease <= 0 || multiplyTimes <= 0) {
-            showNotification('请输入有效的增伤数值和叠乘次数', 'warning');
-            return;
-        }
-        
-        // 叠乘增伤计算：(1 + 单次增伤%)^叠乘次数 - 1
-        const totalIncrease = Math.pow(1 + singleIncrease / 100, multiplyTimes) - 1;
-        const totalIncreasePercent = totalIncrease * 100;
-        
-        // 显示结果
-        const resultElement = document.getElementById('multiply-result');
-        if (resultElement) {
-            resultElement.innerHTML = `总增伤：${totalIncreasePercent.toFixed(2)}%`;
+        document.querySelectorAll('.damage-source-item').forEach(item => {
+            const id = parseInt(item.dataset.id);
+            const source = damageSources.find(s => s.id === id);
+            if (!source) return;
             
-            // 添加结果动画
-            resultElement.style.transform = 'scale(1.1)';
-            resultElement.style.color = '#4a9eff';
-            setTimeout(() => {
-                resultElement.style.transform = 'scale(1)';
-            }, 300);
+            const nameInput = item.querySelector('.source-name');
+            const sourceNumber = item.querySelector('.source-number').textContent;
+            source.name = nameInput.value || `来源${sourceNumber}`;
+            
+            let value = 0;
+            
+            if (source.calcType === 'direct') {
+                const valueInput = item.querySelector('.source-value');
+                value = parseFloat(valueInput.value) || 0;
+            } else if (source.calcType === 'add') {
+                const singleValue = parseFloat(item.querySelector('.single-value').value) || 0;
+                const times = parseInt(item.querySelector('.times').value) || 1;
+                value = singleValue * times;
+            } else if (source.calcType === 'multiply') {
+                const singleValue = parseFloat(item.querySelector('.single-value').value) || 0;
+                const times = parseInt(item.querySelector('.times').value) || 1;
+                value = (Math.pow(1 + singleValue / 100, times) - 1) * 100;
+            }
+            
+            source.value = value;
+            
+            const resultDiv = document.getElementById(`result-${id}`);
+            if (resultDiv) {
+                resultDiv.innerHTML = `<span class="source-value-display">${source.name}：${value.toFixed(2)}%</span>`;
+            }
+            
+            if (source.type === 'inc') {
+                incSources.push(source);
+            } else {
+                moreSources.push(source);
+            }
+        });
+        
+        const totalInc = incSources.reduce((sum, s) => sum + s.value, 0);
+        let totalMoreFactor = 1;
+        moreSources.forEach(s => {
+            totalMoreFactor *= (1 + s.value / 100);
+        });
+        
+        const totalMultiplier = (1 + totalInc / 100) * totalMoreFactor;
+        const totalIncreasePercent = (totalMultiplier - 1) * 100;
+        
+        const stepsDiv = document.getElementById('calculation-steps');
+        let stepsHTML = '';
+        
+        if (incSources.length > 0) {
+            stepsHTML += '<div class="step-section">';
+            stepsHTML += '<h5><i class="fas fa-plus-circle"></i> inc 增伤计算</h5>';
+            incSources.forEach(s => {
+                stepsHTML += `<div class="step-item">${s.name}：${s.value.toFixed(2)}%</div>`;
+            });
+            stepsHTML += `<div class="step-item total-step">inc 合计：${totalInc.toFixed(2)}%</div>`;
+            stepsHTML += '</div>';
         }
         
-        showNotification('叠乘增伤计算完成！', 'success');
+        if (moreSources.length > 0) {
+            stepsHTML += '<div class="step-section">';
+            stepsHTML += '<h5><i class="fas fa-times-circle"></i> more 增伤计算</h5>';
+            moreSources.forEach(s => {
+                stepsHTML += `<div class="step-item">${s.name}：(1 + ${s.value.toFixed(2)}%) = ${(1 + s.value / 100).toFixed(4)}</div>`;
+            });
+            stepsHTML += `<div class="step-item total-step">more 总乘数：${totalMoreFactor.toFixed(4)}</div>`;
+            stepsHTML += '</div>';
+        }
+        
+        stepsDiv.innerHTML = stepsHTML;
+        
+        const finalResultDiv = document.getElementById('final-result');
+        finalResultDiv.innerHTML = `
+            <div class="final-formula">
+                <strong>总乘数 =</strong> (1 + ${totalInc.toFixed(2)}%) × ${totalMoreFactor.toFixed(4)} = ${totalMultiplier.toFixed(4)}
+            </div>
+            <div class="final-value">
+                总增伤：<span class="highlight">${totalIncreasePercent.toFixed(2)}%</span>
+            </div>
+        `;
+        
+        document.getElementById('damage-calculation-result').style.display = 'block';
+        showNotification('增伤计算完成！', 'success');
         
     } catch (error) {
-        console.error('叠乘增伤计算错误:', error);
-        showNotification('叠乘增伤计算出错，请检查输入数据', 'error');
+        console.error('增伤计算错误:', error);
+        showNotification('增伤计算出错，请检查输入数据', 'error');
     }
+}
+
+function resetDamageSources() {
+    damageSources = [];
+    sourceIdCounter = 0;
+    
+    document.getElementById('all-sources-list').innerHTML = '';
+    document.getElementById('damage-calculation-result').style.display = 'none';
+    
+    showNotification('已重置所有增伤来源', 'info');
+    
+    // 添加一个默认来源
+    addDamageSource();
 }
 
 // 伤害提升计算函数

@@ -828,7 +828,7 @@
                     </button>
                     <button class="function-btn" onclick="showDamageModule('multiply-damage')">
                         <i class="fas fa-arrow-up"></i>
-                        叠乘增伤
+                        增伤计算
                     </button>
                     <button class="function-btn" onclick="showDamageModule('damage-improvement')">
                         <i class="fas fa-chart-line"></i>
@@ -925,28 +925,36 @@
                     </div>
                 </div>
 
-                <!-- 叠乘增伤计算模块 -->
+                <!-- 增伤计算模块 -->
                 <div class="damage-module" id="multiply-damage" style="display: none;">
                     <div class="module-card">
-                        <h3><i class="fas fa-arrow-up"></i> 叠乘增伤计算</h3>
-                        <div class="form-group">
-                            <label>单次增伤(%)</label>
-                            <input type="number" id="single-damage-increase" placeholder="0" min="0" step="0.1" class="number-input">
-                        </div>
-                        <div class="form-group">
-                            <label>叠乘次数</label>
-                            <input type="number" id="multiply-times" value="0" min="0" class="number-input">
-                        </div>
+                        <h3><i class="fas fa-arrow-up"></i> 增伤计算</h3>
                         
+                        <div class="damage-sources-container">
+                            <div class="damage-sources-list" id="all-sources">
+                                <h4><i class="fas fa-layer-group"></i> 伤害来源列表</h4>
+                                <div id="all-sources-list"></div>
+                            </div>
+                        </div>
 
-                        <div class="calculate-section">
-                            <button class="calculate-btn" onclick="calculateMultiplyDamage()">
+                        <div class="bottom-button-section">
+                            <button class="add-btn" onclick="addDamageSource()">
+                                <i class="fas fa-plus"></i> 添加伤害来源
+                            </button>
+                            <button class="calculate-btn" onclick="calculateDamageIncrease()">
                                 <i class="fas fa-calculator"></i>
-                                计算增伤
+                                计算总增伤
+                            </button>
+                            <button class="reset-btn" onclick="resetDamageSources()">
+                                <i class="fas fa-redo"></i>
+                                重置
                             </button>
                         </div>
-                        <div class="result-display">
-                            <div class="result-value" id="multiply-result">总增伤：0%</div>
+                        
+                        <div class="damage-calculation-result" id="damage-calculation-result" style="display: none;">
+                            <h4><i class="fas fa-chart-bar"></i> 计算结果</h4>
+                            <div class="calculation-steps" id="calculation-steps"></div>
+                            <div class="final-result" id="final-result"></div>
                         </div>
                     </div>
                 </div>
