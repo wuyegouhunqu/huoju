@@ -7463,12 +7463,16 @@ function populateAffixSelect(selectId, affixes) {
 function getCurrentAffixes() {
     const craftingType = document.querySelector('input[name="crafting-type"]:checked')?.value || 'unresurrected';
     if (craftingType === 'resurrected') {
-        return moonRingAffixData.map(affix => ({
+        // 【已复苏】词缀库 = 原来的【未复苏】词缀库 + 原来的【已复苏】词缀库
+        const unresurrectedAffixes = getAllAffixes();
+        const resurrectedAffixes = moonRingAffixData.map(affix => ({
             name: affix.modifier,
             tier: affix.tier,
             level: affix.level,
             weight: affix.weight
         }));
+        // 合并两个词缀库
+        return [...unresurrectedAffixes, ...resurrectedAffixes];
     }
     return getAllAffixes();
 }
@@ -8111,13 +8115,18 @@ function getChushengAffixTotalWeight() {
 function getAffixesByType(craftingType) {
     let result;
     if (craftingType === 'resurrected' && moonRingAffixData) {
-        result = moonRingAffixData.map(affix => ({
+        // 【已复苏】词缀库 = 原来的【未复苏】词缀库 + 原来的【已复苏】词缀库
+        const unresurrectedAffixes = getAllAffixes();
+        const resurrectedAffixes = moonRingAffixData.map(affix => ({
             name: affix.modifier,
             tier: affix.tier,
             level: affix.level,
             weight: affix.weight
         }));
+        // 合并两个词缀库
+        result = [...unresurrectedAffixes, ...resurrectedAffixes];
     } else {
+        // 【未复苏】词缀库保持不变
         result = getAllAffixes();
     }
     
@@ -8199,12 +8208,16 @@ function calculateSingleAffixCost(quality, targetAffix, craftingType, fragmentPr
     // 根据打造类型获取词缀库和总权重
     let allAffixes, totalWeight;
     if (craftingType === 'resurrected') {
-        allAffixes = moonRingAffixData.map(affix => ({
+        // 【已复苏】词缀库 = 原来的【未复苏】词缀库 + 原来的【已复苏】词缀库
+        const unresurrectedAffixes = getAllAffixes();
+        const resurrectedAffixes = moonRingAffixData.map(affix => ({
             name: affix.modifier,
             tier: affix.tier,
             level: affix.level,
             weight: affix.weight
         }));
+        // 合并两个词缀库
+        allAffixes = [...unresurrectedAffixes, ...resurrectedAffixes];
     } else {
         allAffixes = getAllAffixes();
     }
@@ -8310,13 +8323,16 @@ function loadMoonRingAffixes() {
     try {
         moonRingAffixes = moonRingAffixData;
         
-        // 转换数据格式以适配现有系统
-        const formattedAffixes = moonRingAffixes.map(affix => ({
+        // 【已复苏】词缀库 = 原来的【未复苏】词缀库 + 原来的【已复苏】词缀库
+        const unresurrectedAffixes = getAllAffixes();
+        const resurrectedAffixes = moonRingAffixes.map(affix => ({
             name: affix.modifier,
             tier: affix.tier,
             level: affix.level,
             weight: affix.weight
         }));
+        // 合并两个词缀库
+        const formattedAffixes = [...unresurrectedAffixes, ...resurrectedAffixes];
         
         // 更新词缀选择器
         populateAffixSelect('target-affix-1', formattedAffixes);
@@ -8364,13 +8380,16 @@ function calculateResurrectedReconstructionCost(quality, targetAffix1, targetAff
     let totalThreadCount = 0;
     let totalMoonlightCount = 0;
     
-    // 获取月环词缀数据来计算总权重
-    const allAffixes = moonRingAffixData.map(affix => ({
+    // 获取月环词缀数据来计算总权重（合并后的词缀库）
+    const unresurrectedAffixes = getAllAffixes();
+    const resurrectedAffixes = moonRingAffixData.map(affix => ({
         name: affix.modifier,
         tier: affix.tier,
         level: affix.level,
         weight: affix.weight
     }));
+    // 合并两个词缀库
+    const allAffixes = [...unresurrectedAffixes, ...resurrectedAffixes];
     const totalWeight = allAffixes.reduce((sum, affix) => sum + affix.weight, 0);
     
     console.log('月环词缀权重信息:', {
