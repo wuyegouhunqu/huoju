@@ -2299,6 +2299,25 @@ input[type="number"] {
 .tower-select option {
     background: #2c3e50;
     color: white;
+    padding: 0.5rem;
+}
+
+.tower-select option:checked {
+    background: #3498db;
+    color: white;
+    font-weight: bold;
+}
+
+/* 浅色模式下的select选项样式 */
+[data-theme="light"] .tower-select option {
+    background: white;
+    color: #333;
+}
+
+[data-theme="light"] .tower-select option:checked {
+    background: #3498db;
+    color: white;
+    font-weight: bold;
 }
 
 /* 武器分组标题样式 */
@@ -5756,7 +5775,13 @@ select.select-input option {
     display: flex;
     gap: 15px;
     justify-content: center;
-    margin-top: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.memory-calculate-area .module-card {
+    padding: 10px 15px;
+    margin-bottom: 5px;
 }
 
 .calculate-btn {
@@ -6492,114 +6517,143 @@ select.select-input option {
 
 .config-name-input:focus {
     outline: none;
-    border-color: var(--primary-color);
 }
 
-.save-config-btn {
-    padding: 8px 16px;
-    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
+/* ========== 追忆复苏样式 ========== */
+.resurrection-options {
     display: flex;
-    align-items: center;
-    gap: 6px;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 10px;
 }
 
-.save-config-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
-}
-
-.load-config-select {
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    background: var(--input-bg);
-    color: var(--text-primary);
-    font-size: 14px;
-    min-width: 150px;
-}
-
-.load-config-select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-}
-
-.delete-config-btn {
-    padding: 8px 12px;
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.delete-config-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
-}
-
-/* 其他结果价值区域 */
-.other-results-section {
-    margin: 20px 0;
-    padding: 15px;
-    background: var(--bg-card);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-}
-
-.other-results-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.other-results-grid .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.other-results-grid label {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-secondary);
-}
-
-/* 目标词缀区域 */
-.target-affixes-section {
-    margin: 20px 0;
-    padding: 15px;
-    background: var(--bg-card);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.section-header h4 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-primary);
+.checkbox-option {
     display: flex;
     align-items: center;
     gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.checkbox-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.checkbox-option input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    cursor: pointer;
+    accent-color: #4a9eff;
+}
+
+.checkbox-custom {
+    display: none;
+}
+
+.light-theme .checkbox-option {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.light-theme .checkbox-option:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+/* 打造选择左右并排 */
+.memory-params-area .radio-group {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* 材料数量橙色样式 */
+.cost-breakdown span {
+    color: #ff6b35;
+    font-weight: 600;
+}
+
+.light-theme .cost-breakdown span {
+    color: #e65c00;
+}
+
+/* 复苏成本容器 */
+#resurrection-cost-container {
+    display: none;
+}
+
+#resurrection-cost-container.visible {
+    display: block;
+}
+
+/* 复苏成本详情显示 */
+.resurrection-detail {
+    margin: 5px 0;
+    padding: 5px 0;
+}
+
+.resurrection-detail-name {
+    font-weight: 500;
+}
+
+.resurrection-detail-materials {
+    color: #ff6b35;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+.light-theme .resurrection-detail-materials {
+    color: #e65c00;
+}
+
+/* 词缀成本行样式 */
+.affix-cost-row {
+    margin-bottom: 0.5rem;
+    padding: 0.3rem 0;
+}
+
+.affix-name {
+    font-weight: bold;
+    color: #3498db;
+    margin-right: 0.5rem;
+}
+
+.cost-value {
+    color: #ff6b35;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.light-theme .affix-name {
+    color: #2980b9;
+}
+
+.light-theme .cost-value {
+    color: #e65c00;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .resurrection-options {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .checkbox-option {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .memory-params-area .radio-group {
+        flex-direction: column;
+        gap: 10px;
+    }
 }
 
 .add-target-btn {

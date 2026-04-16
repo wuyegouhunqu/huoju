@@ -7345,7 +7345,10 @@ const HARDCODED_MEMORY_AFFIXES = [
   {"词缀":"+(22–27)% 最大魔力","T级":0,"等级":86,"权重":2167},
   {"词缀":"+(16–21)% 最大魔力","T级":1,"等级":86,"权重":4333},
   {"词缀":"+(12–15)% 最大魔力","T级":2,"等级":82,"权重":6500},
-  {"词缀":"+(9–11)% 最大魔力","T级":3,"等级":1,"权重":8667}
+  {"词缀":"+(9–11)% 最大魔力","T级":3,"等级":1,"权重":8667},
+  {"词缀":"连携起手技额外 +(10–12)% 攻击和施法速度 连携终结技 +(31–40)% 暴击伤害","T级":0,"等级":86,"权重":1000},
+  {"词缀":"连携起手技额外 +(7–9)% 攻击和施法速度 连携终结技 +(25–30)% 暴击伤害","T级":1,"等级":86,"权重":2000},
+  {"词缀":"连携起手技额外 +(5–6)% 攻击和施法速度 连携终结技 +(20–24)% 暴击伤害","T级":2,"等级":82,"权重":3000}
 ];
 
 // 加载词缀数据
@@ -7381,7 +7384,7 @@ function getAllAffixes() {
     
     console.log('getAllAffixes: 开始处理追忆词缀数据，词缀数量:', affixData.length);
     
-    const affixMap = new Map();
+    const result = [];
     let totalAffixCount = 0;
     let validAffixCount = 0;
     
@@ -7390,22 +7393,27 @@ function getAllAffixes() {
         totalAffixCount++;
         // 检查词缀和权重字段
         if (affixItem.词缀 && affixItem.权重 && affixItem.权重 >= 1) {
-            // 如果词缀已存在，保留权重较高的
-            if (!affixMap.has(affixItem.词缀) || affixMap.get(affixItem.词缀).weight < affixItem.权重) {
-                affixMap.set(affixItem.词缀, {
-                    name: affixItem.词缀,
-                    weight: affixItem.权重
-                });
-            }
+            result.push({
+                name: affixItem.词缀,
+                tier: affixItem.T级 || 0,
+                weight: affixItem.权重
+            });
             validAffixCount++;
         }
     });
     
-    const result = Array.from(affixMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    // 按 T 阶从高到低排序（0阶最高），然后按名称排序
+    result.sort((a, b) => {
+        if (a.tier !== b.tier) {
+            return a.tier - b.tier; // 0 在前，3 在后
+        }
+        return a.name.localeCompare(b.name);
+    });
+    
     console.log('getAllAffixes: 处理完成');
     console.log('- 总词缀数量:', totalAffixCount);
     console.log('- 有效词缀数量:', validAffixCount);
-    console.log('- 去重后词缀数量:', result.length);
+    console.log('- 词缀数量:', result.length);
     console.log('- 前10个词缀:', result.slice(0, 10));
     
     return result;
@@ -7432,7 +7440,7 @@ function populateAffixSelect(selectId, affixes) {
     }
     
     // 清空现有选项
-    selectElement.innerHTML = '<option value="">请选择词缀</option>';
+    selectElement.innerHTML = '';
     console.log(`populateAffixSelect(${selectId}): 已清空选择器`);
     
     // 添加词缀选项
@@ -7440,7 +7448,9 @@ function populateAffixSelect(selectId, affixes) {
     affixes.forEach(affix => {
         const option = document.createElement('option');
         option.value = affix.name;
-        option.textContent = affix.name;
+        option.textContent = `T${affix.tier} - ${affix.name}`;
+        option.dataset.weight = affix.weight;
+        option.dataset.tier = affix.tier;
         selectElement.appendChild(option);
         addedCount++;
     });
@@ -7449,60 +7459,73 @@ function populateAffixSelect(selectId, affixes) {
     console.log(`populateAffixSelect(${selectId}): 当前选项总数: ${selectElement.querySelectorAll('option').length}`);
 }
 
+// 获取当前词缀列表（根据打造类型）
+function getCurrentAffixes() {
+    const craftingType = document.querySelector('input[name="crafting-type"]:checked')?.value || 'unresurrected';
+    if (craftingType === 'resurrected') {
+        return moonRingAffixData.map(affix => ({
+            name: affix.modifier,
+            tier: affix.tier,
+            level: affix.level,
+            weight: affix.weight
+        }));
+    }
+    return getAllAffixes();
+}
+
+// 搜索当前词缀列表
+function searchCurrentAffixes(keyword) {
+    const affixes = getCurrentAffixes();
+    if (!keyword || keyword.length === 0) return affixes;
+    const lowerKeyword = keyword.toLowerCase();
+    return affixes.filter(affix => 
+        affix.name.toLowerCase().includes(lowerKeyword)
+    );
+}
+
 // 设置词缀搜索功能
 function setupAffixSearch() {
     console.log('========== 词缀搜索功能诊断 ==========');
     
     const affix1Search = document.getElementById('affix1-search');
     const affix2Search = document.getElementById('affix2-search');
+    const chushengAffixSearch = document.getElementById('chusheng-affix-search');
     const targetAffix1 = document.getElementById('target-affix-1');
     const targetAffix2 = document.getElementById('target-affix-2');
+    const chushengTargetAffix = document.getElementById('chusheng-target-affix');
     
     console.log('DOM元素检查:');
     console.log('   affix1-search:', !!affix1Search);
     console.log('   affix2-search:', !!affix2Search);
+    console.log('   chusheng-affix-search:', !!chushengAffixSearch);
     console.log('   target-affix-1:', !!targetAffix1);
     console.log('   target-affix-2:', !!targetAffix2);
+    console.log('   chusheng-target-affix:', !!chushengTargetAffix);
     
     if (!affix1Search || !affix2Search || !targetAffix1 || !targetAffix2) {
         console.warn('词缀搜索DOM元素未找到');
         return;
     }
     
-    // 初始化时填充所有可用的词缀
-    console.log('\n开始获取词缀列表...');
-    const allAffixes = getAllAffixes();
-    console.log('可用词缀数量:', allAffixes.length);
-    console.log('初始化词缀选择器，可用词缀数量:', allAffixes.length);
+    // 初始化词缀选择器1（默认未复苏）
+    console.log('初始化词缀选择器1...');
+    populateAffixSelectByType('target-affix-1', 'unresurrected');
     
-    if (allAffixes.length === 0) {
-        console.error('⚠ 词缀列表为空！');
-        return;
-    }
-    
-    console.log('开始填充词缀选择器1...');
-    populateAffixSelect('target-affix-1', allAffixes);
-    console.log('开始填充词缀选择器2...');
-    populateAffixSelect('target-affix-2', allAffixes);
-    
-    // 验证填充结果
-    const opt1Count = targetAffix1.querySelectorAll('option').length;
-    const opt2Count = targetAffix2.querySelectorAll('option').length;
-    console.log('填充后验证:');
-    console.log('   词缀1选项数:', opt1Count);
-    console.log('   词缀2选项数:', opt2Count);
+    // 初始化词缀选择器2（默认未复苏）
+    console.log('初始化词缀选择器2...');
+    populateAffixSelectByType('target-affix-2', 'unresurrected');
     
     if (affix1Search && targetAffix1) {
         affix1Search.addEventListener('input', function() {
             const keyword = this.value.trim();
             console.log('词缀1搜索:', keyword);
+            const craftingType = document.querySelector('input[name="affix1-crafting-type"]:checked')?.value || 'unresurrected';
             if (keyword.length >= 1) {
-                const matchedAffixes = searchAffixes(keyword);
+                const matchedAffixes = searchAffixesByType(keyword, craftingType);
                 console.log('匹配词缀数:', matchedAffixes.length);
                 populateAffixSelect('target-affix-1', matchedAffixes);
             } else {
-                // 如果搜索框为空，显示所有词缀
-                populateAffixSelect('target-affix-1', allAffixes);
+                populateAffixSelectByType('target-affix-1', craftingType);
             }
         });
     }
@@ -7511,18 +7534,1086 @@ function setupAffixSearch() {
         affix2Search.addEventListener('input', function() {
             const keyword = this.value.trim();
             console.log('词缀2搜索:', keyword);
+            const craftingType = document.querySelector('input[name="affix2-crafting-type"]:checked')?.value || 'unresurrected';
             if (keyword.length >= 1) {
-                const matchedAffixes = searchAffixes(keyword);
+                const matchedAffixes = searchAffixesByType(keyword, craftingType);
                 console.log('匹配词缀数:', matchedAffixes.length);
                 populateAffixSelect('target-affix-2', matchedAffixes);
             } else {
-                // 如果搜索框为空，显示所有词缀
-                populateAffixSelect('target-affix-2', allAffixes);
+                populateAffixSelectByType('target-affix-2', craftingType);
+            }
+        });
+    }
+    
+    // 初生词缀搜索
+    if (chushengAffixSearch && chushengTargetAffix) {
+        chushengAffixSearch.addEventListener('input', function() {
+            const keyword = this.value.trim();
+            console.log('初生词缀搜索:', keyword);
+            const matchedAffixes = searchChushengAffixes(keyword);
+            console.log('匹配词缀数:', matchedAffixes.length);
+            
+            // 重新填充初生词缀选择器
+            const select = document.getElementById('chusheng-target-affix');
+            if (select) {
+                select.innerHTML = '';
+                matchedAffixes.forEach(affix => {
+                    const option = document.createElement('option');
+                    option.value = affix.name;
+                    option.textContent = `${affix.name}`;
+                    option.dataset.weight = affix.weight;
+                    select.appendChild(option);
+                });
             }
         });
     }
     
     console.log('========== 词缀搜索功能设置完成 ==========');
+}
+
+// 获取选中的目标词缀1权重之和
+function getSelectedTargetAffix1Weight() {
+    const select = document.getElementById('target-affix-1');
+    if (!select) return 0;
+    
+    let totalWeight = 0;
+    const selectedOptions = Array.from(select.selectedOptions);
+    selectedOptions.forEach(option => {
+        const weight = parseFloat(option.dataset.weight) || 0;
+        totalWeight += weight;
+    });
+    
+    return totalWeight;
+}
+
+// 获取选中的目标词缀2权重之和
+function getSelectedTargetAffix2Weight() {
+    const select = document.getElementById('target-affix-2');
+    if (!select) return 0;
+    
+    let totalWeight = 0;
+    const selectedOptions = Array.from(select.selectedOptions);
+    selectedOptions.forEach(option => {
+        const weight = parseFloat(option.dataset.weight) || 0;
+        totalWeight += weight;
+    });
+    
+    return totalWeight;
+}
+
+// ========== 追忆复苏功能 ==========
+
+// 全局变量：月环词缀数据
+let moonRingAffixes = null;
+
+// 初生词缀数据
+const chushengAffixData = [
+    {
+        "tier": 1,
+        "modifier": "若至少有 1 个未安装技能的主动技能槽位，灵药技能每秒获得 4 充能进度，+(75–80)% 灵药技能效果 若至少有 2 个未安装被动技能的被动技能槽位，+(70–75)% 光环效果",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "若至少有 1 个未安装技能的主动技能槽位，灵药技能每秒获得 4 充能进度，+(75–80)% 灵药技能效果 若至少有 2 个未安装被动技能的被动技能槽位，+(52–55)% 光环效果",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "若至少有 1 个未安装技能的主动技能槽位，灵药技能每秒获得 4 充能进度，+(60–63)% 灵药技能效果 若至少有 2 个未安装被动技能的被动技能槽位，+(45–50)% 光环效果",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "若至少有 1 个未安装技能的主动技能槽位，灵药技能每秒获得 4 充能进度，+(75–80)% 灵药技能效果 若至少有 2 个未安装被动技能的被动技能槽位，+(210–225)% 贯注效果",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "若至少有 1 个未安装技能的主动技能槽位，灵药技能每秒获得 4 充能进度，+(75–80)% 灵药技能效果 若至少有 2 个未安装被动技能的被动技能槽位，+(156–165)% 贯注效果",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "若至少有 1 个未安装技能的主动技能槽位，灵药技能每秒获得 4 充能进度，+(60–63)% 灵药技能效果 若至少有 2 个未安装被动技能的被动技能槽位，+(135–150)% 贯注效果",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "若至少有 1 个未安装技能的主动技能槽位，灵药技能每秒获得 4 充能进度，+(75–80)% 灵药技能效果 若至少有 2 个未安装被动技能的被动技能槽位，+(210–225)% 魔灵之源效果",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "若至少有 1 个未安装技能的主动技能槽位，灵药技能每秒获得 4 充能进度，+(75–80)% 灵药技能效果 若至少有 2 个未安装被动技能的被动技能槽位，+(156–165)% 魔灵之源效果",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "若至少有 1 个未安装技能的主动技能槽位，灵药技能每秒获得 4 充能进度，+(60–63)% 灵药技能效果 若至少有 2 个未安装被动技能的被动技能槽位，+(135–150)% 魔灵之源效果",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "-40% 全属性 +(195–200) 全属性",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "-25% 全属性 +(120–125) 全属性",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "-15% 全属性 +(70–75) 全属性",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "如果最近有暴击，额外 +(56–60)% 伤害 暴击不造成额外伤害",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "如果最近有暴击，额外 +(42–45)% 伤害 暴击不造成额外伤害",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "如果最近有暴击，额外 +(27–30)% 伤害 暴击不造成额外伤害",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "每秒失去 50 点生命和 80 点护盾 生命或护盾大于等于 50% 时，额外 +(48–50)% 召唤物伤害",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "每秒失去 30 点生命和 50 点护盾 生命或护盾大于等于 50% 时，额外 +(27–30)% 召唤物伤害",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "每秒失去 15 点生命和 30 点护盾 生命或护盾大于等于 50% 时，额外 +(15–18)% 召唤物伤害",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "最近每释放一次核心攻击技能，+(6–7)% 攻击速度，上限 6 层；满层时，每释放第 3 次核心攻击技能，该次技能必定造成双倍伤害（哨卫和引导技能除外）",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "最近每释放一次核心攻击技能，+(2–3)% 攻击速度，上限 6 层；满层时，每释放第 3 次核心攻击技能，该次技能必定造成双倍伤害（哨卫和引导技能除外）",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "最近每释放一次核心攻击技能，+(1–2)% 攻击速度，上限 6 层；满层时，每释放第 6 次核心攻击技能，该次技能必定造成双倍伤害（哨卫和引导技能除外）",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "折磨获得额外效果：额外 +10% 收割回复速度 获得折磨时，回复 (12–15)% 已损生命和护盾，间隔 0.3 秒",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "折磨获得额外效果：额外 +6% 收割回复速度 获得折磨时，回复 (6–8)% 已损生命和护盾，间隔 0.3 秒",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "折磨获得额外效果：额外 +3% 收割回复速度 获得折磨时，回复 (2–5)% 已损生命和护盾，间隔 0.5 秒",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "额外 -50% 异常状态持续时间 收割时，额外结算 (32–35)% 的剩余总持续伤害，然后移除目标具有的所有持续伤害",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "额外 -50% 异常状态持续时间 收割时，额外结算 (22–25)% 的剩余总持续伤害，然后移除目标具有的所有持续伤害",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "额外 -50% 异常状态持续时间 收割时，额外结算 (18–20)% 的剩余总持续伤害，然后移除目标具有的所有持续伤害",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "每 1 点智慧， 2.5% 法术暴击值，上限 +(420–430)%",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "每 1 点智慧， 1.5% 法术暴击值，上限 +(250–270)%",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "每 1 点智慧， +1% 法术暴击值，上限 +(140–160)%",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "每造成 10 次闪电伤害，对周围 10 米内的敌人施加 5 层麻痹，间隔 0.5 秒 +(50–54)% 麻痹效果",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "每造成 10 次闪电伤害，对周围 10 米内的敌人施加 5 层麻痹，间隔 0.5 秒 +(18–21)% 麻痹效果",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "每造成 10 次闪电伤害，对周围 10 米内的敌人施加 1 层麻痹，间隔 0.5 秒 +(3–5)% 麻痹效果",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "对冰结的敌人，+(260–270) 暴击值",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "对冰结的敌人，+(160–170) 暴击值",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "对冰结的敌人，+(100–110) 暴击值",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "周围 20 米内每有一个敌人，+(32–35)% 加剧效果，上限 +235%",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "周围 20 米内每有一个敌人，+(18–21)% 加剧效果，上限 +130%",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "周围 20 米内每有一个敌人，+(12–15)% 加剧效果，上限 +80%",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "对创伤状态下的敌人，+(13–15)% 护甲减伤穿透 击中时，淘汰生命低于 15% 且处于创伤状态下的敌人",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "对创伤状态下的敌人，+(13–15)% 护甲减伤穿透 击中时，淘汰生命低于 8% 且处于创伤状态下的敌人",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "对创伤状态下的敌人，+(6–8)% 护甲减伤穿透 击中时，淘汰生命低于 8% 且处于创伤状态下的敌人",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "对腐蚀伤害加成的 40% 同样作用于恶化伤害，上限 +80%",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "对腐蚀伤害加成的 25% 同样作用于恶化伤害，上限 +(45–50)%",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "对腐蚀伤害加成的 15% 同样作用于恶化伤害，上限 +(27–30)%",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "基础特性新增基础特性槽位，可以安装卓越及以下品质的本源追忆，该槽位安装的追忆，其基础属性和随机词缀数值(-35–-30)%",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "基础特性新增基础特性槽位，可以安装卓越及以下品质的本源追忆，该槽位安装的追忆，其基础属性和随机词缀数值(-60–-55)%",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "基础特性新增基础特性槽位，可以安装稀有及以下品质的本源追忆，该槽位安装的追忆，其基础属性和随机词缀数值(-35–-30)%",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "基础特性新增基础特性槽位，可以安装卓越及以下品质的奋进追忆，该槽位安装的追忆，其基础属性和随机词缀数值(-35–-30)%",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "基础特性新增基础特性槽位，可以安装卓越及以下品质的奋进追忆，该槽位安装的追忆，其基础属性和随机词缀数值(-60–-55)%",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "基础特性新增基础特性槽位，可以安装稀有及以下品质的奋进追忆，该槽位安装的追忆，其基础属性和随机词缀数值(-35–-30)%",
+        "level": 84,
+        "weight": 1000
+    },
+    {
+        "tier": 1,
+        "modifier": "基础特性新增基础特性槽位，可以安装卓越及以下品质的守己追忆，该槽位安装的追忆，其基础属性和随机词缀数值(-35–-30)%",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 2,
+        "modifier": "基础特性新增基础特性槽位，可以安装卓越及以下品质的守己追忆，该槽位安装的追忆，其基础属性和随机词缀数值(-60–-55)%",
+        "level": 86,
+        "weight": 1000
+    },
+    {
+        "tier": 3,
+        "modifier": "基础特性新增基础特性槽位，可以安装稀有及以下品质的守己追忆，该槽位安装的追忆，其基础属性和随机词缀数值(-35–-30)%",
+        "level": 84,
+        "weight": 1000
+    }
+];
+
+// 月环词缀数据
+const moonRingAffixData = [
+    { tier: 0, modifier: "+(12–15)% 元素和腐蚀抗性穿透", level: 86, weight: 1084 },
+    { tier: 1, modifier: "+(9–10)% 元素和腐蚀抗性穿透", level: 86, weight: 2817 },
+    { tier: 2, modifier: "+(7–8)% 元素和腐蚀抗性穿透", level: 82, weight: 5850 },
+    { tier: 0, modifier: "+(10–12)% 护甲减伤穿透", level: 86, weight: 1084 },
+    { tier: 1, modifier: "+(8–9)% 护甲减伤穿透", level: 86, weight: 2817 },
+    { tier: 2, modifier: "+(6–7)% 护甲减伤穿透", level: 82, weight: 5850 },
+    { tier: 0, modifier: "+4% 元素抗性上限", level: 86, weight: 1084 },
+    { tier: 1, modifier: "+3% 元素抗性上限", level: 86, weight: 2817 },
+    { tier: 2, modifier: "+2% 元素抗性上限", level: 82, weight: 5850 },
+    { tier: 0, modifier: "+(12–15)% 光环效果", level: 86, weight: 1084 },
+    { tier: 1, modifier: "+(9–10)% 光环效果", level: 86, weight: 2817 },
+    { tier: 2, modifier: "+(7–8)% 光环效果", level: 82, weight: 5850 },
+    { tier: 0, modifier: "+(12–15)% 魔力封印补偿", level: 86, weight: 1084 },
+    { tier: 1, modifier: "+(9–10)% 魔力封印补偿", level: 86, weight: 2817 },
+    { tier: 2, modifier: "+(7–8)% 魔力封印补偿", level: 82, weight: 5850 },
+    { tier: 0, modifier: "+(10–13)% 格挡比例", level: 86, weight: 1084 },
+    { tier: 1, modifier: "+(8–9)% 格挡比例", level: 86, weight: 2817 },
+    { tier: 2, modifier: "+(6–7)% 格挡比例", level: 82, weight: 5850 },
+    { tier: 0, modifier: "对法术伤害，额外 +(26–28)% 闪避值", level: 86, weight: 1084 },
+    { tier: 1, modifier: "对法术伤害，额外 +(21–22)% 闪避值", level: 86, weight: 2817 },
+    { tier: 2, modifier: "对法术伤害，额外 +(16–17)% 闪避值", level: 82, weight: 5850 },
+    { tier: 0, modifier: "对非物理伤害，+(9–10)% 护甲有效率", level: 86, weight: 1084 },
+    { tier: 1, modifier: "对非物理伤害，+(6–7)% 护甲有效率", level: 86, weight: 2817 },
+    { tier: 2, modifier: "对非物理伤害，+(4–5)% 护甲有效率", level: 82, weight: 5850 },
+    { tier: 0, modifier: "+(32–36)% 战吼技能的效果", level: 86, weight: 1084 },
+    { tier: 1, modifier: "+(26–28)% 战吼技能的效果", level: 86, weight: 2817 },
+    { tier: 2, modifier: "+(20–22)% 战吼技能的效果", level: 82, weight: 5850 },
+    { tier: 0, modifier: "(13–15)% 受到的物理伤害转化为随机元素伤害", level: 86, weight: 1084 },
+    { tier: 1, modifier: "(9–10)% 受到的物理伤害转化为随机元素伤害", level: 86, weight: 2817 },
+    { tier: 2, modifier: "(7–8)% 受到的物理伤害转化为随机元素伤害", level: 82, weight: 5850 },
+    { tier: 0, modifier: "(28–30)% 受到的腐蚀伤害转化为随机一种元素伤害", level: 86, weight: 1084 },
+    { tier: 1, modifier: "(22–23)% 受到的腐蚀伤害转化为随机一种元素伤害", level: 86, weight: 2817 },
+    { tier: 2, modifier: "(17–18)% 受到的腐蚀伤害转化为随机一种元素伤害", level: 82, weight: 5850 },
+    { tier: 0, modifier: "+(25–28)% 几率造成伤害型异常状态", level: 86, weight: 1084 },
+    { tier: 1, modifier: "+(19–21)% 几率造成伤害型异常状态", level: 86, weight: 2817 },
+    { tier: 2, modifier: "+(14–16)% 几率造成伤害型异常状态", level: 82, weight: 5850 },
+    { tier: 0, modifier: "+(12–15)% 屏障吸收比例", level: 86, weight: 1084 },
+    { tier: 1, modifier: "+(9–10)% 屏障吸收比例", level: 86, weight: 2817 },
+    { tier: 2, modifier: "+(7–8)% 屏障吸收比例", level: 82, weight: 5850 },
+    { tier: 0, modifier: "魔灵 +(50–54) 初始生长值", level: 86, weight: 1084 },
+    { tier: 1, modifier: "魔灵 +(40–42) 初始生长值", level: 86, weight: 2817 },
+    { tier: 2, modifier: "魔灵 +(30–32) 初始生长值", level: 82, weight: 5850 },
+    { tier: 0, modifier: "每秒统御值增加 (7–8) 点", level: 86, weight: 1084 },
+    { tier: 1, modifier: "每秒统御值增加 (5–6) 点", level: 86, weight: 2817 },
+    { tier: 2, modifier: "每秒统御值增加 (3–4) 点", level: 82, weight: 5850 },
+    { tier: 0, modifier: "+(31–35)% 灵药技能效果", level: 86, weight: 1084 },
+    { tier: 1, modifier: "+(24–26)% 灵药技能效果", level: 86, weight: 2817 },
+    { tier: 2, modifier: "+(18–20)% 灵药技能效果", level: 82, weight: 5850 },
+    { tier: 0, modifier: "+(21–24) 冰结值上限", level: 86, weight: 1084 },
+    { tier: 1, modifier: "+(16–18) 冰结值上限", level: 86, weight: 2817 },
+    { tier: 2, modifier: "+(12–14) 冰结值上限", level: 82, weight: 5850 },
+    { tier: 0, modifier: "(13–15)% 的伤害优先抵扣魔力", level: 86, weight: 1084 },
+    { tier: 1, modifier: "(9–10)% 的伤害优先抵扣魔力", level: 86, weight: 2817 },
+    { tier: 2, modifier: "(7–8)% 的伤害优先抵扣魔力", level: 82, weight: 5850 },
+    { tier: 0, modifier: "+(12–15)% 受伤缓冲", level: 86, weight: 1084 },
+    { tier: 1, modifier: "+(9–10)% 受伤缓冲", level: 86, weight: 2817 },
+    { tier: 2, modifier: "+(7–8)% 受伤缓冲", level: 82, weight: 5850 }
+];
+
+// 更新复苏效果选项（根据品质选择）
+function updateResurrectionOptions() {
+    const quality = document.querySelector('input[name="memory-quality"]:checked')?.value || 'excellent';
+    const yaoshengContainer = document.getElementById('res-yaosheng-container');
+    const yuexiangContainer = document.getElementById('res-yuexiang-container');
+    const chushengAffixRow = document.getElementById('chusheng-affix-row');
+    const chushengCheckbox = document.getElementById('res-chusheng');
+    const yuexiangCheckbox = document.getElementById('res-yuexiang');
+    
+    // 根据品质显示/隐藏曜升和初生月相
+    if (quality === 'perfect') {
+        // 至臻品质：显示曜升和初生 月相
+        if (yaoshengContainer) yaoshengContainer.style.display = 'flex';
+        if (yuexiangContainer) yuexiangContainer.style.display = 'flex';
+    } else {
+        // 卓越品质：隐藏曜升和初生 月相
+        if (yaoshengContainer) yaoshengContainer.style.display = 'none';
+        if (yuexiangContainer) yuexiangContainer.style.display = 'none';
+        
+        // 取消勾选隐藏的选项
+        const yaoshengCheckbox = document.getElementById('res-yaosheng');
+        const yuexiangCheckbox = document.getElementById('res-yuexiang');
+        if (yaoshengCheckbox) yaoshengCheckbox.checked = false;
+        if (yuexiangCheckbox) yuexiangCheckbox.checked = false;
+    }
+    
+    // 根据初生/初生月相的选择显示/隐藏初生词缀选择器
+    if ((chushengCheckbox && chushengCheckbox.checked) || (yuexiangCheckbox && yuexiangCheckbox.checked)) {
+        if (chushengAffixRow) {
+            chushengAffixRow.style.display = 'grid';
+            // 初始化初生词缀选择器
+            populateChushengAffixSelect();
+        }
+    } else {
+        if (chushengAffixRow) {
+            chushengAffixRow.style.display = 'none';
+        }
+    }
+    
+    console.log('更新复苏效果选项:', {
+        quality: quality,
+        yaoshengVisible: yaoshengContainer?.style.display !== 'none',
+        yuexiangVisible: yuexiangContainer?.style.display !== 'none',
+        chushengAffixVisible: chushengAffixRow?.style.display !== 'none'
+    });
+}
+
+// 填充初生词缀选择器
+function populateChushengAffixSelect() {
+    const select = document.getElementById('chusheng-target-affix');
+    if (!select) return;
+    
+    const affixes = chushengAffixData.map(affix => ({
+        name: affix.modifier,
+        tier: affix.tier,
+        level: affix.level,
+        weight: affix.weight
+    }));
+    
+    select.innerHTML = '';
+    
+    affixes.forEach(affix => {
+        const option = document.createElement('option');
+        option.value = affix.name;
+        option.textContent = `${affix.name}`;
+        option.dataset.weight = affix.weight;
+        select.appendChild(option);
+    });
+}
+
+// 搜索初生词缀
+function searchChushengAffixes(keyword) {
+    if (!keyword || keyword.length === 0) {
+        return chushengAffixData.map(affix => ({
+            name: affix.modifier,
+            tier: affix.tier,
+            level: affix.level,
+            weight: affix.weight
+        }));
+    }
+    
+    const lowerKeyword = keyword.toLowerCase();
+    return chushengAffixData
+        .filter(affix => affix.modifier.toLowerCase().includes(lowerKeyword))
+        .map(affix => ({
+            name: affix.modifier,
+            tier: affix.tier,
+            level: affix.level,
+            weight: affix.weight
+        }));
+}
+
+// 获取选中的初生词缀权重之和
+function getSelectedChushengAffixWeight() {
+    const select = document.getElementById('chusheng-target-affix');
+    if (!select) return 0;
+    
+    let totalWeight = 0;
+    const selectedOptions = Array.from(select.selectedOptions);
+    selectedOptions.forEach(option => {
+        const weight = parseFloat(option.dataset.weight) || 0;
+        totalWeight += weight;
+    });
+    
+    return totalWeight;
+}
+
+// 获取初生词缀库总权重
+function getChushengAffixTotalWeight() {
+    return chushengAffixData.reduce((sum, affix) => sum + affix.weight, 0);
+}
+
+// 根据打造类型获取词缀
+function getAffixesByType(craftingType) {
+    let result;
+    if (craftingType === 'resurrected' && moonRingAffixData) {
+        result = moonRingAffixData.map(affix => ({
+            name: affix.modifier,
+            tier: affix.tier,
+            level: affix.level,
+            weight: affix.weight
+        }));
+    } else {
+        result = getAllAffixes();
+    }
+    
+    // 按 T 阶从高到低排序（0阶最高），然后按名称排序
+    result.sort((a, b) => {
+        if (a.tier !== b.tier) {
+            return a.tier - b.tier; // 0 在前，3 在后
+        }
+        return a.name.localeCompare(b.name);
+    });
+    
+    return result;
+}
+
+// 根据打造类型搜索词缀
+function searchAffixesByType(keyword, craftingType) {
+    const allAffixes = getAffixesByType(craftingType);
+    if (!keyword || keyword.length === 0) {
+        return allAffixes;
+    }
+    
+    const lowerKeyword = keyword.toLowerCase();
+    return allAffixes.filter(affix => 
+        affix.name.toLowerCase().includes(lowerKeyword)
+    );
+}
+
+// 根据打造类型填充词缀选择器
+function populateAffixSelectByType(selectId, craftingType) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    
+    const affixes = getAffixesByType(craftingType);
+    select.innerHTML = '';
+    
+    affixes.forEach(affix => {
+        const option = document.createElement('option');
+        option.value = affix.name;
+        option.textContent = `T${affix.tier} - ${affix.name}`;
+        option.dataset.weight = affix.weight;
+        option.dataset.tier = affix.tier;
+        select.appendChild(option);
+    });
+}
+
+// 更新词缀1的打造类型
+function updateAffix1CraftingType() {
+    const craftingType = document.querySelector('input[name="affix1-crafting-type"]:checked')?.value || 'unresurrected';
+    const searchInput = document.getElementById('affix1-search');
+    if (searchInput) searchInput.value = '';
+    populateAffixSelectByType('target-affix-1', craftingType);
+}
+
+// 更新词缀2的打造类型
+function updateAffix2CraftingType() {
+    const craftingType = document.querySelector('input[name="affix2-crafting-type"]:checked')?.value || 'unresurrected';
+    const searchInput = document.getElementById('affix2-search');
+    if (searchInput) searchInput.value = '';
+    populateAffixSelectByType('target-affix-2', craftingType);
+}
+
+// 删除旧的 updateCraftingType 函数
+function updateCraftingType() {
+    // 不再使用
+}
+
+// 计算单个词缀的打造成本
+function calculateSingleAffixCost(quality, targetAffix, craftingType, fragmentPrice, threadPrice, moonlightThreadExcellentPrice) {
+    if (!targetAffix || targetAffix.length === 0) {
+        return {
+            totalCost: 0,
+            fragmentCount: 0,
+            threadCount: 0,
+            moonlightCount: 0,
+            materialDisplay: ''
+        };
+    }
+    
+    // 根据打造类型获取词缀库和总权重
+    let allAffixes, totalWeight;
+    if (craftingType === 'resurrected') {
+        allAffixes = moonRingAffixData.map(affix => ({
+            name: affix.modifier,
+            tier: affix.tier,
+            level: affix.level,
+            weight: affix.weight
+        }));
+    } else {
+        allAffixes = getAllAffixes();
+    }
+    totalWeight = allAffixes.reduce((sum, affix) => sum + affix.weight, 0);
+    
+    // 计算选中词缀的权重和成功率
+    const selectedWeight = targetAffix.reduce((sum, affix) => sum + (affix.weight || 0), 0);
+    const probability = selectedWeight / totalWeight;
+    const expectedAttempts = 1 / probability;
+    
+    // 根据品质和打造类型确定单次材料消耗
+    let fragmentCount, threadCount, moonlightCount;
+    if (craftingType === 'resurrected') {
+        // 已复苏打造
+        if (quality === 'perfect') {
+            fragmentCount = 20 * expectedAttempts;
+            threadCount = 2 * expectedAttempts;
+            moonlightCount = 6 * expectedAttempts;
+        } else {
+            fragmentCount = 10 * expectedAttempts;
+            threadCount = 1 * expectedAttempts;
+            moonlightCount = 3 * expectedAttempts;
+        }
+    } else {
+        // 未复苏打造
+        if (quality === 'perfect') {
+            fragmentCount = 20 * expectedAttempts;
+            threadCount = 2 * expectedAttempts;
+        } else {
+            fragmentCount = 10 * expectedAttempts;
+            threadCount = 1 * expectedAttempts;
+        }
+        moonlightCount = 0;
+    }
+    
+    // 计算总成本
+    const totalCost = fragmentCount * fragmentPrice + 
+                     threadCount * threadPrice + 
+                     moonlightCount * moonlightThreadExcellentPrice;
+    
+    // 构建材料显示
+    let materialDisplay = '';
+    const parts = [];
+    if (fragmentCount > 0) parts.push(`${fragmentCount} 追忆碎絮`);
+    if (threadCount > 0) parts.push(`${threadCount} 追忆游丝`);
+    if (moonlightCount > 0) parts.push(`${moonlightCount} 月光游丝-卓越`);
+    materialDisplay = parts.join(' + ');
+    
+    return {
+        totalCost,
+        fragmentCount,
+        threadCount,
+        moonlightCount,
+        materialDisplay
+    };
+}
+
+// 检查复苏效果冲突（初生和初生 月相不能同时选择）
+function checkResurrectionConflict(clickedType) {
+    const chushengCheckbox = document.getElementById('res-chusheng');
+    const yuexiangCheckbox = document.getElementById('res-yuexiang');
+    
+    if (chushengCheckbox && yuexiangCheckbox) {
+        if (clickedType === 'chusheng' && chushengCheckbox.checked) {
+            // 如果点击了初生且被选中，取消初生月相
+            yuexiangCheckbox.checked = false;
+        } else if (clickedType === 'yuexiang' && yuexiangCheckbox.checked) {
+            // 如果点击了初生月相且被选中，取消初生
+            chushengCheckbox.checked = false;
+        }
+    }
+}
+
+// 更新打造类型（未复苏/已复苏）
+function updateCraftingType() {
+    const craftingType = document.querySelector('input[name="crafting-type"]:checked')?.value || 'unresurrected';
+    const resurrectionContainer = document.getElementById('resurrection-cost-container');
+    const affix1Search = document.getElementById('affix1-search');
+    const affix2Search = document.getElementById('affix2-search');
+    
+    // 清空搜索框
+    if (affix1Search) affix1Search.value = '';
+    if (affix2Search) affix2Search.value = '';
+    
+    if (craftingType === 'resurrected') {
+        // 已复苏打造时显示复苏成本
+        if (resurrectionContainer) resurrectionContainer.classList.add('visible');
+        
+        // 加载月环词缀并更新词缀选择器
+        loadMoonRingAffixes();
+    } else {
+        // 未复苏打造时隐藏复苏成本
+        if (resurrectionContainer) resurrectionContainer.classList.remove('visible');
+        
+        // 恢复普通词缀
+        populateAffixSelect('target-affix-1', getAllAffixes());
+        populateAffixSelect('target-affix-2', getAllAffixes());
+    }
+}
+
+// 加载月环词缀数据
+function loadMoonRingAffixes() {
+    try {
+        moonRingAffixes = moonRingAffixData;
+        
+        // 转换数据格式以适配现有系统
+        const formattedAffixes = moonRingAffixes.map(affix => ({
+            name: affix.modifier,
+            tier: affix.tier,
+            level: affix.level,
+            weight: affix.weight
+        }));
+        
+        // 更新词缀选择器
+        populateAffixSelect('target-affix-1', formattedAffixes);
+        populateAffixSelect('target-affix-2', formattedAffixes);
+        
+        console.log('月环词缀加载成功');
+    } catch (error) {
+        console.error('加载月环词缀失败:', error);
+        showNotification('月环词缀加载失败', 'error');
+    }
+}
+
+// 计算已复苏打造的重构成本
+function calculateResurrectedReconstructionCost(quality, targetAffix1, targetAffix2, fragmentPrice, threadPrice, moonlightThreadExcellentPrice) {
+    console.log('calculateResurrectedReconstructionCost 被调用:', {
+        quality: quality,
+        targetAffix1: targetAffix1,
+        targetAffix2: targetAffix2,
+        fragmentPrice: fragmentPrice,
+        threadPrice: threadPrice,
+        moonlightThreadExcellentPrice: moonlightThreadExcellentPrice
+    });
+    
+    // 根据品质确定单次重构的材料消耗
+    let fragmentBase, threadBase, moonlightBase;
+    if (quality === 'perfect') {
+        // 至臻品质
+        fragmentBase = 20;
+        threadBase = 2;
+        moonlightBase = 6;
+    } else {
+        // 卓越品质
+        fragmentBase = 10;
+        threadBase = 1;
+        moonlightBase = 3;
+    }
+    
+    console.log('已复苏打造单次材料消耗:', {
+        fragment: fragmentBase,
+        thread: threadBase,
+        moonlight: moonlightBase
+    });
+    
+    let totalFragmentCount = 0;
+    let totalThreadCount = 0;
+    let totalMoonlightCount = 0;
+    
+    // 获取月环词缀数据来计算总权重
+    const allAffixes = moonRingAffixData.map(affix => ({
+        name: affix.modifier,
+        tier: affix.tier,
+        level: affix.level,
+        weight: affix.weight
+    }));
+    const totalWeight = allAffixes.reduce((sum, affix) => sum + affix.weight, 0);
+    
+    console.log('月环词缀权重信息:', {
+        allAffixesCount: allAffixes.length,
+        totalWeight: totalWeight,
+        sampleAffixes: allAffixes.slice(0, 3)
+    });
+    
+    // 计算目标词缀1的重构成本（支持多选）
+    if (targetAffix1 && targetAffix1.length > 0) {
+        const affix1Weight = targetAffix1.reduce((sum, affix) => sum + (affix.weight || 0), 0);
+        const probability1 = affix1Weight / totalWeight;
+        const expectedAttempts1 = 1 / probability1;
+        
+        totalFragmentCount += fragmentBase * expectedAttempts1;
+        totalThreadCount += threadBase * expectedAttempts1;
+        totalMoonlightCount += moonlightBase * expectedAttempts1;
+        
+        console.log('已复苏 - 目标词缀1计算（多选）:', {
+            affixCount: targetAffix1.length,
+            totalWeight: affix1Weight,
+            probability: probability1,
+            expectedAttempts: expectedAttempts1,
+            fragmentCost: fragmentBase * expectedAttempts1,
+            threadCost: threadBase * expectedAttempts1,
+            moonlightCost: moonlightBase * expectedAttempts1
+        });
+    }
+    
+    // 计算目标词缀2的重构成本（支持多选）
+    if (targetAffix2 && targetAffix2.length > 0) {
+        const affix2Weight = targetAffix2.reduce((sum, affix) => sum + (affix.weight || 0), 0);
+        const probability2 = affix2Weight / totalWeight;
+        const expectedAttempts2 = 1 / probability2;
+        
+        totalFragmentCount += fragmentBase * expectedAttempts2;
+        totalThreadCount += threadBase * expectedAttempts2;
+        totalMoonlightCount += moonlightBase * expectedAttempts2;
+        
+        console.log('已复苏 - 目标词缀2计算（多选）:', {
+            affixCount: targetAffix2.length,
+            totalWeight: affix2Weight,
+            probability: probability2,
+            expectedAttempts: expectedAttempts2,
+            fragmentCost: fragmentBase * expectedAttempts2,
+            threadCost: threadBase * expectedAttempts2,
+            moonlightCost: moonlightBase * expectedAttempts2
+        });
+    }
+    
+    // 计算总价格
+    const totalCost = totalFragmentCount * fragmentPrice + 
+                     totalThreadCount * threadPrice + 
+                     totalMoonlightCount * moonlightThreadExcellentPrice;
+    
+    const result = {
+        totalCost: totalCost,
+        fragmentCount: totalFragmentCount,
+        threadCount: totalThreadCount,
+        moonlightCount: totalMoonlightCount,
+        craftingMaterialDisplay: `${totalFragmentCount} 追忆碎絮 + ${totalThreadCount} 追忆游丝 + ${totalMoonlightCount} 月光游丝-卓越`
+    };
+    
+    console.log('已复苏重构成本计算最终结果:', result);
+    
+    return result;
+}
+
+// 计算复苏总成本（根据最优打造策略）
+function calculateResurrectionCost(materialPrices) {
+    const { brightMoonDust, flawlessMoonDust, moonPhaseMaterial, memoryPrice } = materialPrices;
+    const quality = document.querySelector('input[name="memory-quality"]:checked')?.value || 'excellent';
+    
+    const selectedEffects = [];
+    if (document.getElementById('res-yingkui')?.checked) selectedEffects.push('yingkui');
+    if (document.getElementById('res-yaosheng')?.checked) selectedEffects.push('yaosheng');
+    if (document.getElementById('res-chusheng')?.checked) selectedEffects.push('chusheng');
+    if (document.getElementById('res-yuexiang')?.checked) selectedEffects.push('yuexiang');
+    
+    if (selectedEffects.length === 0) {
+        return { totalCost: 0, details: [] };
+    }
+    
+    console.log('追忆复苏计算:', {
+        quality: quality,
+        selectedEffects: selectedEffects,
+        materialPrices: materialPrices
+    });
+    
+    // 计算一次尝试的材料消耗和各效果的成功率
+    let singleAttemptMaterialCost = 0;
+    let totalSuccessProbability = 1;
+    const details = [];
+    
+    // 一次追忆复苏只消耗2个材料
+    const baseMaterialCount = 2;
+    let baseMaterialName, baseMaterialPrice;
+    
+    if (quality === 'excellent') {
+        baseMaterialName = '明朗月尘';
+        baseMaterialPrice = brightMoonDust;
+    } else {
+        baseMaterialName = '无瑕月尘';
+        baseMaterialPrice = flawlessMoonDust;
+    }
+    
+    let brightMoonDustCount = 0;
+    let flawlessMoonDustCount = 0;
+    let moonPhaseMaterialCount = 0;
+    
+    // 基础材料消耗（2个）
+    if (quality === 'excellent') {
+        brightMoonDustCount += baseMaterialCount;
+    } else {
+        flawlessMoonDustCount += baseMaterialCount;
+    }
+    singleAttemptMaterialCost += baseMaterialCount * baseMaterialPrice;
+    
+    // 定义效果参数（只包含成功率，不包含材料消耗）
+    const effectParams = {
+        yingkui: {
+            name: '盈亏',
+            probability: 0.4
+        },
+        yaosheng: {
+            name: '曜升',
+            probability: 0.3
+        },
+        yuexiang: {
+            name: '初生 月相',
+            probability: 0.2,
+            extraMaterialCount: 1,
+            extraMaterialName: '月相定向材料',
+            extraMaterialPrice: moonPhaseMaterial
+        },
+        chusheng: {
+            name: '初生',
+            probability: 1, // 先设为1，后面计算词缀概率
+            useAffixProbability: true
+        }
+    };
+    
+    selectedEffects.forEach(effectKey => {
+        const param = effectParams[effectKey];
+        if (!param) return;
+        
+        // 计算成功率
+        let effectProbability = param.probability;
+        
+        // 如果是初生，需要计算词缀选择成功率
+        if (param.useAffixProbability) {
+            const selectedWeight = getSelectedChushengAffixWeight();
+            const totalWeight = getChushengAffixTotalWeight();
+            effectProbability = totalWeight > 0 ? selectedWeight / totalWeight : 0;
+            console.log('初生词缀概率:', { selectedWeight, totalWeight, effectProbability });
+        }
+        
+        totalSuccessProbability *= effectProbability;
+        
+        // 如果是初生月相，额外消耗1个月相定向材料
+        if (param.extraMaterialCount) {
+            moonPhaseMaterialCount += param.extraMaterialCount;
+            singleAttemptMaterialCost += param.extraMaterialCount * param.extraMaterialPrice;
+        }
+        
+        // 添加到详情
+        details.push({
+            effect: effectKey,
+            probability: effectProbability
+        });
+    });
+    
+    // 添加追忆成本
+    singleAttemptMaterialCost += memoryPrice;
+    
+    console.log('追忆复苏计算详情:', {
+        singleAttemptMaterialCost: singleAttemptMaterialCost,
+        totalSuccessProbability: totalSuccessProbability,
+        brightMoonDustCount: brightMoonDustCount,
+        flawlessMoonDustCount: flawlessMoonDustCount,
+        moonPhaseMaterialCount: moonPhaseMaterialCount
+    });
+    
+    // 计算总成本
+    let totalCost = 0;
+    if (totalSuccessProbability > 0) {
+        totalCost = singleAttemptMaterialCost / totalSuccessProbability;
+    }
+    
+    // 计算各材料的期望消耗数量
+    const expectedBrightMoonDust = totalSuccessProbability > 0 ? brightMoonDustCount / totalSuccessProbability : 0;
+    const expectedFlawlessMoonDust = totalSuccessProbability > 0 ? flawlessMoonDustCount / totalSuccessProbability : 0;
+    const expectedMoonPhaseMaterial = totalSuccessProbability > 0 ? moonPhaseMaterialCount / totalSuccessProbability : 0;
+    const expectedMemoryCount = totalSuccessProbability > 0 ? 1 / totalSuccessProbability : 0;
+    
+    // 构建材料消耗信息
+    const materialCounts = [];
+    if (expectedBrightMoonDust > 0) {
+        materialCounts.push({
+            name: '明朗月尘',
+            count: Math.ceil(expectedBrightMoonDust)
+        });
+    }
+    if (expectedFlawlessMoonDust > 0) {
+        materialCounts.push({
+            name: '无瑕月尘',
+            count: Math.ceil(expectedFlawlessMoonDust)
+        });
+    }
+    if (expectedMoonPhaseMaterial > 0) {
+        materialCounts.push({
+            name: '月相定向材料',
+            count: Math.ceil(expectedMoonPhaseMaterial)
+        });
+    }
+    if (expectedMemoryCount > 0) {
+        materialCounts.push({
+            name: '追忆基底',
+            count: Math.ceil(expectedMemoryCount)
+        });
+    }
+    
+    console.log('追忆复苏最终结果:', {
+        totalCost: totalCost,
+        details: details,
+        materialCounts: materialCounts
+    });
+    
+    return { totalCost, details, materialCounts };
+}
+
+// 格式化复苏效果名称
+function formatResurrectionEffect(effect, order) {
+    if (effect === 'optimal' && order) {
+        return order;
+    }
+    const names = {
+        'yingkui': '盈亏',
+        'yaosheng': '曜升',
+        'chusheng': '初生',
+        'yuexiang': '初生 月相'
+    };
+    return names[effect] || effect;
 }
 
 // 计算追忆打造成本
@@ -7533,44 +8624,33 @@ function calculateMemoryCost() {
     const memoryQuality = document.querySelector('input[name="memory-quality"]:checked')?.value || 'excellent';
     const currentLevel = parseInt(document.getElementById('current-level')?.value) || 1;
     
-    // 🔧 使用统一的材料价格管理器获取价格
-    const fragmentPrice = MaterialPriceManager.getPrice('fragmentPrice');
-    const threadPrice = MaterialPriceManager.getPrice('threadPrice');
-    const targetAffix1Value = document.getElementById('target-affix-1')?.value || '';
-    const targetAffix2Value = document.getElementById('target-affix-2')?.value || '';
+    // 获取词缀1的打造类型
+    const affix1CraftingType = document.querySelector('input[name="affix1-crafting-type"]:checked')?.value || 'unresurrected';
+    // 获取词缀2的打造类型
+    const affix2CraftingType = document.querySelector('input[name="affix2-crafting-type"]:checked')?.value || 'unresurrected';
     
-    // 调试信息：输出获取到的目标词缀值
-    console.log('获取到的目标词缀:', {
-        targetAffix1Value: targetAffix1Value,
-        targetAffix2Value: targetAffix2Value,
-        affix1Element: document.getElementById('target-affix-1'),
-        affix2Element: document.getElementById('target-affix-2')
-    });
+    // 获取所有材料价格
+    const fragmentPrice = MaterialPriceManager.getPrice('fragmentPrice') || parseFloat(document.getElementById('fragment-price')?.value) || 0;
+    const threadPrice = MaterialPriceManager.getPrice('threadPrice') || parseFloat(document.getElementById('thread-price')?.value) || 0;
+    const moonlightThreadExcellent = parseFloat(document.getElementById('moonlight-thread-excellent')?.value) || 0;
+    const brightMoonDust = parseFloat(document.getElementById('bright-moon-dust')?.value) || 0;
+    const flawlessMoonDust = parseFloat(document.getElementById('flawless-moon-dust')?.value) || 0;
+    const moonPhaseMaterial = parseFloat(document.getElementById('moon-phase-material')?.value) || 0;
+    const memoryPrice = parseFloat(document.getElementById('memory-price')?.value) || 0;
     
-    // 检查目标词缀是否为空
-    if (!targetAffix1Value && !targetAffix2Value) {
-        console.log('目标词缀为空，停止计算');
-        showNotification('请至少选择一个目标词缀', 'warning');
-        return;
-    }
+    // 获取目标词缀1
+    const targetAffix1Select = document.getElementById('target-affix-1');
+    const targetAffix1Values = Array.from(targetAffix1Select?.selectedOptions || []).map(opt => opt.value);
     
-    console.log('目标词缀验证通过，继续计算');
+    // 获取目标词缀2
+    const targetAffix2Select = document.getElementById('target-affix-2');
+    const targetAffix2Values = Array.from(targetAffix2Select?.selectedOptions || []).map(opt => opt.value);
     
-    // 调试信息：输出获取到的价格值
-    console.log('获取到的材料价格:', {
-        fragmentPrice: fragmentPrice,
-        threadPrice: threadPrice,
-        fragmentElement: document.getElementById('fragment-price'),
-        threadElement: document.getElementById('thread-price'),
-        fragmentValue: document.getElementById('fragment-price')?.value,
-        threadValue: document.getElementById('thread-price')?.value
-    });
-    
-    // 调试信息：输出计算过程中的价格使用
-    console.log('价格使用情况:', {
-        fragmentPrice: fragmentPrice,
-        threadPrice: threadPrice,
-        note: '强化成本和重构成本将在后续计算中使用这些价格'
+    console.log('目标词缀验证:', {
+        affix1Type: affix1CraftingType,
+        affix2Type: affix2CraftingType,
+        targetAffix1Count: targetAffix1Values.length,
+        targetAffix2Count: targetAffix2Values.length
     });
     
     // 根据品质自动计算目标等级（该品质能达到的最高等级）
@@ -7583,81 +8663,166 @@ function calculateMemoryCost() {
         targetLevel = currentLevel; // 未知品质，默认不升级
     }
     
-    // 验证输入
-    if (!targetAffix1Value && !targetAffix2Value) {
-        showNotification('请至少选择一个目标词缀', 'warning');
-        return;
-    }
-    
     if (targetLevel <= currentLevel) {
         showNotification(`当前等级已达到${memoryQuality === 'excellent' ? '卓越' : '至臻'}品质的最高等级`, 'info');
-        // 如果已经是最高等级，只计算重构成本
         targetLevel = currentLevel;
     }
     
-    // 获取所有词缀数据
-    const allAffixes = getAllAffixes();
+    // 获取词缀1的词缀对象（根据自己的打造类型）
+    const affix1AllAffixes = getAffixesByType(affix1CraftingType);
+    const targetAffix1 = targetAffix1Values.length > 0 ? 
+        targetAffix1Values.map(name => affix1AllAffixes.find(affix => affix.name === name)).filter(Boolean) : null;
     
-    // 根据选择的词缀名称找到对应的词缀对象
-    const targetAffix1 = targetAffix1Value ? allAffixes.find(affix => affix.name === targetAffix1Value) : null;
-    const targetAffix2 = targetAffix2Value ? allAffixes.find(affix => affix.name === targetAffix2Value) : null;
-    
-    // 调试信息：输出找到的词缀对象
-    console.log('找到的词缀对象:', {
-        targetAffix1: targetAffix1,
-        targetAffix2: targetAffix2,
-        allAffixesCount: allAffixes.length,
-        targetAffix1Value: targetAffix1Value,
-        targetAffix2Value: targetAffix2Value
-    });
+    // 获取词缀2的词缀对象（根据自己的打造类型）
+    const affix2AllAffixes = getAffixesByType(affix2CraftingType);
+    const targetAffix2 = targetAffix2Values.length > 0 ? 
+        targetAffix2Values.map(name => affix2AllAffixes.find(affix => affix.name === name)).filter(Boolean) : null;
     
     // 计算强化成本（基于等级和品质）
     const enhancementCosts = calculateEnhancementCost(memoryQuality, currentLevel, targetLevel);
     
-    // 计算重构成本
-    const reconstructionCosts = calculateReconstructionCost(memoryQuality, targetAffix1, targetAffix2, fragmentPrice, threadPrice);
+    // 分别计算两个词缀的打造成本
+    const affix1Result = calculateSingleAffixCost(
+        memoryQuality, targetAffix1, affix1CraftingType, 
+        fragmentPrice, threadPrice, moonlightThreadExcellent
+    );
     
-    // 调试信息：输出重构成本计算结果
-    console.log('重构成本计算结果:', {
-        reconstructionCosts: reconstructionCosts,
-        targetAffix1: targetAffix1,
-        targetAffix2: targetAffix2,
-        fragmentPrice: fragmentPrice,
-        threadPrice: threadPrice
-    });
+    const affix2Result = calculateSingleAffixCost(
+        memoryQuality, targetAffix2, affix2CraftingType, 
+        fragmentPrice, threadPrice, moonlightThreadExcellent
+    );
+    
+    // 计算总打造成本
+    const totalCraftingCost = affix1Result.totalCost + affix2Result.totalCost;
+    const totalFragmentCount = affix1Result.fragmentCount + affix2Result.fragmentCount;
+    const totalThreadCount = affix1Result.threadCount + affix2Result.threadCount;
+    const totalMoonlightCount = affix1Result.moonlightCount + affix2Result.moonlightCount;
+    
+    // 构建总材料显示
+    const totalCraftingMaterialParts = [];
+    if (totalFragmentCount > 0) totalCraftingMaterialParts.push(`${totalFragmentCount} 追忆碎絮`);
+    if (totalThreadCount > 0) totalCraftingMaterialParts.push(`${totalThreadCount} 追忆游丝`);
+    if (totalMoonlightCount > 0) totalCraftingMaterialParts.push(`${totalMoonlightCount} 月光游丝-卓越`);
+    const totalCraftingMaterialDisplay = totalCraftingMaterialParts.join(' + ');
+    
+    // 计算复苏成本
+    const materialPricesForResurrection = {
+        quality: memoryQuality,
+        brightMoonDust,
+        flawlessMoonDust,
+        moonPhaseMaterial,
+        memoryPrice
+    };
+    const resurrectionResult = calculateResurrectionCost(materialPricesForResurrection);
     
     // 计算总成本
     const enhancementTotalCost = (enhancementCosts.fragmentCost * fragmentPrice) + (enhancementCosts.threadCost * threadPrice);
-    const reconstructionTotalCost = reconstructionCosts.fragmentCost + reconstructionCosts.threadCost;
-    const grandTotalCost = enhancementTotalCost + reconstructionTotalCost;
+    const resurrectionTotalCost = resurrectionResult.totalCost;
+    const grandTotalCost = enhancementTotalCost + totalCraftingCost + resurrectionTotalCost;
     
     // 更新显示
-    updateMemoryResults({
+    updateMemoryResultsWithResurrection({
         enhancementFragmentCost: enhancementCosts.fragmentCost,
         enhancementThreadCost: enhancementCosts.threadCost,
         enhancementTotalCost,
-        reconstructionFragmentCost: reconstructionCosts.fragmentCount,
-        reconstructionThreadCost: reconstructionCosts.threadCount,
-        reconstructionFragmentCostPrice: reconstructionCosts.fragmentCost,
-        reconstructionThreadCostPrice: reconstructionCosts.threadCost,
-        reconstructionTotalCost,
+        affix1Result,
+        affix2Result,
+        craftingMaterialDisplay: totalCraftingMaterialDisplay,
+        craftingTotalCost: totalCraftingCost,
+        resurrectionDetails: resurrectionResult.details,
+        resurrectionTotalCost,
         grandTotalCost,
         currentLevel,
         targetLevel,
-        // 添加价格信息用于正确计算显示
         fragmentPrice,
-        threadPrice
+        threadPrice,
+        fragmentCount: totalFragmentCount,
+        threadCount: totalThreadCount,
+        moonlightThreadCount: totalMoonlightCount,
+        materialCounts: resurrectionResult.materialCounts
     });
     
     // 显示通知
     const levelInfo = targetLevel > currentLevel ? `升级到${targetLevel}级` : '无需升级';
     showNotification(`追忆打造成本计算完成！${levelInfo}`, 'success');
     
-    // 保存材料价格 - 使用统一管理器
-    MaterialPriceManager.saveAllPrices();
-    
     // 保存数据
     saveMemoryData();
+}
+
+// 更新追忆结果显示（含复苏）
+function updateMemoryResultsWithResurrection(data) {
+    // 更新升级成本 - 向上取整并添加span标签
+    document.getElementById('enhancement-cost-breakdown').innerHTML = 
+        `<span>${Math.ceil(data.enhancementFragmentCost)}</span> 追忆碎絮 + 
+         <span>${Math.ceil(data.enhancementThreadCost)}</span> 追忆游丝`;
+    document.getElementById('enhancement-total-cost').textContent = formatNumber(data.enhancementTotalCost);
+    
+    // 更新打造成本 - 分别显示词缀1和词缀2
+    let craftingDisplayHTML = '';
+    
+    // 显示词缀1的成本
+    if (data.affix1Result && data.affix1Result.totalCost > 0) {
+        craftingDisplayHTML += '<div class="affix-cost-row">';
+        craftingDisplayHTML += '<span class="affix-name">词缀1：</span>';
+        let affix1MaterialParts = [];
+        if (data.affix1Result.fragmentCount > 0) affix1MaterialParts.push(`<span>${Math.ceil(data.affix1Result.fragmentCount)}</span> 追忆碎絮`);
+        if (data.affix1Result.threadCount > 0) affix1MaterialParts.push(`<span>${Math.ceil(data.affix1Result.threadCount)}</span> 追忆游丝`);
+        if (data.affix1Result.moonlightCount > 0) affix1MaterialParts.push(`<span>${Math.ceil(data.affix1Result.moonlightCount)}</span> 月光游丝-卓越`);
+        craftingDisplayHTML += affix1MaterialParts.join(' + ');
+        craftingDisplayHTML += ` = <span class="cost-value">${formatNumber(data.affix1Result.totalCost)}</span>`;
+        craftingDisplayHTML += '</div>';
+    }
+    
+    // 显示词缀2的成本
+    if (data.affix2Result && data.affix2Result.totalCost > 0) {
+        craftingDisplayHTML += '<div class="affix-cost-row">';
+        craftingDisplayHTML += '<span class="affix-name">词缀2：</span>';
+        let affix2MaterialParts = [];
+        if (data.affix2Result.fragmentCount > 0) affix2MaterialParts.push(`<span>${Math.ceil(data.affix2Result.fragmentCount)}</span> 追忆碎絮`);
+        if (data.affix2Result.threadCount > 0) affix2MaterialParts.push(`<span>${Math.ceil(data.affix2Result.threadCount)}</span> 追忆游丝`);
+        if (data.affix2Result.moonlightCount > 0) affix2MaterialParts.push(`<span>${Math.ceil(data.affix2Result.moonlightCount)}</span> 月光游丝-卓越`);
+        craftingDisplayHTML += affix2MaterialParts.join(' + ');
+        craftingDisplayHTML += ` = <span class="cost-value">${formatNumber(data.affix2Result.totalCost)}</span>`;
+        craftingDisplayHTML += '</div>';
+    }
+    
+    document.getElementById('crafting-cost-breakdown').innerHTML = craftingDisplayHTML || '-';
+    document.getElementById('crafting-total-cost').textContent = formatNumber(data.craftingTotalCost);
+    
+    // 更新复苏成本
+    const resurrectionContainer = document.getElementById('resurrection-cost-container');
+    if (data.resurrectionTotalCost > 0) {
+        resurrectionContainer.classList.add('visible');
+        
+        let resurrectionBreakdown = '';
+        
+        // 直接显示总材料消耗
+        if (data.materialCounts && data.materialCounts.length > 0) {
+            resurrectionBreakdown += '<br><div class="resurrection-detail">';
+            let totalMaterialsDisplay = '';
+            data.materialCounts.forEach((mat, matIndex) => {
+                if (matIndex > 0) totalMaterialsDisplay += ' + ';
+                totalMaterialsDisplay += `<span class="resurrection-detail-materials">${mat.count} ${mat.name}</span>`;
+            });
+            resurrectionBreakdown += `<span class="resurrection-detail-name">材料总计：</span>${totalMaterialsDisplay}`;
+            resurrectionBreakdown += '</div>';
+        }
+        
+        document.getElementById('resurrection-cost-breakdown').innerHTML = resurrectionBreakdown || '-';
+        document.getElementById('resurrection-total-cost').textContent = formatNumber(data.resurrectionTotalCost);
+    } else {
+        resurrectionContainer.classList.remove('visible');
+    }
+    
+    // 更新总成本
+    document.getElementById('grand-total-cost').textContent = formatNumber(data.grandTotalCost);
+}
+
+// 格式化数字
+function formatNumber(num) {
+    if (num === null || num === undefined || isNaN(num)) return '0';
+    return Math.round(num).toLocaleString('zh-CN');
 }
 
 // 计算强化成本
@@ -7765,18 +8930,18 @@ function calculateReconstructionCost(quality, targetAffix1, targetAffix2, fragme
         sampleAffixes: allAffixes.slice(0, 3)
     });
     
-    // 计算目标词缀1的重构成本
-    if (targetAffix1) {
-        const affix1Weight = targetAffix1.weight || 1;
+    // 计算目标词缀1的重构成本（支持多选）
+    if (targetAffix1 && targetAffix1.length > 0) {
+        const affix1Weight = targetAffix1.reduce((sum, affix) => sum + (affix.weight || 0), 0);
         const probability1 = affix1Weight / totalWeight;
         const expectedAttempts1 = 1 / probability1;
         
         totalFragmentCount += baseCostPerReconstruction.fragmentCost * expectedAttempts1;
         totalThreadCount += baseCostPerReconstruction.threadCost * expectedAttempts1;
         
-        console.log('目标词缀1计算:', {
-            affix: targetAffix1.name,
-            weight: affix1Weight,
+        console.log('目标词缀1计算（多选）:', {
+            affixCount: targetAffix1.length,
+            totalWeight: affix1Weight,
             probability: probability1,
             expectedAttempts: expectedAttempts1,
             fragmentCost: baseCostPerReconstruction.fragmentCost * expectedAttempts1,
@@ -7784,18 +8949,18 @@ function calculateReconstructionCost(quality, targetAffix1, targetAffix2, fragme
         });
     }
     
-    // 计算目标词缀2的重构成本
-    if (targetAffix2) {
-        const affix2Weight = targetAffix2.weight || 1;
+    // 计算目标词缀2的重构成本（支持多选）
+    if (targetAffix2 && targetAffix2.length > 0) {
+        const affix2Weight = targetAffix2.reduce((sum, affix) => sum + (affix.weight || 0), 0);
         const probability2 = affix2Weight / totalWeight;
         const expectedAttempts2 = 1 / probability2;
         
         totalFragmentCount += baseCostPerReconstruction.fragmentCost * expectedAttempts2;
         totalThreadCount += baseCostPerReconstruction.threadCost * expectedAttempts2;
         
-        console.log('目标词缀2计算:', {
-            affix: targetAffix2.name,
-            weight: affix2Weight,
+        console.log('目标词缀2计算（多选）:', {
+            affixCount: targetAffix2.length,
+            totalWeight: affix2Weight,
             probability: probability2,
             expectedAttempts: expectedAttempts2,
             fragmentCost: baseCostPerReconstruction.fragmentCost * expectedAttempts2,
@@ -7887,12 +9052,22 @@ function saveMemoryData() {
         const data = {
             memoryQuality: document.querySelector('input[name="memory-quality"]:checked')?.value || 'excellent',
             currentLevel: document.getElementById('current-level')?.value || '1',
+            craftingType: document.querySelector('input[name="crafting-type"]:checked')?.value || 'unresurrected',
             fragmentPrice: document.getElementById('fragment-price')?.value || '0',
             threadPrice: document.getElementById('thread-price')?.value || '0',
+            moonlightThreadExcellent: document.getElementById('moonlight-thread-excellent')?.value || '0',
+            brightMoonDust: document.getElementById('bright-moon-dust')?.value || '0',
+            flawlessMoonDust: document.getElementById('flawless-moon-dust')?.value || '0',
+            moonPhaseMaterial: document.getElementById('moon-phase-material')?.value || '0',
+            memoryPrice: document.getElementById('memory-price')?.value || '0',
             targetAffix1: document.getElementById('target-affix-1')?.value || '',
             targetAffix2: document.getElementById('target-affix-2')?.value || '',
             affix1Search: document.getElementById('affix1-search')?.value || '',
-            affix2Search: document.getElementById('affix2-search')?.value || ''
+            affix2Search: document.getElementById('affix2-search')?.value || '',
+            resYingkui: document.getElementById('res-yingkui')?.checked || false,
+            resYaosheng: document.getElementById('res-yaosheng')?.checked || false,
+            resChusheng: document.getElementById('res-chusheng')?.checked || false,
+            resYuexiang: document.getElementById('res-yuexiang')?.checked || false
         };
         
         localStorage.setItem('memoryData', JSON.stringify(data));
@@ -7916,39 +9091,57 @@ function loadMemoryData() {
             if (qualityRadio) qualityRadio.checked = true;
         }
         
+        // 恢复打造类型选择
+        if (data.craftingType) {
+            const craftingRadio = document.querySelector(`input[name="crafting-type"][value="${data.craftingType}"]`);
+            if (craftingRadio) craftingRadio.checked = true;
+        }
+        
         // 恢复其他输入值
         const inputs = [
             'current-level', 'fragment-price', 'thread-price', 
+            'moonlight-thread-excellent', 'bright-moon-dust', 'flawless-moon-dust',
+            'moon-phase-material', 'memory-price',
             'target-affix-1', 'target-affix-2', 'affix1-search', 'affix2-search'
         ];
         
         inputs.forEach(inputId => {
             const element = document.getElementById(inputId);
-            // 处理键名映射：保存时使用的键名与DOM元素ID不同
+            // 处理键名映射
             let dataKey = inputId;
             if (inputId === 'fragment-price') dataKey = 'fragmentPrice';
             if (inputId === 'thread-price') dataKey = 'threadPrice';
+            if (inputId === 'moonlight-thread-excellent') dataKey = 'moonlightThreadExcellent';
+            if (inputId === 'bright-moon-dust') dataKey = 'brightMoonDust';
+            if (inputId === 'flawless-moon-dust') dataKey = 'flawlessMoonDust';
+            if (inputId === 'moon-phase-material') dataKey = 'moonPhaseMaterial';
+            if (inputId === 'memory-price') dataKey = 'memoryPrice';
             if (inputId === 'target-affix-1') dataKey = 'targetAffix1';
             if (inputId === 'target-affix-2') dataKey = 'targetAffix2';
             
-            if (element && data[dataKey]) {
+            if (element && data[dataKey] !== undefined) {
                 element.value = data[dataKey];
             }
         });
         
-        // 加载保存的材料价格
-        const savedPrices = localStorage.getItem('memory-material-prices');
-        if (savedPrices) {
-            const prices = JSON.parse(savedPrices);
-            if (prices.fragmentPrice !== undefined) {
-                const fragmentElement = document.getElementById('fragment-price');
-                if (fragmentElement) fragmentElement.value = prices.fragmentPrice;
+        // 恢复复选框
+        const checkboxes = [
+            { id: 'res-yingkui', key: 'resYingkui' },
+            { id: 'res-yaosheng', key: 'resYaosheng' },
+            { id: 'res-chusheng', key: 'resChusheng' },
+            { id: 'res-yuexiang', key: 'resYuexiang' }
+        ];
+        
+        checkboxes.forEach(({ id, key }) => {
+            const element = document.getElementById(id);
+            if (element && data[key] !== undefined) {
+                element.checked = data[key];
             }
-            if (prices.threadPrice !== undefined) {
-                const threadElement = document.getElementById('thread-price');
-                if (threadElement) threadElement.value = prices.threadPrice;
-            }
-        }
+        });
+        
+        // 初始化复苏选项
+        updateResurrectionOptions();
+        updateCraftingType();
         
         console.log('追忆打造数据已加载');
     } catch (error) {
